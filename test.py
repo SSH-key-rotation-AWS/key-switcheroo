@@ -5,6 +5,8 @@ def divide(a, b):
     new2 = 2
     varsi = 4
     are = 3
+
+    check = 5
     return result 
 
 print(divide(5,10))
