@@ -7,7 +7,7 @@ def divide(a, b):
     are = 3
     d = 5
     check = 5
-    return result 
+    checks = 4
 
 def foo():
     pass
