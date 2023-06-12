@@ -9,4 +9,7 @@ def divide(a, b):
     check = 5
     return result 
 
+def foo():
+    pass
+
 print(divide(5,10))
