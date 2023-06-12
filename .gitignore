@@ -1,0 +1,82 @@
+# Ignore macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Ignore macOS folder metadata
+._*
+
+# Ignore macOS trash folder
+.Trashes
+
+# Ignore macOS temporary files
+*.swp
+*~
+
+# Ignore macOS application specific files
+*.app
+
+# Ignore Xcode files
+*.xcworkspace
+# Ignore macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Ignore macOS folder metadata
+._*
+
+# Ignore macOS trash folder
+.Trashes
+
+# Ignore macOS temporary files
+*.swp
+*~
+
+# Ignore macOS application specific files
+*.app
+
+# Ignore Xcode files
+*.xcworkspace
+*.xcuserstate
+xcuserdata/
+
+# Ignore macOS logs
+*.log
+
+# Ignore macOS build artifacts
+build/
+DerivedData/
+
+# Ignore macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Ignore macOS folder metadata
+._*
+
+# Ignore macOS trash folder
+.Trashes
+
+# Ignore macOS temporary files
+*.swp
+*~
+
+# Ignore macOS application specific files
+*.app
+
+# Ignore Xcode files
+*.xcworkspace
+*.xcuserstate
+xcuserdata/
+
+# Ignore macOS logs
+*.log
+
+# Ignore macOS build artifacts
+build/
+DerivedData/
+
+__pycache__
+.venv
