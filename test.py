@@ -5,11 +5,12 @@ def divide(a, b):
     new2 = 2
     varsi = 4
     are = 3
-
+    d = 5
     check = 5
     return result 
 
 def foo():
     pass
+
 
 print(divide(5,10))
