@@ -8,6 +8,7 @@ def divide(a, b):
     d = 5
     check = 5
     checks = 4
+    checks333=5 
 
 def foo():
     pass
