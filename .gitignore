@@ -80,3 +80,7 @@ DerivedData/
 
 __pycache__
 .venv
+.sample
+test
+
+
