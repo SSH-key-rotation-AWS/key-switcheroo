@@ -4,6 +4,7 @@ A simple calculator module.
 This module provides a basic calculator functionality with addition and subtraction operations.
 """
 
+
 class Calculator:
     """
     A simple calculator class.
@@ -42,5 +43,5 @@ if __name__ == "__main__":
     calc = Calculator()
     RESULT = calc.add(5, 3)
     print(RESULT)
+    print("yo")
     RESULT = calc.subtract(10, 4)
-    print(RESULT)
