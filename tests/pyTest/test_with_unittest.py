@@ -80,5 +80,6 @@ class Person:
         """
         if isinstance(other, Person):
             new_person = Person(other.name, other.age, other.nickname)
+            print("hi")
             return new_person.name == self.name and new_person.age == self.age
         return False
