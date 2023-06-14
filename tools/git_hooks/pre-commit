@@ -1,4 +1,4 @@
-#!/bin/env python
+
 import asyncio
 from operator import contains
 import subprocess
