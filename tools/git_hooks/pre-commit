@@ -11,6 +11,8 @@ def get_files():
 
 
 files = get_files()
+if len(files) == 0 | 1:
+  sys.exit(0)
 
 async def run_black():
     print("Running Black...")
