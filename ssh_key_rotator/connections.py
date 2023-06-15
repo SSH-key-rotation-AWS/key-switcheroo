@@ -14,7 +14,7 @@ class Server:
         self.port = port
         self.process: Process|None = None
 
-    async def run_ssh_server(self):
+    async def start(self):
         "Emulates ssh server with custom configuration"
         user_path = get_user_path()
 
@@ -42,7 +42,7 @@ class Server:
             self.process = task
             await self.process.wait()
 
-    async def stop_server(self):
+    async def stop(self):
         "Stops the server, completely closing the process such that the port can be used"
         #If process is still running
         if self.process.returncode is None:

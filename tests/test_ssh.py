@@ -20,10 +20,10 @@ class TestClientConnection(unittest.IsolatedAsyncioTestCase):
         
     async def asyncSetUp(self):
         self.server: Server = Server(self.port)
-        await self.server.run_ssh_server()
+        await self.server.start()
 
     async def asyncTearDown(self):
-        await self.server.stop_server()
+        await self.server.stop()
 
     def test_echo_command(self):
         "Can the client connect and call echo?"
