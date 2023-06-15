@@ -7,12 +7,15 @@ import sys
 
 def get_files():
   command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
-  return subprocess.check_output(command, shell=True).decode("utf-8").strip().replace("\n"," ")
+  files =  subprocess.check_output(command, shell=True).decode("utf-8").strip().replace("\n"," ")
+  if len(files) < 2:
+    print("no files staged to commit")
+    sys.exit(0)
+  return 
 
 
 files = get_files()
-if len(files) == 0 | 1:
-  sys.exit(0)
+
 
 async def run_black():
     print("Running Black...")
