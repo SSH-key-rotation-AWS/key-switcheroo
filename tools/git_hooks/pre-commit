@@ -1,12 +1,17 @@
+#! user python path
 
 import asyncio
 from operator import contains
 import subprocess
 import sys
+
 def get_files():
-  command = "git diff --name-only --cached --diff-filter=ACMRTUXB  | grep -E '*.py$'"
+  command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
   return subprocess.check_output(command, shell=True).decode("utf-8").strip().replace("\n"," ")
+
+
 files = get_files()
+print(files)
 
 async def run_black():
     print("Running Black...")
@@ -15,6 +20,7 @@ async def run_black():
       stdout=asyncio.subprocess.PIPE,
       stderr=asyncio.subprocess.PIPE)
     return_value_out, return_value_err = await task.communicate()
+
 async def run_pylint():
     print("Running PyLint...")
     task = await asyncio.create_subprocess_shell(
@@ -22,11 +28,9 @@ async def run_pylint():
       stdout=asyncio.subprocess.PIPE,
       stderr=asyncio.subprocess.PIPE)
     return_value_out, return_value_err = await task.communicate()
-    print(str(return_value_err))
     if task.returncode != 0:
       print("PyLint found errors, commit aborted")
       return 2
-
 async def run_pyright():
     print("Running PyRight...")
     task = await asyncio.create_subprocess_shell(
@@ -42,7 +46,7 @@ async def main():
     task1 = asyncio.create_task(run_black())
     task2 = asyncio.create_task(run_pyright())
     task3  = asyncio.create_task(run_pylint())
-    results = await asyncio.gather(task1,task2,task3)\
+    results = await asyncio.gather(task1,task2,task3)
     if 1 in results or 2 in results:
       sys.exit(1)
     print("All tests passed, files will procceed to commit")
@@ -50,6 +54,11 @@ async def main():
 
 
 asyncio.run(main())
+
+
+
+
+
 
 
 
