@@ -27,8 +27,7 @@ class TestClientConnection(unittest.IsolatedAsyncioTestCase):
 
     def test_echo_command(self):
         "Can the client connect and call echo?"
-        client: Client = Client(self.ip_address, self.port, self.username)
-        client.connect_via_key()
+        client = self.__connect_client_via_key()
         command = "echo Hello"
         __stdin, stdout, __stderr = client.execute_command(command)
         actual_output = stdout.read().decode()
@@ -37,12 +36,16 @@ class TestClientConnection(unittest.IsolatedAsyncioTestCase):
 
     def test_ls_la(self):
         "Can the client connect and call ls -la?"
-        client: Client = Client(self.ip_address, self.port, self.username)
-        client.connect_via_key()
+        client = self.__connect_client_via_key()
         command = "ls -la"
         __stdin, stdout, __stderr = client.execute_command(command)
         actual_output = stdout.read().decode()
         assert_that(actual_output, contains_string("var"))
+    
+    def __connect_client_via_key(self)->Client:
+        client: Client = Client(self.ip_address, self.port, self.username)
+        client.connect_via_key()
+        return client
 
 if __name__ == '__main__':
     unittest.main()
