@@ -10,6 +10,7 @@
     "python.testing.unittestEnabled": true,
     "python.linting.ignorePatterns": [
         "**/site-packages/**/*.py",
-        ".vscode/*.py"
+        ".vscode/*.py",
+        "**/.vscode-server/*.py"
     ]
 }
