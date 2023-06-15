@@ -6,9 +6,15 @@ venv_py=".venv/bin/python"
 if [ -d "$venv_py" ]; then
     echo "Directory exists."
     # Perform your logic here for the existing directory
+    installed_requirements=$(pip freeze)
+    if [[ -d "/requirements.txt" ]]; then
+        echo "there is a requirements file"
+    else 
+        pip install -r requirements.txt
+        fi
 else
     python3 -m venv .venv
-    source .venv/bin/activate
+    source .venv/bin/activate 
     pip install -r requirements.txt
     # Perform your logic here for the non-existing directory
 fi
