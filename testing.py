@@ -44,4 +44,5 @@ if __name__ == "__main__":
     RESULT = calc.add(5, 3)
     print(RESULT)
     print("yo")
+    print("yo")
     RESULT = calc.subtract(10, 4)

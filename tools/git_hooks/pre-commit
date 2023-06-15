@@ -7,7 +7,7 @@ def get_files():
   command = "git diff --name-only --cached --diff-filter=ACMRTUXB  | grep -E '*.py$'"
   return subprocess.check_output(command, shell=True).decode("utf-8").strip().replace("\n"," ")
 files = get_files()
-print(files)
+
 async def run_black():
     print("Running Black...")
     task = await asyncio.create_subprocess_shell(
@@ -26,6 +26,7 @@ async def run_pylint():
     if task.returncode != 0:
       print("PyLint found errors, commit aborted")
       return 2
+
 async def run_pyright():
     print("Running PyRight...")
     task = await asyncio.create_subprocess_shell(
@@ -36,6 +37,7 @@ async def run_pyright():
     if task.returncode != 0:
       print("PyRight found errors, commit aborted")
       return 1
+
 async def main():
     task1 = asyncio.create_task(run_black())
     task2 = asyncio.create_task(run_pyright())
@@ -45,6 +47,8 @@ async def main():
       sys.exit(1)
     print("All tests passed, files will procceed to commit")
     sys.exit(0)
+
+
 asyncio.run(main())
 
 
