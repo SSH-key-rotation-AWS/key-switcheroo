@@ -11,6 +11,6 @@
     "python.linting.ignorePatterns": [
         "**/site-packages/**/*.py",
         ".vscode/*.py",
-        "**/.vscode-server/*.py"
+        "**/.vscode-server/**/*.py"
     ]
 }
