@@ -17,6 +17,8 @@ class PrimitiveCalc:
             num1 (int): First integer.
             num2 (int): Second integer.
 
+
+
         Returns:
             int: The product of the two integers.
         """

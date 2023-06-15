@@ -25,6 +25,7 @@ async def run_black():
       stdout=asyncio.subprocess.PIPE,
       stderr=asyncio.subprocess.PIPE)
     return_value_out, return_value_err = await task.communicate()
+    
 
 async def run_pylint():
     print("Running PyLint...")
@@ -35,6 +36,7 @@ async def run_pylint():
     return_value_out, return_value_err = await task.communicate()
     if task.returncode != 0:
       print("PyLint found errors, commit aborted")
+      print(str(return_value_err))
       return 2
 async def run_pyright():
     print("Running PyRight...")
@@ -45,6 +47,7 @@ async def run_pyright():
     return_value_out, return_value_err = await task.communicate()
     if task.returncode != 0:
       print("PyRight found errors, commit aborted")
+      print(str(return_value_err))
       return 1
 
 async def main():
