@@ -1,4 +1,3 @@
-#! user python path
 
 import asyncio
 from operator import contains
@@ -6,12 +5,18 @@ import subprocess
 import sys
 
 def get_files():
-  command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
-  return subprocess.check_output(command, shell=True).decode("utf-8").strip().replace("\n"," ")
+  try:
+    command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
+    files =  subprocess.check_output(command, shell=True).decode("utf-8").strip().replace("\n"," ")
+  except subprocess.CalledProcessError as e:
+    # Handle the error
+    print("no pyton file staged commits")
+    sys.exit(0)
+  return files
 
 
 files = get_files()
-print(files)
+
 
 async def run_black():
     print("Running Black...")
@@ -54,34 +59,3 @@ async def main():
 
 
 asyncio.run(main())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
