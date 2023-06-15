@@ -3,16 +3,21 @@
 
 venv_py=".venv/bin/python"
 
-if [ -d "$venv_py" ]; then
-    echo "Directory exists."
-    # Perform your logic here for the existing directory
-    installed_requirements=$(pip freeze)
-    if [[ -d "/requirements.txt" ]]; then
-        echo "there is a requirements file"
-    else 
-        pip install -r requirements.txt
+if [ -d ".venv/bin/" ]; then
+        missing_packages=""
+    while read -r line; do
+        if ! grep -q "^$line" <<< "$installed_packages"; then
+            missing_packages+=" $line"
         fi
+    done < requirements.txt
+    if [[ -z "$missing_packages" ]]; then
+        echo "All packages are installed."
+    else
+        echo "Some packages are missing: $missing_packages"
+        pip install $missing_packages
+    fi
 else
+    echo "i am here"
     python3 -m venv .venv
     source .venv/bin/activate 
     pip install -r requirements.txt
@@ -33,5 +38,4 @@ cat $repo_dir >> $system_dir
 chmod +x $system_dir
 
 #$(pip install -r requirements.txt)
-
 
