@@ -25,6 +25,7 @@ async def run_black():
       stdout=asyncio.subprocess.PIPE,
       stderr=asyncio.subprocess.PIPE)
     return_value_out, return_value_err = await task.communicate()
+    
 
 async def run_pylint():
     print("Running PyLint...")
