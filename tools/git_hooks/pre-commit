@@ -1,17 +1,18 @@
 
-
 import asyncio
 from operator import contains
 import subprocess
 import sys
 
 def get_files():
-  command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
-  files =  subprocess.check_output(command, shell=True).decode("utf-8").strip().replace("\n"," ")
-  if len(files) < 2:
-    print("no files staged to commit")
+  try:
+    command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
+    files =  subprocess.check_output(command, shell=True).decode("utf-8").strip().replace("\n"," ")
+  except subprocess.CalledProcessError as e:
+    # Handle the error
+    print("no pyton file staged commits")
     sys.exit(0)
-  return 
+  return files
 
 
 files = get_files()
@@ -58,34 +59,3 @@ async def main():
 
 
 asyncio.run(main())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
