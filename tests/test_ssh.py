@@ -17,7 +17,7 @@ class TestClientConnection(unittest.IsolatedAsyncioTestCase):
         self.port = 2304
         self.username = __get_username()
         self.ip_address = "127.0.0.1"
-        
+
     async def asyncSetUp(self):
         self.server: Server = Server(self.port)
         await self.server.start()
@@ -41,7 +41,7 @@ class TestClientConnection(unittest.IsolatedAsyncioTestCase):
         __stdin, stdout, __stderr = client.execute_command(command)
         actual_output = stdout.read().decode()
         assert_that(actual_output, contains_string("var"))
-    
+
     def __connect_client_via_key(self)->Client:
         client: Client = Client(self.ip_address, self.port, self.username)
         client.connect_via_key()

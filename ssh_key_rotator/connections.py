@@ -30,11 +30,11 @@ class Server:
             "PubkeyAuthentication yes"
         ]
         #Configuration is emitted as a temporary file to launch sshd
-        with NamedTemporaryFile(mode="w+t") as fp:
+        with NamedTemporaryFile(mode="w+t") as temp_config:
             for option in config:
-                fp.write(f"{option}\n")
-            fp.file.flush()
-            command: str = f"/usr/sbin/sshd -f\"{fp.name}\" -e"
+                temp_config.write(f"{option}\n")
+            temp_config.file.flush()
+            command: str = f"/usr/sbin/sshd -f\"{temp_config.name}\" -e"
             task:Process = await asyncio.create_subprocess_shell(command,
                                                                  user=get_username(),
                                                         stdout=asyncio.subprocess.PIPE,
