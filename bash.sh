@@ -4,7 +4,8 @@
 venv_py=".venv/bin/python"
 
 if [ -d ".venv/bin/" ]; then
-        missing_packages=""
+    source .venv/bin/activate 
+    missing_packages=""
     while read -r line; do
         if ! grep -q "^$line" <<< "$installed_packages"; then
             missing_packages+=" $line"
