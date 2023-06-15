@@ -12,7 +12,7 @@ class Calculator:
     This class provides basic arithmetic operations such as addition and subtraction.
     """
 
-    def add(self, a, b):
+    def add(self, first_number, second_number):
         """
         Adds two numbers and returns the result.
 
@@ -23,9 +23,9 @@ class Calculator:
         Returns:
             int: The sum of the two numbers.
         """
-        return a + b
+        return first_number + second_number
 
-    def subtract(self, a, b):
+    def subtract(self, first_number, second_number):
         """
         Subtracts two numbers and returns the result.
 
@@ -36,13 +36,14 @@ class Calculator:
         Returns:
             int: The difference between the two numbers.
         """
-        return a - b
+        return first_number - second_number
 
 
 if __name__ == "__main__":
     calc = Calculator()
     RESULT = calc.add(5, 3)
     print(RESULT)
+    print("yo")
     print("yo")
     print("yo")
     RESULT = calc.subtract(10, 4)
