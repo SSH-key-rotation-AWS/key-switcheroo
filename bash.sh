@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-
 venv_py=".venv/bin/python"
 
 if [ -d ".venv/bin/" ]; then
