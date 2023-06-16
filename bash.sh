@@ -5,23 +5,17 @@ venv_py=".venv/bin/python"
 
 if [ -d ".venv/bin/" ]; then
     source .venv/bin/activate 
-    missing_packages=""
-    while read -r line; do
-        if ! grep -q "^$line" <<< "$installed_packages"; then
-            missing_packages+=" $line"
-        fi
-    done < requirements.txt
-    if [[ -z "$missing_packages" ]]; then
-        echo "All packages are installed."
-    else
-        echo "Some packages are missing: $missing_packages"
-        pip install $missing_packages
+    if cmp -s requirements.txt .venv/bin/requirements.txt; then
+        echo "venv is up to date"
+    else 
+        pip install -r requirements.txt
     fi
 else
     echo "i am here"
     python3 -m venv .venv
     source .venv/bin/activate 
     pip install -r requirements.txt
+    cp requirements.txt .venv/bin/
     # Perform your logic here for the non-existing directory
 fi
 #find current directory, and git-hooks
