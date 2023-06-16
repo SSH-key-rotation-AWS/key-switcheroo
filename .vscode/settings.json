@@ -12,5 +12,9 @@
         "**/site-packages/**/*.py",
         ".vscode/*.py",
         "**/.vscode-server/**/*.py"
-    ]
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none"
 }
