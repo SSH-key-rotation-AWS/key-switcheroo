@@ -11,7 +11,6 @@ if [ -d ".venv/bin/" ]; then
         pip install -r requirements.txt
     fi
 else
-    echo "i am here"
     python3 -m venv .venv
     source .venv/bin/activate 
     pip install -r requirements.txt
