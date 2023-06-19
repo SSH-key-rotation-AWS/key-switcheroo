@@ -6,6 +6,7 @@ import asyncio
 import paramiko
 from paramiko import SSHClient, AutoAddPolicy
 from .util import get_user_path, get_username
+import functools
 
 class Server:
     """Wrapper for server"""
@@ -42,6 +43,7 @@ class Server:
             self.process = task
             await self.process.wait()
 
+
     async def stop(self):
         "Stops the server, completely closing the process such that the port can be used"
         #If process is still running
@@ -49,8 +51,18 @@ class Server:
             self.process.terminate()
             # See https://github.com/encode/httpx/issues/914
             await asyncio.sleep(1)
-            kill_task = await asyncio.create_subprocess_shell(f"fuser -k {self.port}/tcp")
-            await kill_task.wait()
+        kill_task = await asyncio.create_subprocess_shell(f"fuser -k {self.port}/tcp", stdout=None)
+        await kill_task.wait()
+
+class ServerContext():
+    def __init__(self, port: int):
+        self.server = Server(port)
+    
+    async def __aenter__(self):
+        await self.server.start()
+    
+    async def __aexit__(self, exc_t, exc_v, exc_tb):
+        await self.server.stop()
 
 
 class Client:
@@ -91,3 +103,14 @@ class Client:
         '''Executes a command in the host, assuming either 
         connect_via_key or connect_via_username was called first'''
         return self.client.exec_command(command=command)
+
+
+
+#Still a bit unsure where exactly to do this stuff
+def stuff():
+     with NamedTemporaryFile(mode="w+t", dir="/tmp") as temp_dir_for_keys:
+        os.chmod(temp_dir_for_keys.name, 0o600)
+        
+        #Call custom_keygen to generate public/private key pair
+        #When generating keys, must store them in temp file - maybe pass the tempfile.name into generate_keys()
+        #Client and server should use the temp file for key storage/retrieval
