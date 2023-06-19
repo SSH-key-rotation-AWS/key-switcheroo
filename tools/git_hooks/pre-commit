@@ -33,8 +33,7 @@ def run_black():
         with open(element, "r") as file:
             file_content = file.read()
         reformatted_content = black.format_str(file_content, mode=black.FileMode())
-        print("Reformatted content" + "\n************************\n" + reformatted_content)           
-        print("Changes applied.")
+        print("Reformatted content" + "\n************************\n" + reformatted_content +"\n"+"Changes Applied")           
         with open(element, "w") as file:
             file.write(reformatted_content) 
 
