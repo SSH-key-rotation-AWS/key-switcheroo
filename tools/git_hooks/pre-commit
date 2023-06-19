@@ -71,9 +71,9 @@ async def run_pyright():
 
 
 async def main():
-    task2 = asyncio.create_task(run_pyright())
-    task3 = asyncio.create_task(run_pylint())
-    results = await asyncio.gather(task2, task3)
+    pyright_task = asyncio.create_task(run_pyright())
+    pylint_task = asyncio.create_task(run_pylint())
+    results = await asyncio.gather(pyright_task, pylint_task)
     if 1 in results or 2 in results:
         sys.exit(1)
     print("All tests passed, files will proceed to commit")
