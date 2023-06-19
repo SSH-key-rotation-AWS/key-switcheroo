@@ -4,9 +4,7 @@ import subprocess
 import sys
 from operator import contains
 from tkinter import Y
-import difflib
 import black
-
 
 def get_files():
     try:
@@ -35,19 +33,10 @@ def run_black():
         with open(element, "r") as file:
             file_content = file.read()
         reformatted_content = black.format_str(file_content, mode=black.FileMode())
-        print("Reformatted content" + "\n************************\n" + reformatted_content)
-        if len(sys.argv) > 1 and sys.argv[1].lower() == "apply" and len(reformatted_content) < 2:
-            apply_changes = True
-        else:
-            # Prompt the user for input
-            apply_changes = input("Apply the changes? (y/n): ").lower() == "y"
-        if apply_changes:
-            # Apply the changes
-            with open(element, "w") as file:
-                file.write(reformatted_content)
-            print("Changes applied.")
-        else:
-            print("No changes applied.")
+        print("Reformatted content" + "\n************************\n" + reformatted_content)           
+        print("Changes applied.")
+        with open(element, "w") as file:
+            file.write(reformatted_content) 
 
 
 run_black()
