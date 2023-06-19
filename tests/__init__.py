@@ -3,6 +3,6 @@
 
 def pri() -> None:
     """Prints"""
-    print("helo")
-    print("yo")
-    print("eyo")
+    print("init py")
+    print("this is the commit file")
+    print("hi")

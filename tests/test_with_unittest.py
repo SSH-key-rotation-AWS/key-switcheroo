@@ -3,6 +3,6 @@
 
 def pri() -> None:
     """Prints"""
-    print("helo")
+    print("test_with_unitest")
     print("yo")
     print("eyo")
