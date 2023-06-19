@@ -4,7 +4,8 @@ from unittest import IsolatedAsyncioTestCase
 import os
 from hamcrest import assert_that, equal_to, contains_string
 from ssh_key_rotator.connections import Client, Server
-from tests.ssh_utils import SSHTestCase, with_ssh_server
+from tests.ssh_utils import with_ssh_server
+import asyncio
 
 class TestClientConnection(IsolatedAsyncioTestCase):
     "Connects the client to the server and runs a couple of commands"
@@ -20,6 +21,9 @@ class TestClientConnection(IsolatedAsyncioTestCase):
         self.username = __get_username()
         self.ip_address = "127.0.0.1"
 
+    async def asyncSetUp(self):
+        asyncio.get_running_loop().set_debug(False)
+    
     @with_ssh_server(port=2500)
     def test_echo_command(self):
         "Can the client connect and call echo?"

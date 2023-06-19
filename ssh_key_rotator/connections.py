@@ -51,7 +51,7 @@ class Server:
             self.process.terminate()
             # See https://github.com/encode/httpx/issues/914
             await asyncio.sleep(1)
-        kill_task = await asyncio.create_subprocess_shell(f"fuser -k {self.port}/tcp", stdout=None)
+        kill_task = await asyncio.create_subprocess_shell(f"fuser -k {self.port}/tcp", stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
         await kill_task.wait()
 
 class ServerContext():
