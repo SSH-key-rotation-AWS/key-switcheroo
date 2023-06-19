@@ -1,8 +1,10 @@
+#!.venv/bin/python
 import asyncio
-from operator import contains
 import subprocess
 import sys
-
+from operator import contains
+from tkinter import Y
+import black
 
 def get_files():
     try:
@@ -13,9 +15,9 @@ def get_files():
             .strip()
             .replace("\n", " ")
         )
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         # Handle the error
-        print("no pyton file staged commits")
+        print("no python file staged commits")
         sys.exit(0)
     return files
 
@@ -23,12 +25,21 @@ def get_files():
 files = get_files()
 
 
-async def run_black():
+def run_black():
     print("Running Black...")
-    task = await asyncio.create_subprocess_shell(
-        "black " + files, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-    )
-    return_value_out, return_value_err = await task.communicate()
+    listed_files = files.split()
+
+    for element in listed_files:
+        with open(element, "r") as file:
+            file_content = file.read()
+        reformatted_content = black.format_str(file_content, mode=black.FileMode())
+        print("Reformatted content" + "\n************************\n" + reformatted_content)           
+        print("Changes applied.")
+        with open(element, "w") as file:
+            file.write(reformatted_content) 
+
+
+run_black()
 
 
 async def run_pylint():
@@ -41,7 +52,7 @@ async def run_pylint():
     return_value_out, return_value_err = await task.communicate()
     if task.returncode != 0:
         print("PyLint found errors, commit aborted")
-        print(str(return_value_err))
+        print("\n" + return_value_out.decode("utf-8"))
         return 2
 
 
@@ -55,18 +66,17 @@ async def run_pyright():
     return_value_out, return_value_err = await task.communicate()
     if task.returncode != 0:
         print("PyRight found errors, commit aborted")
-        print(str(return_value_err))
+        print("\n" + return_value_out.decode("utf-8"))
         return 1
 
 
 async def main():
-    task1 = asyncio.create_task(run_black())
     task2 = asyncio.create_task(run_pyright())
     task3 = asyncio.create_task(run_pylint())
-    results = await asyncio.gather(task1, task2, task3)
+    results = await asyncio.gather(task2, task3)
     if 1 in results or 2 in results:
         sys.exit(1)
-    print("All tests passed, files will procceed to commit")
+    print("All tests passed, files will proceed to commit")
     sys.exit(0)
 
 
