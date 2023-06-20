@@ -7,7 +7,4 @@ def pri() -> None:
     print("this is the commit file")
     print("test")
 
-
-
-    
     print("test")
