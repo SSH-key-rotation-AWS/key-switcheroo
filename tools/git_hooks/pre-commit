@@ -6,6 +6,7 @@ import sys
 import black
 from enum import Enum, auto
 
+"""Shows all errors"""
 class Error(Enum):
     PYRIGHT_ERROR = auto()
     PYLINT_ERROR = auto()
@@ -87,7 +88,7 @@ async def main():
     pyright_task = asyncio.create_task(run_pyright())
     pylint_task = asyncio.create_task(run_pylint())
     results = await asyncio.gather(pyright_task, pylint_task)
-    if Error.PYRIGHT_ERROR or Error.PYLINT_ERROR in results:
+    if Error.PYRIGHT_ERROR in results or Error.PYLINT_ERROR in results:
         sys.exit(1)
     else:
         print("All tests passed, files will proceed to commit")
