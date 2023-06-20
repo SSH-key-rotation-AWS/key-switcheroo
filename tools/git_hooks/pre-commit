@@ -36,7 +36,7 @@ def run_black():
 reformatted_content)
         user_input = input("to reformat file (y/n)?").strip()
         if user_input == "y":
-            file = open(element,"w"):
+            file = open(element,"w")
             file.write(reformatted_content)
             file.close()
         else:
