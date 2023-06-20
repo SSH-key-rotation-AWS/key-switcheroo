@@ -37,7 +37,7 @@ class Server:
             for option in config:
                 temp_config.write(f"{option}\n")
             temp_config.file.flush()
-            log_file = open(f"/home/yginsburg/logs", mode="w")
+            self.log_file = open(f"/home/yginsburg/logs", mode="w")
             command: str = f"/usr/sbin/sshd -f\"{temp_config.name}\" -E/home/yginsburg/logs"
             task:Process = await asyncio.create_subprocess_shell(command,
                                                                  user=get_username(),
@@ -56,6 +56,7 @@ class Server:
             await asyncio.sleep(1)
         kill_task = await asyncio.create_subprocess_shell(f"fuser -k {self.port}/tcp", stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
         await kill_task.wait()
+        self.log_file.close()
 
 class ServerContext():
     def __init__(self, port: int, authorized_keys_file: str = get_default_authorized_keys_path()):
