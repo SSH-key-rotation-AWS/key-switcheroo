@@ -34,7 +34,7 @@ def run_black():
         reformatted_content = black.format_str(file_content, mode=black.FileMode())
         print("Reformatted content" + "\n************************\n" +
 reformatted_content)
-        user_input = input("to reformat file (y/n)?")
+        user_input = input("to reformat file (y/n)?").replace(" ","")
         if user_input == "y":
             print("HOORAY")
         else:
