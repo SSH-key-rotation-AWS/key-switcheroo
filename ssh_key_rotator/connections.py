@@ -12,16 +12,17 @@ from ssh_key_rotator.custom_keygen import PRIVATE_KEY_NAME, PUBLIC_KEY_NAME
 class Server:
     """Wrapper for server"""
 
-    def __init__(self, port: int, authorized_keys_file: str = get_default_authorized_keys_path()):
+    def __init__(self, port: int, ssh_home: str|None = None):
         self.port = port
         self.process: Process|None = None
-        self.authorized_keys_file = authorized_keys_file
+        self.authorized_keys_file = get_default_authorized_keys_path() if ssh_home is None else f"{ssh_home}/authorized_keys"
+        self.log_file = None if ssh_home is None else f"{ssh_home}/logs"
 
     async def start(self):
         "Emulates ssh server with custom configuration"
         user_path = get_user_path()
         config: list[str] = [
-            "LogLevel DEBUG3",
+            "LogLevel VERBOSE",
             f"Port {self.port}",
             f"HostKey {user_path}/etc/ssh/ssh_host_rsa_key",
             f"PidFile {user_path}/var/run/sshd.pid",
@@ -37,8 +38,9 @@ class Server:
             for option in config:
                 temp_config.write(f"{option}\n")
             temp_config.file.flush()
-            self.log_file = open(f"/home/yginsburg/logs", mode="w")
-            command: str = f"/usr/sbin/sshd -f\"{temp_config.name}\" -E/home/yginsburg/logs"
+            command: str = f"/usr/sbin/sshd -f\"{temp_config.name}\""
+            if not self.log_file is None:
+                command += f" -E{self.log_file}"
             task:Process = await asyncio.create_subprocess_shell(command,
                                                                  user=get_username(),
                                                         stdout=asyncio.subprocess.PIPE,
@@ -56,17 +58,23 @@ class Server:
             await asyncio.sleep(1)
         kill_task = await asyncio.create_subprocess_shell(f"fuser -k {self.port}/tcp", stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
         await kill_task.wait()
-        self.log_file.close()
-
-class ServerContext():
-    def __init__(self, port: int, authorized_keys_file: str = get_default_authorized_keys_path()):
-        self.server = Server(port, authorized_keys_file=authorized_keys_file)
     
+    async def get_logs(self):
+        if self.log_file is None:
+            raise RuntimeError()
+        else:
+            with open(self.log_file, mode="rb") as logs:
+                lines_bytes = logs.readlines()
+                #return [line.decode() for line in lines_bytes]
+                return lines_bytes
+
     async def __aenter__(self):
-        await self.server.start()
+        await self.start()
+        return self
     
     async def __aexit__(self, exc_t, exc_v, exc_tb):
-        await self.server.stop()
+        await self.stop()
+
 
 
 class Client:

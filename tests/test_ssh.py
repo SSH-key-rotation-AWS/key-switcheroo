@@ -1,11 +1,11 @@
 "Testing SSH connection using ssh_key_rotator.connections Client & Server"
-import unittest
 from unittest import IsolatedAsyncioTestCase
 import os
-from hamcrest import assert_that, equal_to, contains_string
-from ssh_key_rotator.connections import Client, Server
-from ssh_key_rotator.ssh_utils import with_ssh_server, with_ssh_server_and_client
 import asyncio
+from hamcrest import assert_that, equal_to, contains_string
+from paramiko import RSAKey
+from ssh_key_rotator.connections import Client, Server
+from ssh_key_rotator.ssh_utils import with_ssh_server_and_client
 
 class TestClientConnection(IsolatedAsyncioTestCase):
     "Connects the client to the server and runs a couple of commands"
@@ -24,7 +24,7 @@ class TestClientConnection(IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         asyncio.get_running_loop().set_debug(False)
     
-    @with_ssh_server_and_client(port=2500)
+    @with_ssh_server_and_client()
     def test_echo_command(self, client: Client):
         "Can the client connect and call echo?"
         command = "echo Hello"
@@ -33,13 +33,24 @@ class TestClientConnection(IsolatedAsyncioTestCase):
         expected_output = "Hello\n"
         assert_that(actual_output, equal_to(expected_output))
 
-    @with_ssh_server_and_client(port=2500)
+    @with_ssh_server_and_client()
     def test_ls_la(self, client: Client):
         "Can the client connect and call ls -la?"
         command = "ls -la"
         __stdin, stdout, __stderr = client.execute_command(command)
         actual_output = stdout.read().decode()
         assert_that(actual_output, contains_string("var"))
+    
+    @with_ssh_server_and_client()
+    async def test_server_side(self, server: Server, key: RSAKey):
+        logs = await server.get_logs()
+        logs_str = [line.decode() for line in logs]
+        line_with_fingerprint = list(filter(lambda line: line.startswith("Accepted key RSA"), logs_str))
+        assert_that(len(line_with_fingerprint), equal_to(1))
+        line_with_fingerprint: str = line_with_fingerprint[0]
+        actual_fingerprint = key.fingerprint
+        assert_that(line_with_fingerprint, contains_string(actual_fingerprint))
+    
 
     # def __connect_client_via_key(self)->Client:
     #     client: Client = Client(self.ip_address, self.port, self.username)
