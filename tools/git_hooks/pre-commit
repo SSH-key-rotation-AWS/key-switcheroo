@@ -1,3 +1,4 @@
+
 """Pre Commit File"""
 import asyncio
 import subprocess
@@ -32,10 +33,9 @@ def run_black():
             file_content = file.read()
         reformatted_content = black.format_str(file_content, mode=black.FileMode())
         print("Reformatted content" + "\n************************\n" +
-reformatted_content +"\n"+"Changes Applied")
-        with open(element, "w") as file:
-            file.write(reformatted_content)
-
+reformatted_content)
+    
+    print("Type : \n black " +STAGED_FILES+ " \n in command line to formtat files.")
 
 run_black()
 
