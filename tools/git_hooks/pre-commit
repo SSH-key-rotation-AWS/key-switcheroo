@@ -31,19 +31,15 @@ def run_black():
     for element in listed_files:
         with open(element, "r") as file:
             file_content = file.read()
+            print(element)
         reformatted_content = black.format_str(file_content, mode=black.FileMode())
         print("Reformatted content" + "\n************************\n" +
 reformatted_content)
-        user_input = input("to reformat file (y/n)?").strip()
+        user_input = input("to reformat "+element+"(y/n)?").strip()
         if user_input == "y":
             file = open(element,"w")
             file.write(reformatted_content)
             file.close()
-        else:
-            print(user_input)
-                
-    
-    print("Type : \n black " +STAGED_FILES+ " \n in command line to formtat files.")
 
 run_black()
 
