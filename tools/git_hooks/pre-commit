@@ -4,6 +4,12 @@ import asyncio
 import subprocess
 import sys
 import black
+from enum import Enum, auto
+
+class Error(Enum):
+    PYRIGHT_ERROR = auto()
+    PYLINT_ERROR = auto()
+
 
 def get_files():
     """Gets all py files staged for commit"""
@@ -57,7 +63,7 @@ async def run_pylint():
     if task.returncode != 0:
         print("PyLint found errors, commit aborted")
         print("\n" + return_value_out.decode("utf-8"))
-        return 2
+        return Error.PYLINT_ERROR
 
 
 async def run_pyright():
@@ -73,7 +79,7 @@ async def run_pyright():
     if task.returncode != 0:
         print("PyRight found errors, commit aborted")
         print("\n" + return_value_out.decode("utf-8"))
-        return 1
+        return Error.PYRIGHT_ERROR
 
 
 async def main():
@@ -81,10 +87,11 @@ async def main():
     pyright_task = asyncio.create_task(run_pyright())
     pylint_task = asyncio.create_task(run_pylint())
     results = await asyncio.gather(pyright_task, pylint_task)
-    if 1 in results or 2 in results:
+    if Error.PYRIGHT_ERROR or Error.PYLINT_ERROR in results:
         sys.exit(1)
-    print("All tests passed, files will proceed to commit")
-    sys.exit(0)
+    else:
+        print("All tests passed, files will proceed to commit")
+        sys.exit(0)
 
 
 asyncio.run(main())

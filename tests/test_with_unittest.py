@@ -10,7 +10,5 @@ def pri() -> None:
     print("hello")
     print("hello")
 
-
-    
-
     print("hello")
+    print("ehlo")
