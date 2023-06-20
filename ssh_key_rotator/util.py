@@ -12,6 +12,9 @@ def get_username()->str:
     user_path_components = user_path.split("/")
     return user_path_components[len(user_path_components)-1]
 
+def get_default_authorized_keys_path()->str:
+    return f"{get_username()}/.ssh/authorized_keys"
+
 def get_process_running_with_pid(pid: int)->str:
     process = Process(pid)
     return process.name()

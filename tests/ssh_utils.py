@@ -1,8 +1,9 @@
 import functools
 from unittest import IsolatedAsyncioTestCase
 from ssh_key_rotator.connections import ServerContext
+from ssh_key_rotator.util import get_default_authorized_keys_path
 
-def with_ssh_server(port: int):
+def with_ssh_server(port: int, authorized_keys_path = get_default_authorized_keys_path()):
     def decorator_server(func):
         @functools.wraps(func)
         async def test_with_server(*args, **kwargs):
@@ -28,3 +29,12 @@ def with_ssh_server(port: int):
 #             return cls(*args, **kwargs)
 #         return class_wrapper
 #     return class_decorator
+
+def with_ssh_server_and_keys():
+    def generate_keys_wrapper(*args, **kwargs):
+        with TemporaryDirectory() as temp_dir:
+            public_key = generate_private_public_key_in_file(temp_dir)
+            authorized_keys_file_path = os.path.join(temp_dir, "authorized_keys")
+            with open(authorized_keys_file_path, mode="wb") as authorized_keys_file:
+                authorized_keys_file.write(public_key)
+    return generate_keys_wrapper

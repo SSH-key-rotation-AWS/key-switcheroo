@@ -4,38 +4,41 @@ from tempfile import NamedTemporaryFile
 import os
 import asyncio
 import paramiko
-from paramiko import SSHClient, AutoAddPolicy
-from .util import get_user_path, get_username
+from paramiko import SSHClient, AutoAddPolicy, RSAKey
+from ssh_key_rotator.util import get_user_path, get_username, get_default_authorized_keys_path
 import functools
+from ssh_key_rotator.custom_keygen import PRIVATE_KEY_NAME, PUBLIC_KEY_NAME
 
 class Server:
     """Wrapper for server"""
 
-    def __init__(self, port: int):
+    def __init__(self, port: int, authorized_keys_file: str = get_default_authorized_keys_path()):
         self.port = port
         self.process: Process|None = None
+        self.authorized_keys_file = authorized_keys_file
 
     async def start(self):
         "Emulates ssh server with custom configuration"
         user_path = get_user_path()
-
         config: list[str] = [
-            "LogLevel INFO",
+            "LogLevel DEBUG3",
             f"Port {self.port}",
             f"HostKey {user_path}/etc/ssh/ssh_host_rsa_key",
             f"PidFile {user_path}/var/run/sshd.pid",
             "UsePAM yes",
-            f"AuthorizedKeysFile {user_path}/.ssh/authorized_keys",
+            f"AuthorizedKeysFile {self.authorized_keys_file}",
             "PasswordAuthentication yes",
             "KbdInteractiveAuthentication yes",
-            "PubkeyAuthentication yes"
+            "PubkeyAuthentication yes",
+            "StrictModes no"
         ]
         #Configuration is emitted as a temporary file to launch sshd
         with NamedTemporaryFile(mode="w+t") as temp_config:
             for option in config:
                 temp_config.write(f"{option}\n")
             temp_config.file.flush()
-            command: str = f"/usr/sbin/sshd -f\"{temp_config.name}\" -e"
+            log_file = open(f"/home/yginsburg/logs", mode="w")
+            command: str = f"/usr/sbin/sshd -f\"{temp_config.name}\" -E/home/yginsburg/logs"
             task:Process = await asyncio.create_subprocess_shell(command,
                                                                  user=get_username(),
                                                         stdout=asyncio.subprocess.PIPE,
@@ -55,8 +58,8 @@ class Server:
         await kill_task.wait()
 
 class ServerContext():
-    def __init__(self, port: int):
-        self.server = Server(port)
+    def __init__(self, port: int, authorized_keys_file: str = get_default_authorized_keys_path()):
+        self.server = Server(port, authorized_keys_file=authorized_keys_file)
     
     async def __aenter__(self):
         await self.server.start()
@@ -76,6 +79,7 @@ class Client:
     def __create_client(self) -> SSHClient:
         client: SSHClient = paramiko.SSHClient()
         client.set_missing_host_key_policy(AutoAddPolicy())
+        client.load_system_host_keys()
         return client
 
     def connect_via_username(self, password: str):
@@ -85,32 +89,21 @@ class Client:
                             username=self.ssh_username,
                             password=password)
 
-    def connect_via_key(self):
+    def connect_via_key(self, key_location: str):
         '''Connect to the SSH server via a private key. This key must be called key,
             and is located at ~/.ssh/key. The public key must be called ~/.ssh/key.pub
         '''
         user_path = os.path.expanduser("~")
         ssh_path = f"{user_path}/.ssh"
-        ssh_private_key_path = f"{ssh_path}/key"
-        ssh_private_key = paramiko.RSAKey.from_private_key_file(
-            ssh_private_key_path)
+        ssh_private_key_path = f"{key_location}/{PRIVATE_KEY_NAME}"
+        ssh_public_key_path = f"{key_location}/{PUBLIC_KEY_NAME}"
+        
         self.client.connect(hostname=self.ssh_host,
                             port=self.ssh_port,
                             username=self.ssh_username,
-                            pkey=ssh_private_key)
+                            pkey=RSAKey.from_private_key_file(ssh_private_key_path))
 
     def execute_command(self, command: str):
         '''Executes a command in the host, assuming either 
         connect_via_key or connect_via_username was called first'''
         return self.client.exec_command(command=command)
-
-
-
-#Still a bit unsure where exactly to do this stuff
-def stuff():
-     with NamedTemporaryFile(mode="w+t", dir="/tmp") as temp_dir_for_keys:
-        os.chmod(temp_dir_for_keys.name, 0o600)
-        
-        #Call custom_keygen to generate public/private key pair
-        #When generating keys, must store them in temp file - maybe pass the tempfile.name into generate_keys()
-        #Client and server should use the temp file for key storage/retrieval
