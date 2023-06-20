@@ -1,3 +1,4 @@
+
 """Pre Commit File"""
 import asyncio
 import subprocess
@@ -26,16 +27,19 @@ def run_black():
     """Async function, runs the black formatter on all staged py files"""
     print("Running Black...")
     listed_files = STAGED_FILES.split()
-
+    sys.stdin = open('/dev/tty')
     for element in listed_files:
         with open(element, "r") as file:
             file_content = file.read()
+            print(element)
         reformatted_content = black.format_str(file_content, mode=black.FileMode())
         print("Reformatted content" + "\n************************\n" +
-reformatted_content +"\n"+"Changes Applied")
-        with open(element, "w") as file:
+reformatted_content)
+        user_input = input("to reformat "+element+"(y/n)?").strip()
+        if user_input == "y":
+            file = open(element,"w")
             file.write(reformatted_content)
-
+            file.close()
 
 run_black()
 
