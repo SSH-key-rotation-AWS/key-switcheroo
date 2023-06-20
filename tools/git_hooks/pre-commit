@@ -1,3 +1,4 @@
+#!.venv/bin/python
 
 """Pre Commit File"""
 import asyncio
@@ -27,13 +28,19 @@ def run_black():
     """Async function, runs the black formatter on all staged py files"""
     print("Running Black...")
     listed_files = STAGED_FILES.split()
-
+    subprocess.call("exec < /dev/tty")
     for element in listed_files:
         with open(element, "r") as file:
             file_content = file.read()
         reformatted_content = black.format_str(file_content, mode=black.FileMode())
         print("Reformatted content" + "\n************************\n" +
 reformatted_content)
+        user_input = input("to reformat file (y/n)?")
+        if user_input == "y":
+            print("HOORAY")
+        else:
+            print(user_input)
+                
     
     print("Type : \n black " +STAGED_FILES+ " \n in command line to formtat files.")
 

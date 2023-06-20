@@ -1,5 +1,9 @@
 #!/usr/bin/bash
 
+set -u 
+set -e
+set -x
+set -o pipefail
 venv_py=".venv/bin/python"
 
 if [ -d ".venv/bin/" ]; then
