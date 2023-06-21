@@ -7,6 +7,7 @@ import sys
 from enum import Enum, auto
 from tkinter import Y
 import black
+import difflib
 
 
 
@@ -39,9 +40,10 @@ def run_black():
     """Async function, runs the black formatter on all staged py files"""
     print("Running Black...")
     listed_files = STAGED_FILES.split()
-    with open_tty():
-         open_tty()
-    
+    original_stdin = sys.stdin
+    sys.stdin = open('/dev/tty')
+    sys.stdin.close()
+    sys.stdin = original_stdin
     for element in listed_files:
         with open(element, "r") as file:
             file_content = file.read()
@@ -49,6 +51,8 @@ def run_black():
         reformatted_content = black.format_str(file_content, mode=black.FileMode())
         print("Reformatted content" + "\n************************\n" +
 reformatted_content)
+        differences = difflib.ndiff(reformatted_content,file_content)
+        print("Difference between original " +'\n'.join(differences))
         user_input = input("Do you want to reformat "+element+"(y/n)?").strip()
         if user_input == "y":
             with open(element,"w") as file:
@@ -106,15 +110,6 @@ async def main():
 import sys
 from contextlib import contextmanager
 
-@contextmanager
-def open_tty():
-    original_stdin = sys.stdin
-    try:
-        sys.stdin = open('/dev/tty')
-        yield
-    finally:
-        sys.stdin.close()
-        sys.stdin = original_stdin
 
 
 asyncio.run(main())
