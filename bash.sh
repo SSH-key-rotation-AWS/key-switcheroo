@@ -4,6 +4,7 @@ set -u
 set -e
 set -x
 set -o pipefail
+
 venv_py=".venv/bin/python"
 venv_pip=".venv/bin/pip"
 
