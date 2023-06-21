@@ -5,28 +5,30 @@ set -e
 set -x
 set -o pipefail
 
-venv_py=".venv/bin/python"
-venv_pip=".venv/bin/pip"
-current_dir=$(pwd)
 
-if [ -d ".venv/bin/python" ]; then
-    source $current_dir/.venv/bin/activate
-    if cmp -s requirements.txt .venv/bin/requirements.txt; then
+git_base_dir=$(git rev-parse --show-toplevel)
+venv="$git_base_dir/.venv"
+venv_py="$git_base_dir/.venv/bin/python3.11"
+
+
+if [ -d $venv ]; then
+    source "$git_base_dir/.venv/bin/activate"
+    
+    if cmp -s requirements.txt $git_base_dir/.venv/bin/requirements.txt; then
         echo "venv is up to date"
     else 
        pip install -r requirements.txt
     fi
 else
     python3.11 -m venv .venv
-    source $current_dir/.venv/bin/activate
+    source "$git_base_dir/.venv/bin/activate"
     pip install -r requirements.txt
-    cp requirements.txt .venv/bin/
+    cp requirements.txt $git_base_dir/.venv/bin/
     # Perform your logic here for the non-existing directory
 fi
 #find current directory, and git-hooks
-current_dir=$(pwd)
-repo_dir="$current_dir/tools/git_hooks/pre-commit"
-system_dir="$current_dir/.git/hooks/pre-commit"
+repo_dir="$git_base_dir/tools/git_hooks/pre-commit"
+system_dir="$git_base_dir/.git/hooks/pre-commit"
 
 #copy python interpeter path to pre-commit file
 echo "#!$venv_py" > "$system_dir"
