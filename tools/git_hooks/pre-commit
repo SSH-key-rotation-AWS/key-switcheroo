@@ -1,64 +1,97 @@
 
+"""Pre Commit File"""
 import asyncio
-from operator import contains
 import subprocess
 import sys
+import black
+from enum import Enum, auto
+
+class Error(Enum):
+    PYRIGHT_ERROR = auto()
+    PYLINT_ERROR = auto()
+
 
 def get_files():
-  try:
-    command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
-    files =  subprocess.check_output(command, shell=True).decode("utf-8").strip().replace("\n"," ")
-  except subprocess.CalledProcessError as e:
-    # Handle the error
-    print("no pyton file staged commits")
-    sys.exit(0)
-  return files
+    """Gets all py files staged for commit"""
+    try:
+        command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
+        files = (
+            subprocess.check_output(command, shell=True)
+            .decode("utf-8")
+            .strip()
+            .replace("\n", " ")
+        )
+    except subprocess.CalledProcessError:
+        print("no python file staged commits")
+        sys.exit(0)
+    return files
 
 
-files = get_files()
+STAGED_FILES = get_files()
 
-
-async def run_black():
+def run_black():
+    """Async function, runs the black formatter on all staged py files"""
     print("Running Black...")
-    task = await asyncio.create_subprocess_shell(
-      "black " + files,
-      stdout=asyncio.subprocess.PIPE,
-      stderr=asyncio.subprocess.PIPE)
-    return_value_out, return_value_err = await task.communicate()
-    
+    listed_files = STAGED_FILES.split()
+    sys.stdin = open('/dev/tty')
+    for element in listed_files:
+        with open(element, "r") as file:
+            file_content = file.read()
+            print(element)
+        reformatted_content = black.format_str(file_content, mode=black.FileMode())
+        print("Reformatted content" + "\n************************\n" +
+reformatted_content)
+        user_input = input("Do you want to reformat "+element+"(y/n)?").strip()
+        if user_input == "y":
+            file = open(element,"w")
+            file.write(reformatted_content)
+            file.close()
+
+run_black()
+
 
 async def run_pylint():
+    """Async function, runs pylint on all staged py files, 
+    and returns an eror if pylint finds errors."""
     print("Running PyLint...")
     task = await asyncio.create_subprocess_shell(
-      "pylint " + files,
-      stdout=asyncio.subprocess.PIPE,
-      stderr=asyncio.subprocess.PIPE)
-    return_value_out, return_value_err = await task.communicate()
+        "pylint " + STAGED_FILES,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    return_value_out,_ = await task.communicate()
     if task.returncode != 0:
-      print("PyLint found errors, commit aborted")
-      print(str(return_value_err))
-      return 2
+        print("PyLint found errors, commit aborted")
+        print("\n" + return_value_out.decode("utf-8"))
+        return Error.PYLINT_ERROR
+
+
 async def run_pyright():
+    """Async function, runs pyright on all staged py files, 
+    and returns an eror if pyright finds errors."""
     print("Running PyRight...")
     task = await asyncio.create_subprocess_shell(
-      "pyright " + files,
-      stdout=asyncio.subprocess.PIPE,
-      stderr=asyncio.subprocess.PIPE)
-    return_value_out, return_value_err = await task.communicate()
+        "pyright " + STAGED_FILES,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    return_value_out,_ = await task.communicate()
     if task.returncode != 0:
-      print("PyRight found errors, commit aborted")
-      print(str(return_value_err))
-      return 1
+        print("PyRight found errors, commit aborted")
+        print("\n" + return_value_out.decode("utf-8"))
+        return Error.PYRIGHT_ERROR
+
 
 async def main():
-    task1 = asyncio.create_task(run_black())
-    task2 = asyncio.create_task(run_pyright())
-    task3  = asyncio.create_task(run_pylint())
-    results = await asyncio.gather(task1,task2,task3)
-    if 1 in results or 2 in results:
-      sys.exit(1)
-    print("All tests passed, files will procceed to commit")
-    sys.exit(0)
+    """gathers all functions, and runs them asyncrionsly"""
+    pyright_task = asyncio.create_task(run_pyright())
+    pylint_task = asyncio.create_task(run_pylint())
+    results = await asyncio.gather(pyright_task, pylint_task)
+    if Error.PYRIGHT_ERROR or Error.PYLINT_ERROR in results:
+        sys.exit(1)
+    else:
+        print("All tests passed, files will proceed to commit")
+        sys.exit(0)
 
 
 asyncio.run(main())
