@@ -5,7 +5,7 @@ import asyncio
 from hamcrest import assert_that, equal_to, contains_string, has_length
 from paramiko import RSAKey
 from ssh_key_rotator.connections import Client, Server
-from ssh_key_rotator.ssh_utils import with_ssh_server_and_client
+from ssh_key_rotator.ssh_decorators import with_ssh_server_and_client
 
 class TestClientConnection(IsolatedAsyncioTestCase):
     "Connects the client to the server and runs a couple of commands"
