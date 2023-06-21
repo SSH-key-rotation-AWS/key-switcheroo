@@ -39,7 +39,9 @@ def run_black():
     """Async function, runs the black formatter on all staged py files"""
     print("Running Black...")
     listed_files = STAGED_FILES.split()
-    sys.stdin = open('/dev/tty')
+    with open_tty():
+         open_tty()
+    
     for element in listed_files:
         with open(element, "r") as file:
             file_content = file.read()
@@ -99,6 +101,20 @@ async def main():
     else:
         print("All tests passed, files will proceed to commit")
         sys.exit(0)
+
+
+import sys
+from contextlib import contextmanager
+
+@contextmanager
+def open_tty():
+    original_stdin = sys.stdin
+    try:
+        sys.stdin = open('/dev/tty')
+        yield
+    finally:
+        sys.stdin.close()
+        sys.stdin = original_stdin
 
 
 asyncio.run(main())
