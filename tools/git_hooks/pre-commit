@@ -1,13 +1,9 @@
 
 """Pre Commit File"""
 import asyncio
-from codecs import utf_16_decode, utf_8_decode, utf_8_encode
-from encodings import utf_8
 import sys
 from enum import Enum, auto
-from tkinter import Y
 import black
-
 
 
 class Error(Enum):
@@ -39,9 +35,7 @@ def run_black():
     """Async function, runs the black formatter on all staged py files"""
     print("Running Black...")
     listed_files = STAGED_FILES.split()
-    with open_tty():
-         open_tty()
-    
+    sys.stdin = open('/dev/tty')
     for element in listed_files:
         with open(element, "r") as file:
             file_content = file.read()
@@ -53,6 +47,7 @@ reformatted_content)
         if user_input == "y":
             with open(element,"w") as file:
                 file.write(reformatted_content)
+                
 run_black()
 
 
@@ -67,9 +62,6 @@ async def run_pylint():
     )
     return_value_out,_ = await task.communicate()
     if task.returncode != 0:
-        print("hello")
-        print(STAGED_FILES)
-        print(task.returncode)
         print("PyLint found errors, commit aborted")
         print("\n" + return_value_out.decode("utf-8"))
         return Error.PYLINT_ERROR
@@ -101,20 +93,6 @@ async def main():
     else:
         print("All tests passed, files will proceed to commit")
         sys.exit(0)
-
-
-import sys
-from contextlib import contextmanager
-
-@contextmanager
-def open_tty():
-    original_stdin = sys.stdin
-    try:
-        sys.stdin = open('/dev/tty')
-        yield
-    finally:
-        sys.stdin.close()
-        sys.stdin = original_stdin
 
 
 asyncio.run(main())

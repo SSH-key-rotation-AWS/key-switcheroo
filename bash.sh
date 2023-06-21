@@ -8,7 +8,7 @@ venv_py=".venv/bin/python"
 venv_pip=".venv/bin/pip"
 
 if [ -d ".venv/bin/" ]; then
-    source .venv/bin/activate 
+    source .venv/bin/activate
     if cmp -s requirements.txt .venv/bin/requirements.txt; then
         echo "venv is up to date"
     else 
@@ -16,7 +16,7 @@ if [ -d ".venv/bin/" ]; then
     fi
 else
     python3.11 -m venv .venv
-    source .venv/bin/activate 
+    source ".venv/bin/activate"
     pip install -r requirements.txt
     cp requirements.txt .venv/bin/
     # Perform your logic here for the non-existing directory
