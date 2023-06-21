@@ -1,40 +1,47 @@
 
 """Pre Commit File"""
 import asyncio
-import subprocess
+from codecs import utf_16_decode, utf_8_decode, utf_8_encode
+from encodings import utf_8
 import sys
-import black
 from enum import Enum, auto
+from tkinter import Y
+import black
 
-"""Shows all errors"""
+
+
 class Error(Enum):
+    """Shows all errors"""
     PYRIGHT_ERROR = auto()
     PYLINT_ERROR = auto()
 
 
-def get_files():
+async def get_files():
     """Gets all py files staged for commit"""
-    try:
-        command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
-        files = (
-            subprocess.check_output(command, shell=True)
-            .decode("utf-8")
-            .strip()
-            .replace("\n", " ")
-        )
-    except subprocess.CalledProcessError:
+    command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
+    process = await asyncio.create_subprocess_shell(
+        command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    stdout,_ = await process.communicate()
+    files = stdout.decode()
+    if len(files) < 1:
         print("no python file staged commits")
         sys.exit(0)
     return files
 
 
-STAGED_FILES = get_files()
+STAGED_FILES = asyncio.run(get_files()).replace("\n"," ")
+
 
 def run_black():
     """Async function, runs the black formatter on all staged py files"""
     print("Running Black...")
     listed_files = STAGED_FILES.split()
-    sys.stdin = open('/dev/tty')
+    with open_tty():
+         open_tty()
+    
     for element in listed_files:
         with open(element, "r") as file:
             file_content = file.read()
@@ -44,10 +51,8 @@ def run_black():
 reformatted_content)
         user_input = input("Do you want to reformat "+element+"(y/n)?").strip()
         if user_input == "y":
-            file = open(element,"w")
-            file.write(reformatted_content)
-            file.close()
-
+            with open(element,"w") as file:
+                file.write(reformatted_content)
 run_black()
 
 
@@ -62,6 +67,9 @@ async def run_pylint():
     )
     return_value_out,_ = await task.communicate()
     if task.returncode != 0:
+        print("hello")
+        print(STAGED_FILES)
+        print(task.returncode)
         print("PyLint found errors, commit aborted")
         print("\n" + return_value_out.decode("utf-8"))
         return Error.PYLINT_ERROR
@@ -93,6 +101,20 @@ async def main():
     else:
         print("All tests passed, files will proceed to commit")
         sys.exit(0)
+
+
+import sys
+from contextlib import contextmanager
+
+@contextmanager
+def open_tty():
+    original_stdin = sys.stdin
+    try:
+        sys.stdin = open('/dev/tty')
+        yield
+    finally:
+        sys.stdin.close()
+        sys.stdin = original_stdin
 
 
 asyncio.run(main())
