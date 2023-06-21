@@ -1,8 +1,7 @@
 "Module for generating public/private SSH key pairs"
-from Crypto.PublicKey import RSA, DSA
 import os
 import shutil
-
+from Crypto.PublicKey import RSA
 
 PRIVATE_KEY_NAME: str = "key"
 PUBLIC_KEY_NAME: str = f"{PRIVATE_KEY_NAME}-cert.pub"

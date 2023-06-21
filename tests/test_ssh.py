@@ -23,7 +23,7 @@ class TestClientConnection(IsolatedAsyncioTestCase):
 
     async def asyncSetUp(self):
         asyncio.get_running_loop().set_debug(False)
-    
+
     @with_ssh_server_and_client()
     def test_echo_command(self, client: Client):
         "Can the client connect and call echo?"
@@ -40,18 +40,13 @@ class TestClientConnection(IsolatedAsyncioTestCase):
         __stdin, stdout, __stderr = client.execute_command(command)
         actual_output = stdout.read().decode()
         assert_that(actual_output, contains_string("var"))
-    
+
     @with_ssh_server_and_client()
     async def test_server_side(self, server: Server, key: RSAKey):
+        "Connect the client and ensure the key used matches the one we generated"
         logs = await server.get_logs()
         line_with_fingerprint = list(filter(lambda line: line.startswith("Accepted key RSA"), logs))
         assert_that(line_with_fingerprint, has_length(1))
         line_with_fingerprint: str = line_with_fingerprint[0]
         actual_fingerprint = key.fingerprint
         assert_that(line_with_fingerprint, contains_string(actual_fingerprint))
-    
-
-    # def __connect_client_via_key(self)->Client:
-    #     client: Client = Client(self.ip_address, self.port, self.username)
-    #     client.connect_via_key()
-    #     return client

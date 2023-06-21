@@ -1,13 +1,11 @@
 "SSH Client/Server wrappers"
 from asyncio.subprocess import Process
 from tempfile import NamedTemporaryFile
-import os
 import asyncio
 import paramiko
 from paramiko import SSHClient, AutoAddPolicy, RSAKey
 from ssh_key_rotator.util import get_user_path, get_username, get_default_authorized_keys_path
-import functools
-from ssh_key_rotator.custom_keygen import PRIVATE_KEY_NAME, PUBLIC_KEY_NAME
+from ssh_key_rotator.custom_keygen import PRIVATE_KEY_NAME
 
 class Server:
     """Wrapper for server"""
@@ -15,7 +13,10 @@ class Server:
     def __init__(self, port: int, ssh_home: str|None = None):
         self.port = port
         self.process: Process|None = None
-        self.authorized_keys_file = get_default_authorized_keys_path() if ssh_home is None else f"{ssh_home}/authorized_keys"
+        if ssh_home is None:
+            self.authorized_keys_file = get_default_authorized_keys_path()
+        else:
+            self.authorized_keys_file = f"{ssh_home}/authorized_keys"
         self.log_file = None if ssh_home is None else f"{ssh_home}/logs"
 
     async def start(self):
@@ -56,20 +57,22 @@ class Server:
             self.process.terminate()
             # See https://github.com/encode/httpx/issues/914
             await asyncio.sleep(1)
-        kill_task = await asyncio.create_subprocess_shell(f"fuser -k {self.port}/tcp", stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
+        kill_task = await asyncio.create_subprocess_shell(f"fuser -k {self.port}/tcp",
+                                                          stdout=asyncio.subprocess.DEVNULL,
+                                                          stderr=asyncio.subprocess.DEVNULL)
         await kill_task.wait()
-    
+
     async def get_logs(self):
+        "Get the logs of the server, returns a list[str] of the lines of the logs"
         if self.log_file is None:
             raise RuntimeError("Cannot get logs if no ssh home path was specified")
-        else:
-            with open(self.log_file, mode="rt", encoding="utf-8") as logs:
-                return logs.readlines()
+        with open(self.log_file, mode="rt", encoding="utf-8") as logs:
+            return logs.readlines()
 
     async def __aenter__(self):
         await self.start()
         return self
-    
+
     async def __aexit__(self, exc_t, exc_v, exc_tb):
         await self.stop()
 
@@ -100,11 +103,11 @@ class Client:
         '''Connect to the SSH server via a private key. This key must be called key,
             and is located at ~/.ssh/key. The public key must be called ~/.ssh/key.pub
         '''
-        user_path = os.path.expanduser("~")
-        ssh_path = f"{user_path}/.ssh"
+        #user_path = os.path.expanduser("~")
+        #ssh_path = f"{user_path}/.ssh"
         ssh_private_key_path = f"{key_location}/{PRIVATE_KEY_NAME}"
-        ssh_public_key_path = f"{key_location}/{PUBLIC_KEY_NAME}"
-        
+        #ssh_public_key_path = f"{key_location}/{PUBLIC_KEY_NAME}"
+
         self.client.connect(hostname=self.ssh_host,
                             port=self.ssh_port,
                             username=self.ssh_username,
