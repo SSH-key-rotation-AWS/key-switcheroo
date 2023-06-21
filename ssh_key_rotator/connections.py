@@ -61,12 +61,10 @@ class Server:
     
     async def get_logs(self):
         if self.log_file is None:
-            raise RuntimeError()
+            raise RuntimeError("Cannot get logs if no ssh home path was specified")
         else:
-            with open(self.log_file, mode="rb") as logs:
-                lines_bytes = logs.readlines()
-                #return [line.decode() for line in lines_bytes]
-                return lines_bytes
+            with open(self.log_file, mode="rt", encoding="utf-8") as logs:
+                return logs.readlines()
 
     async def __aenter__(self):
         await self.start()

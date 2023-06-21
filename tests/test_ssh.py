@@ -2,7 +2,7 @@
 from unittest import IsolatedAsyncioTestCase
 import os
 import asyncio
-from hamcrest import assert_that, equal_to, contains_string
+from hamcrest import assert_that, equal_to, contains_string, has_length
 from paramiko import RSAKey
 from ssh_key_rotator.connections import Client, Server
 from ssh_key_rotator.ssh_utils import with_ssh_server_and_client
@@ -44,9 +44,8 @@ class TestClientConnection(IsolatedAsyncioTestCase):
     @with_ssh_server_and_client()
     async def test_server_side(self, server: Server, key: RSAKey):
         logs = await server.get_logs()
-        logs_str = [line.decode() for line in logs]
-        line_with_fingerprint = list(filter(lambda line: line.startswith("Accepted key RSA"), logs_str))
-        assert_that(len(line_with_fingerprint), equal_to(1))
+        line_with_fingerprint = list(filter(lambda line: line.startswith("Accepted key RSA"), logs))
+        assert_that(line_with_fingerprint, has_length(1))
         line_with_fingerprint: str = line_with_fingerprint[0]
         actual_fingerprint = key.fingerprint
         assert_that(line_with_fingerprint, contains_string(actual_fingerprint))
