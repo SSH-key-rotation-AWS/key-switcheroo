@@ -12,23 +12,33 @@ class Error(Enum):
     PYLINT_ERROR = auto()
 
 
-def get_files():
+async def get_files():
     """Gets all py files staged for commit"""
     try:
         command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
-        files = (
-            subprocess.check_output(command, shell=True)
-            .decode("utf-8")
-            .strip()
-            .replace("\n", " ")
+        process = await asyncio.create_subprocess_shell(
+            command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
         )
+        stdout, stderr = await process.communicate()
+        files = " "
+        print("im here")
+        print(stdout.decode())
+        print(stderr.decode())
+        # files = (
+        #     subprocess.check_output(command, shell=True)
+        #     .decode("utf-8")
+        #     .strip()
+        #     .replace("\n", " ")
+        # )
     except subprocess.CalledProcessError:
         print("no python file staged commits")
         sys.exit(0)
     return files
 
 
-STAGED_FILES = get_files()
+STAGED_FILES = asyncio.run(get_files())
 
 def run_black():
     """Async function, runs the black formatter on all staged py files"""

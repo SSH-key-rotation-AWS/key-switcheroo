@@ -5,13 +5,14 @@ set -e
 set -x
 set -o pipefail
 venv_py=".venv/bin/python"
+venv_pip=".venv/bin/pip"
 
 if [ -d ".venv/bin/" ]; then
     source .venv/bin/activate 
     if cmp -s requirements.txt .venv/bin/requirements.txt; then
         echo "venv is up to date"
     else 
-        pip install -r requirements.txt
+       pip install -r requirements.txt
     fi
 else
     python3.11 -m venv .venv
