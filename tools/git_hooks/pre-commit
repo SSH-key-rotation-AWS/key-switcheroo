@@ -14,20 +14,24 @@ class Error(Enum):
 
 async def get_files():
     """Gets all py files staged for commit"""
+    #Command that retrieves all staged to commit python files. 
     command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
+    # Async function that runs command line argument. 
     process = await asyncio.create_subprocess_shell(
         command,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )
+    # Run async function and retrieves the files.. 
     stdout,_ = await process.communicate()
     files = stdout.decode()
+    #if there are no Python files staged,return exit code 0 and procceed commit. 
     if len(files) < 1:
         print("no python file staged commits")
         sys.exit(0)
     return files
 
-
+#Retrieve all staged files
 STAGED_FILES = asyncio.run(get_files()).replace("\n"," ")
 
 
@@ -35,15 +39,19 @@ def run_black():
     """Async function, runs the black formatter on all staged py files"""
     print("Running Black...")
     listed_files = STAGED_FILES.split()
+    # Git hooks do not use standard input. Thus, one must attach the input from the terminal:
     sys.stdin = open('/dev/tty')
+    # for each file staged to commit, give an option to format it
     for element in listed_files:
         with open(element, "r") as file:
             file_content = file.read()
             print(element)
+            #reformatted file content after running black formatter
         reformatted_content = black.format_str(file_content, mode=black.FileMode())
         print("Reformatted content" + "\n************************\n" +
 reformatted_content)
         user_input = input("Do you want to reformat "+element+"(y/n)?").strip()
+        #give user option to procceed with format
         if user_input == "y":
             with open(element,"w") as file:
                 file.write(reformatted_content)
@@ -53,14 +61,16 @@ run_black()
 
 async def run_pylint():
     """Async function, runs pylint on all staged py files, 
-    and returns an eror if pylint finds errors."""
+    and returns an error if pylint finds errors."""
     print("Running PyLint...")
+    #async function that runs pylint linter on alled staged to commit py files. 
     task = await asyncio.create_subprocess_shell(
         "pylint " + STAGED_FILES,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
     return_value_out,_ = await task.communicate()
+    #if pylint finds error with the staged files. Abort commit, and spit out lines and files where error occured. 
     if task.returncode != 0:
         print("PyLint found errors, commit aborted")
         print("\n" + return_value_out.decode("utf-8"))
@@ -71,12 +81,14 @@ async def run_pyright():
     """Async function, runs pyright on all staged py files, 
     and returns an eror if pyright finds errors."""
     print("Running PyRight...")
+    #asny function the runs pyright on all staged to commit files
     task = await asyncio.create_subprocess_shell(
         "pyright " + STAGED_FILES,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
     return_value_out,_ = await task.communicate()
+    #if pyright finds error with the staged files. Abort commit 
     if task.returncode != 0:
         print("PyRight found errors, commit aborted")
         print("\n" + return_value_out.decode("utf-8"))
@@ -88,9 +100,10 @@ async def main():
     pyright_task = asyncio.create_task(run_pyright())
     pylint_task = asyncio.create_task(run_pylint())
     results = await asyncio.gather(pyright_task, pylint_task)
+    #Runs pyright and pylint task asyncrionsly, and if any of them return al error code, abort commit. 
     if Error.PYRIGHT_ERROR in results or Error.PYLINT_ERROR in results:
         sys.exit(1)
-    else:
+    else
         print("All tests passed, files will proceed to commit")
         sys.exit(0)
 
