@@ -32,7 +32,7 @@ class Server:
             "PasswordAuthentication yes",
             "KbdInteractiveAuthentication yes",
             "PubkeyAuthentication yes",
-            "StrictModes no"
+            "StrictModes yes"
         ]
         #Configuration is emitted as a temporary file to launch sshd
         with NamedTemporaryFile(mode="w+t") as temp_config:
