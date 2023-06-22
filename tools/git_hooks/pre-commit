@@ -103,7 +103,7 @@ async def main():
     #Runs pyright and pylint task asyncrionsly, and if any of them return al error code, abort commit. 
     if Error.PYRIGHT_ERROR in results or Error.PYLINT_ERROR in results:
         sys.exit(1)
-    else
+    else:
         print("All tests passed, files will proceed to commit")
         sys.exit(0)
 
