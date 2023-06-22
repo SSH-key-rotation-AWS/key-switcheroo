@@ -1,6 +1,8 @@
 "Miscellaneous utilities to be used in conjuction with the SSH service"
 import asyncio
 import functools
+import os
+import shutil
 from random import randint
 from socket import getservbyport
 from tempfile import TemporaryDirectory
@@ -50,37 +52,34 @@ def with_ssh_server_and_client(port: int = get_open_port()):
     def ssh_server_and_keys_decorator(func):
         @functools.wraps(func)
         async def generate_keys_wrapper_test(*args, **kwargs):
-            with TemporaryDirectory() as mock_home_dir:
-                #shutil.chown(mock_home_dir, get_username(), group=get_username())
-                #os.chmod(mock_home_dir, 0o700)
-                ssh_dir = mock_home_dir
-                #os.mkdir(ssh_dir)
-                #os.chmod(ssh_dir, 0o700)
-                public_key = generate_private_public_key_in_file(ssh_dir)
-                log_path = f"{ssh_dir}/logs"
-                authorized_keys_path = f"{ssh_dir}/authorized_keys"
-                with open(authorized_keys_path, mode="wb") as authorized_keys_file:
-                    authorized_keys_file.write(public_key)
-                with open(log_path, mode="wb"):
-                    pass
-                #shutil.chown(authorized_keys_path, get_username(), get_username())
-                #os.chmod(authorized_keys_path, mode=0o600)
-                async with Server(port=port, ssh_home=ssh_dir) as server:
-                    #key = RSAKey.from_private_key_file(f"{ssh_dir}/key")
-                    client = Client("127.0.0.1",port, get_username())
-                    client.connect_via_key(key_location=ssh_dir)
-                    desired_arguments = func.__code__.co_varnames
-                    if "client" in desired_arguments:
-                        kwargs["client"] = client
-                    if "server" in desired_arguments:
-                        kwargs["server"] = server
-                    if "key" in desired_arguments:
-                        private_key_file = f"{ssh_dir}/{PRIVATE_KEY_NAME}"
-                        kwargs["key"] = RSAKey.from_private_key_file(private_key_file)
-                    if asyncio.iscoroutinefunction(func):
-                        await func(*args, **kwargs)
-                    else:
-                        func(*args, **kwargs)
+            with TemporaryDirectory() as public_key_dir:
+                with TemporaryDirectory(dir=get_user_path()) as private_key_dir:
+                    shutil.chown(public_key_dir, get_username(), get_username())
+                    os.chmod(public_key_dir, 0o700)
+                    public_key = generate_private_public_key_in_file(public_key_dir, private_key_dir)
+                    log_path = f"{public_key_dir}/logs"
+                    authorized_keys_path = f"{public_key_dir}/authorized_keys"
+                    with open(authorized_keys_path, mode="wb") as authorized_keys_file:
+                        authorized_keys_file.write(public_key)
+                    with open(log_path, mode="wb"):
+                        pass
+                    shutil.chown(authorized_keys_path, get_username(), get_username())
+                    os.chmod(authorized_keys_path, mode=0o600)
+                    async with Server(port=port, ssh_home=public_key_dir) as server:
+                        client = Client("127.0.0.1",port, get_username())
+                        client.connect_via_key(key_location=private_key_dir)
+                        desired_arguments = func.__code__.co_varnames
+                        if "client" in desired_arguments:
+                            kwargs["client"] = client
+                        if "server" in desired_arguments:
+                            kwargs["server"] = server
+                        if "key" in desired_arguments:
+                            private_key_file = f"{private_key_dir}/{PRIVATE_KEY_NAME}"
+                            kwargs["key"] = RSAKey.from_private_key_file(private_key_file)
+                        if asyncio.iscoroutinefunction(func):
+                            await func(*args, **kwargs)
+                        else:
+                            func(*args, **kwargs)
         return generate_keys_wrapper_test
     return ssh_server_and_keys_decorator
 

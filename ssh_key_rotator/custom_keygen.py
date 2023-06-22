@@ -6,16 +6,19 @@ from Crypto.PublicKey import RSA
 PRIVATE_KEY_NAME: str = "key"
 PUBLIC_KEY_NAME: str = f"{PRIVATE_KEY_NAME}-cert.pub"
 
-def generate_private_public_key_in_file(temp_dir: str):
+def generate_private_public_key_in_file(public_key_dir: str, private_key_dir: str|None = None):
     "Creates a private key and public key at the given paths"
+    #If private key was not given a separate dir, use the same one as for public key
+    if private_key_dir is None:
+        private_key_dir = public_key_dir
     key = RSA.generate(1024)
     user_path = os.path.expanduser("~")
     user_path_components = user_path.split("/")
     user = user_path_components[len(user_path_components) - 1]
 
     # ssh_path = f"{user_path}/.ssh"
-    private_key_path = f"{temp_dir}/key"
-    public_key_path = f"{temp_dir}/key-cert.pub"
+    private_key_path = f"{private_key_dir}/key"
+    public_key_path = f"{public_key_dir}/key-cert.pub"
 
     private_key = key.export_key()
 
