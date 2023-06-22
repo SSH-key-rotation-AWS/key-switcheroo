@@ -1,6 +1,0 @@
-print("hello")
-
-
-print("n")
-
-print("ff")
