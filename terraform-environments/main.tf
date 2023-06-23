@@ -10,7 +10,15 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+    access_key = "${var.aws_access_key}"
+    secret_key = "${var.aws_secret_key}"
+    region = "${var.region}"
+}
+
+module "s3" {
+    source = "<path-to-S3-folder>"
+    #bucket name should be unique
+    bucket_name = "<production_bucket1>"       
 }
 
 resource "aws_instance" "app_server" {
@@ -21,3 +29,6 @@ resource "aws_instance" "app_server" {
     Name = "TeamHenrique"
   }
 }
+
+
+
