@@ -1,6 +1,8 @@
 "Miscellaneous utilities to be used in conjuction with the SSH service"
 import asyncio
 import functools
+import os
+import shutil
 from random import randint
 from socket import getservbyport
 from tempfile import TemporaryDirectory
@@ -50,32 +52,28 @@ def with_ssh_server_and_client(port: int = get_open_port()):
     def ssh_server_and_keys_decorator(func):
         @functools.wraps(func)
         async def generate_keys_wrapper_test(*args, **kwargs):
-            with TemporaryDirectory() as mock_home_dir:
-                #shutil.chown(mock_home_dir, get_username(), group=get_username())
-                #os.chmod(mock_home_dir, 0o700)
-                ssh_dir = mock_home_dir
-                #os.mkdir(ssh_dir)
-                #os.chmod(ssh_dir, 0o700)
-                public_key = generate_private_public_key_in_file(ssh_dir)
-                log_path = f"{ssh_dir}/logs"
-                authorized_keys_path = f"{ssh_dir}/authorized_keys"
+            with TemporaryDirectory(dir=get_user_path()) as ssh_home:
+                shutil.chown(ssh_home, get_username(), get_username())
+                os.chmod(ssh_home, 0o700)
+                public_key = generate_private_public_key_in_file(ssh_home)
+                log_path = f"{ssh_home}/logs"
+                authorized_keys_path = f"{ssh_home}/authorized_keys"
                 with open(authorized_keys_path, mode="wb") as authorized_keys_file:
                     authorized_keys_file.write(public_key)
                 with open(log_path, mode="wb"):
                     pass
-                #shutil.chown(authorized_keys_path, get_username(), get_username())
-                #os.chmod(authorized_keys_path, mode=0o600)
-                async with Server(port=port, ssh_home=ssh_dir) as server:
-                    #key = RSAKey.from_private_key_file(f"{ssh_dir}/key")
+                shutil.chown(authorized_keys_path, get_username(), get_username())
+                os.chmod(authorized_keys_path, mode=0o600)
+                async with Server(port=port, ssh_home=ssh_home) as server:
                     client = Client("127.0.0.1",port, get_username())
-                    client.connect_via_key(key_location=ssh_dir)
+                    client.connect_via_key(key_location=ssh_home)
                     desired_arguments = func.__code__.co_varnames
                     if "client" in desired_arguments:
                         kwargs["client"] = client
                     if "server" in desired_arguments:
                         kwargs["server"] = server
                     if "key" in desired_arguments:
-                        private_key_file = f"{ssh_dir}/{PRIVATE_KEY_NAME}"
+                        private_key_file = f"{ssh_home}/{PRIVATE_KEY_NAME}"
                         kwargs["key"] = RSAKey.from_private_key_file(private_key_file)
                     if asyncio.iscoroutinefunction(func):
                         await func(*args, **kwargs)
