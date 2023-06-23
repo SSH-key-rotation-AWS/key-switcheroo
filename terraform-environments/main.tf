@@ -10,14 +10,15 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+    access_key = "${var.aws_access_key}"
+    secret_key = "${var.aws_secret_key}"
+    region = "${var.region}"
 }
 
-resource "aws_instance" "app_server" {
-  ami           = "ami-090e0fc566929d98b"
-  instance_type = "t2.micro"
+resource "aws_s3_bucket" "example" {
+  bucket = "${var.bucket_name}"
+    acl = "${var.acl_value}"   
+ }
 
-  tags = {
-    Name = "TeamHenrique"
-  }
-}
+
+
