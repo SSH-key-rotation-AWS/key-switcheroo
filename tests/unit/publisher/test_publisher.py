@@ -1,5 +1,6 @@
 from unittest import TestCase
 from hamcrest import assert_that, contains_string
+import boto3  # pylint: disable=unused-import
 from ssh_key_rotator.publisher.key_publisher import LocalPublisher, S3Publisher
 from ssh_key_rotator.util import get_user_path
 
@@ -19,4 +20,4 @@ class PublisherTests(TestCase):
 
     def test_s3_publish(self):
         """Test for S3 publisher"""
-        s3_publisher = S3Publisher()  # pylint: disable=unused-variable
+        s3_publisher = S3Publisher("dev")  # pylint: disable=unused-variable
