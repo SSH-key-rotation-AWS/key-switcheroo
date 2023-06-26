@@ -14,6 +14,6 @@ variable "acl_value" {
 
 variable "region" {
 
-    default = "us-east-2"
+    default = "us-east-1"
 
 }
