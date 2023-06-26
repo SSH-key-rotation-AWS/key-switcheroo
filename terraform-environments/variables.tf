@@ -1,4 +1,4 @@
-variable "bucket_name" {}
+# variable "bucket_name" {}
 
 variable "acl_value" {
 
@@ -6,9 +6,11 @@ variable "acl_value" {
 
 }
 
-variable "aws_access_key" {}
+# variable "aws_access_key" {}
 
-variable "aws_secret_key" {}
+# variable "aws_secret_key" {}
+
+# variable "credentials_directory" {}
 
 variable "region" {
 
