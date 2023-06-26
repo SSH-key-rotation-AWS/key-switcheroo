@@ -1,6 +1,8 @@
 "Data stores that specifies where a Server stores its keys"
+import os
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+import boto3
+from ssh_key_rotator.util import get_user_path
 
 
 class DataStore(ABC):
@@ -10,8 +12,9 @@ class DataStore(ABC):
     def get_sshd_config_line(self):
         "Return the config line that the server will add to the sshd_config"
 
-    def putting_this_here_to_make_pylint_happy_for_now(self):
-        "Need 2 public methods, maybe will redesign later"
+    @abstractmethod
+    def delete_key(self, host: str, user: str):
+        "Delete the key for the host/user"
 
 
 class S3DataStore(DataStore):
@@ -25,26 +28,23 @@ class S3DataStore(DataStore):
         "The name of the bucket in which the keys are stored"
         return self._s3_bucket_name
 
-    def get_sshd_config_line(self):
-        pass
+    def get_sshd_config_line(self) -> str:
+        return f"s3 ${self.s3_bucket_name}"
 
-
-UseExistingPathOptions = str
-
-
-@dataclass
-class UseNewPathOptions:
-    "Options for a data store to create a new path for keys - where and lifespan"
-    dir: str
-    temp: bool = True
+    def delete_key(self, host: str, user: str):
+        s3_client = boto3.client("s3")
+        s3_client.delete_object(Bucket=self.s3_bucket_name, Key=f"{host}/{user}")
 
 
 class FileSystemDataStore(DataStore):
     "Stores keys in a file system"
 
-    def __init__(self, creation_options: UseExistingPathOptions | UseNewPathOptions):
-        self.dir = "TODo"
-        self.creation_options = creation_options
+    def __init__(self, temp: bool = False):
+        self.temp = temp
+        self.dir = f"{get_user_path()}/.ssh"
 
     def get_sshd_config_line(self) -> str:
-        return "AuthorizedKeysFile /path/to/authorized_keys"
+        return "local"
+
+    def delete_key(self, host: str, user: str):
+        os.remove(f"{get_user_path()}/.ssh/{host}/{user}")
