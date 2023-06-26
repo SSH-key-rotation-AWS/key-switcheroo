@@ -11,7 +11,7 @@ class PublisherTests(TestCase):
     def test_local_publish(self):
         """Test for local publisher"""
         localpub = LocalPublisher()
-        public_key = localpub.publish_new_key()
+        _, public_key = localpub.publish_new_key()
         authorized_keys_path = f"{get_user_path()}/.ssh/authorized_keys"
         with open(authorized_keys_path, encoding="utf-8") as authorized_keys_file:
             file_contents = authorized_keys_file.read()
