@@ -24,6 +24,11 @@ resource "aws_security_group" "security" {
     protocol         = "HTTPS"
     cidr_blocks      = ["0.0.0.0/0"]
   }
+
+#   lifecycle {
+#     prevent_destroy = true
+#   }
+
   tags = {
     Name = "ec2_security"
   }
