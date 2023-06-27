@@ -1,8 +1,8 @@
 resource "aws_security_group" "security" {
-  name        = "ec2_security"
+  name        = "ec2_security2"
   description = "Give correct security for ec2"
   #tanis vpc = vpc-0bfb64215145a3e13
-  vpc_id      = "vpc-0698eb109e6e2afd5"
+  vpc_id      = "vpc-087c0fd344b276e07"
 
   ingress {
     from_port        = 8080
@@ -27,7 +27,7 @@ resource "aws_security_group" "security" {
   }
 
   tags = {
-    Name = "ec2_security"
+    Name = "ec2_security2"
   }
  }
 
@@ -39,6 +39,19 @@ resource "aws_instance" "app_server" {
   tags = {
     Name = "TeamHenrique"
   }
+  user_data = <<-EOF
+  #!/bin/bash
+  sudo yum update
+  sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+  sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+  sudo yum upgrade
+  sudo amazon-linux-extras install java-openjdk11 -y
+  sudo dnf install java-11-amazon-corretto -y
+  sudo yum install jenkins -y
+  sudo systemctl enable jenkins
+  sudo systemctl start jenkins
+  EOF
 }
 
 
