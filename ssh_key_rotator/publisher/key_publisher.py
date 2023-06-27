@@ -33,9 +33,7 @@ class S3Publisher(Publisher):
         # Store the new public key in S3 bucket
         s3_client = boto3.client("s3")
         s3_client.put_object(
-            Body=public_key,
-            Bucket=self.bucket_name,
-            Key=f"{self.host}/{self.user_id}",
+            Body=public_key, Bucket=self.bucket_name, Key=f"{self.host}/{self.user_id}"
         )
 
         # Store the private key on the local machine
@@ -60,7 +58,7 @@ class LocalPublisher(Publisher):
         _, public_key = generate_private_public_key_in_file(
             f"{user_path}/.ssh/{self.host}",
             private_key_name=self.user_id,
-            public_key_name=f"{self.user_id}-cert.pub"
+            public_key_name=f"{self.user_id}-cert.pub",
         )
         return public_key.decode()
 
