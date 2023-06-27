@@ -34,9 +34,9 @@ def generate_private_public_key_in_file(
 
     # ssh_path = f"{user_path}/.ssh"
     if not os.path.isdir(private_key_dir):
-        os.mkdir(private_key_dir)
+        os.makedirs(private_key_dir)
     if not os.path.isdir(public_key_dir):
-        os.mkdir(public_key_dir)
+        os.makedirs(public_key_dir)
 
     private_key_path = f"{private_key_dir}/{private_key_name}"
     public_key_path = f"{public_key_dir}/{public_key_name}"
