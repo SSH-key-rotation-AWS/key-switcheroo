@@ -16,12 +16,21 @@ class DataStore(ABC):
     def delete_key(self, host: str, user: str):
         "Delete the key for the host/user"
 
+    @abstractmethod
+    def __enter__(self):
+        pass
+
+    @abstractmethod
+    def __exit__(self, exc_t, exc_v, exc_tb):
+        pass
+
 
 class S3DataStore(DataStore):
     "Store the public keys in an S3 bucket"
 
-    def __init__(self, _s3_bucket_name: str):
+    def __init__(self, _s3_bucket_name: str, temp: bool = False):
         self._s3_bucket_name = _s3_bucket_name
+        self.temp = temp
 
     @property
     def s3_bucket_name(self):
@@ -34,6 +43,19 @@ class S3DataStore(DataStore):
     def delete_key(self, host: str, user: str):
         s3_client = boto3.client("s3")
         s3_client.delete_object(Bucket=self.s3_bucket_name, Key=f"{host}/{user}")
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_t, exc_v, exc_tb):
+        if self.temp:
+            s3_client = boto3.client("s3")
+            objects = s3_client.list_objects_v2(Bucket=self.s3_bucket_name)["Contents"]
+            delete_objects = [{"Key": bucket_obj["Key"]} for bucket_obj in objects]  # type: ignore
+            s3_client.delete_objects(
+                Bucket=self.s3_bucket_name,
+                Delete={"Objects": delete_objects},  # type: ignore
+            )
 
 
 class FileSystemDataStore(DataStore):
@@ -48,3 +70,11 @@ class FileSystemDataStore(DataStore):
 
     def delete_key(self, host: str, user: str):
         os.remove(f"{get_user_path()}/.ssh/{host}/{user}")
+
+    def __enter__(self):
+        if self.temp and not os.path.isdir(self.dir):
+            os.mkdir(self.dir)
+
+    def __exit__(self, exc_t, exc_v, exc_tb):
+        if self.temp:
+            os.rmdir(self.dir)

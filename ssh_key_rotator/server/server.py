@@ -106,7 +106,9 @@ class Server:
     async def __aenter__(self):
         await self.__setup_host_keys()
         await self.__setup_pid_file()
+        self.data_store.__enter__()
         return self
 
     async def __aexit__(self, one, two, three):
         await self.stop()
+        self.data_store.__exit__(None, None, None)
