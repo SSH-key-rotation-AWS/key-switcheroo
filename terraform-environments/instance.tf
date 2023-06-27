@@ -10,6 +10,12 @@ resource "aws_security_group" "security" {
     protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
   }
+  ingress {
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
 
  ingress {
     from_port        = 80
@@ -53,12 +59,3 @@ resource "aws_instance" "app_server" {
   sudo systemctl start jenkins
   EOF
 }
-
-
-
-
-
-
-
-
-
