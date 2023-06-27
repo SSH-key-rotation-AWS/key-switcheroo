@@ -12,7 +12,7 @@ from ssh_key_rotator.util import get_username
 class TestServerRemote(IsolatedAsyncioTestCase):
     "Test server with keys stored in S3"
 
-    async def can_retrieve_public_keys_from_s3(self):
+    async def test_retrieve_public_keys_from_s3(self):
         "Can the server retrieve public keys from s3?"
         data_store = S3DataStore("test-bucket")
         async with Server(data_store=data_store) as server:
@@ -34,4 +34,4 @@ class TestServerRemote(IsolatedAsyncioTestCase):
                 pkey=private_key_paramiko,
             )
             key_fingerprint = private_key_paramiko.fingerprint  # type: ignore
-            self.assertTrue(any(key_fingerprint in line for line in server.logs))
+            self.assertTrue(any(key_fingerprint in line for line in await server.logs))

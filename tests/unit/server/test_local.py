@@ -11,7 +11,7 @@ from ssh_key_rotator.custom_keygen import generate_private_public_key_in_file
 class TestServerLocal(IsolatedAsyncioTestCase):
     "Test server with local keys"
 
-    async def can_retrieve_public_keys_locally(self):
+    async def test_retrieve_public_keys_locally(self):
         data_store = FileSystemDataStore()
         async with Server(data_store=data_store) as server:
             server: Server = server

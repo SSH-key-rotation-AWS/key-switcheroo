@@ -10,12 +10,15 @@ class S3PublisherTests(TestCase):
 
     def test_s3_publish(self):
         """Test for S3 publisher"""
-        s3_publisher = S3Publisher("test-bucket", "ExampleServer", "12345")
-        _, public_key = s3_publisher.publish_new_key()
+        s3_publisher = S3Publisher("dev-jesse-yonatan", "ExampleServer", "12345")
+        public_key = s3_publisher.publish_new_key()
         s3_client = boto3.client("s3")
         file = s3_client.get_object(
-            Bucket="test-bucket", Key="ExampleServer/12345-cert.pub"
+            Bucket="dev-jesse-yonatan", Key="ExampleServer/12345-cert.pub"
         )
         file_data = file["Body"].read()
         contents = file_data.decode("utf-8")
         assert_that(contents, contains_string(public_key))
+        s3_client.delete_object(
+            Bucket="dev-jesse-yonatan", Key="ExampleServer/12345-cert.pub"
+        )
