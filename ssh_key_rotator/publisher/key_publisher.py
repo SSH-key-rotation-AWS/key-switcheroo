@@ -7,6 +7,7 @@ from ssh_key_rotator.custom_keygen import (
     generate_private_public_key_in_file,
     generate_private_public_key,
 )
+from ssh_key_rotator.util import get_user_path, get_username
 
 
 class Publisher(ABC):
@@ -36,13 +37,10 @@ class S3Publisher(Publisher):
         )
 
         # Store the private key on the local machine
-        user_path = os.path.expanduser("~")
-        user_path_components = user_path.split("/")
-        user = user_path_components[len(user_path_components) - 1]
-        private_key_path = "~/.ssh/key"
+        private_key_path = f"{get_user_path()}/.ssh/{self.host}/{self.user_id}"
         with open(private_key_path, "wb") as private_out:
             private_out.write(private_key)
-        shutil.chown(private_key_path, user=user, group=-1)
+        shutil.chown(private_key_path, user=get_username(), group=-1)
         os.chmod(private_key_path, 0o600)
 
         return public_key.decode()
@@ -58,7 +56,9 @@ class LocalPublisher(Publisher):
     def publish_new_key(self) -> str:
         user_path = os.path.expanduser("~")
         _, public_key = generate_private_public_key_in_file(
-            f"{user_path}/.ssh/{self.host}/{self.user_id}"
+            f"{user_path}/.ssh/{self.host}",
+            private_key_name=self.user_id,
+            public_key_name=f"{self.user_id}-cert.pub"
         )
         return public_key.decode()
 
