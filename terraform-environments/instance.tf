@@ -1,14 +1,4 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.16"
-    }
-  }
-  required_version = ">= 1.2.0"
-}
-
-resource "aws_security_group" "ec2_security" {
+resource "aws_security_group" "security" {
   name        = "ec2_security"
   description = "Give correct security for ec2"
   #tanis vpc = vpc-0bfb64215145a3e13
@@ -47,7 +37,6 @@ resource "aws_instance" "app_server" {
   tags = {
     Name = "TeamHenrique"
   }
-  region = "us-east-1"
 }
 
 
