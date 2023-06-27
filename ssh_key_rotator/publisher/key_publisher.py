@@ -34,7 +34,7 @@ class S3Publisher(Publisher):
         s3_client.put_object(
             Body=public_key,
             Bucket=self.bucket_name,
-            Key=f"{self.host}/{self.user_id}/key-cert.pub",
+            Key=f"{self.host}/{self.user_id}"
         )
 
         # Store the private key on the local machine
