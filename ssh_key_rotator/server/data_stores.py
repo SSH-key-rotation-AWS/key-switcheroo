@@ -38,7 +38,7 @@ class S3DataStore(DataStore):
         return self._s3_bucket_name
 
     def get_sshd_config_line(self) -> str:
-        return f"s3 ${self.s3_bucket_name}"
+        return f"s3 {self.s3_bucket_name}"
 
     def delete_key(self, host: str, user: str):
         s3_client = boto3.client("s3")

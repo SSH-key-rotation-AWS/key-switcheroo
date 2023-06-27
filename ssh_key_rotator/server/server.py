@@ -29,12 +29,12 @@ class Server:
 
     async def start(self):
         user_path = get_user_path()
-        cwd = os.getcwd()
-        keys_cmnd = (
-            f"{cwd}/retrieve_public_keys.sh ${self.data_store.get_sshd_config_line()}"
-        )
+        # parent_dir = pathlib.Path(__file__).parent.resolve()
+        bash_script_path = "/authorized_keys_cmd/retrieve_public_keys.sh"
+        # activation_command = f"{os.getcwd()}/.venv/bin/activate"
+        keys_cmnd = f"{bash_script_path} %u {self.data_store.get_sshd_config_line()}"
         config: list[str] = [
-            "LogLevel VERBOSE",
+            "LogLevel DEBUG3",
             f"Port {self.port}",
             f"HostKey {user_path}/etc/ssh/ssh_host_rsa_key",
             f"PidFile {user_path}/var/run/sshd.pid",
@@ -42,8 +42,8 @@ class Server:
             "AuthorizedKeysFile none",
             f"AuthorizedKeysCommand {keys_cmnd}",
             f"AuthorizedKeysCommandUser {self.authorized_key_command_executing_user}",
-            "PasswordAuthentication yes",
-            "KbdInteractiveAuthentication yes",
+            "PasswordAuthentication no",
+            "KbdInteractiveAuthentication no",
             "PubkeyAuthentication yes",
             "StrictModes yes",
         ]
