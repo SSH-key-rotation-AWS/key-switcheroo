@@ -12,7 +12,7 @@ class LocalPublisherTests(TestCase):
         """Test for local publisher"""
         localpub = LocalPublisher("ExampleServer", "12345")
         _, public_key = localpub.publish_new_key()
-        public_key_path = f"{get_user_path()}/.ssh/ExampleServer/12345"
+        public_key_path = f"{get_user_path()}/.ssh/ExampleServer/12345-cert.pub"
         with open(public_key_path, encoding="utf-8") as public_key_file:
             file_contents = public_key_file.read()
             assert_that(file_contents, contains_string(public_key))

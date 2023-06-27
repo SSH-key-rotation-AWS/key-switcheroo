@@ -14,7 +14,7 @@ class S3PublisherTests(TestCase):
         _, public_key = s3_publisher.publish_new_key()
         s3_client = boto3.client("s3")
         file = s3_client.get_object(
-            Bucket="test-bucket", Key="ExampleServer/12345/key-cert.pub"
+            Bucket="test-bucket", Key="ExampleServer/12345-cert.pub"
         )
         file_data = file["Body"].read()
         contents = file_data.decode("utf-8")
