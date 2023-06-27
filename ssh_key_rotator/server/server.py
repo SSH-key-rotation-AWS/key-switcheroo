@@ -40,8 +40,8 @@ class Server:
             f"PidFile {user_path}/var/run/sshd.pid",
             "UsePAM yes",
             "AuthorizedKeysFile none",
-            f"AuthorizedKeysCommand ${keys_cmnd}",
-            f"AuthorizedKeysCommandUser {self.authorized_key_command_executing_user}"
+            f"AuthorizedKeysCommand {keys_cmnd}",
+            f"AuthorizedKeysCommandUser {self.authorized_key_command_executing_user}",
             "PasswordAuthentication yes",
             "KbdInteractiveAuthentication yes",
             "PubkeyAuthentication yes",
@@ -107,6 +107,7 @@ class Server:
         await self.__setup_host_keys()
         await self.__setup_pid_file()
         self.data_store.__enter__()
+        await self.start()
         return self
 
     async def __aexit__(self, one, two, three):
