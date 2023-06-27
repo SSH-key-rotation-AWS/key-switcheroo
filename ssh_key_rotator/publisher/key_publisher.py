@@ -33,7 +33,9 @@ class S3Publisher(Publisher):
         # Store the new public key in S3 bucket
         s3_client = boto3.client("s3")
         s3_client.put_object(
-            Body=public_key, Bucket=self.bucket_name, Key=f"{self.host}/{self.user_id}"
+            Body=public_key,
+            Bucket=self.bucket_name,
+            Key=f"{self.host}/{self.user_id}",
         )
 
         # Store the private key on the local machine
@@ -76,7 +78,8 @@ if __name__ == "__main__":
         publisher = LocalPublisher(server, username)
         publisher.publish_new_key()
     elif data_store == "s3":
-        publisher = S3Publisher("public-keys", server, username)
+        s3_bucket_name = input("Enter a bucket name: ")
+        publisher = S3Publisher(s3_bucket_name, server, username)
         publisher.publish_new_key()
     else:
         raise ValueError('Must specify either "local" or "s3" as the data store')
