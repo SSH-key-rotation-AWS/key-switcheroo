@@ -91,18 +91,15 @@ class Server:
             return logs.readlines()
 
     @staticmethod
-    async def __setup_host_keys():
+    def __setup_host_keys():
         user_path = get_user_path()
         ssh_dir = f"{user_path}/etc/ssh"
         if not os.path.isdir(ssh_dir):
             os.mkdir(ssh_dir)
-            create_host_keys_process = await asyncio.create_subprocess_shell(
-                "ssh-keygen -A -f ~"
-            )
-            await create_host_keys_process.wait()
+            subprocess.run("ssh-keygen -A -f ~", shell=True, check=True)
 
     @staticmethod
-    async def __setup_pid_file():
+    def __setup_pid_file():
         user_path = get_user_path()
         run_dir = f"{user_path}/var/run"
         if not os.path.isdir(run_dir):
@@ -128,8 +125,8 @@ class Server:
         )
 
     async def __aenter__(self):
-        await self.__setup_host_keys()
-        await self.__setup_pid_file()
+        self.__setup_host_keys()
+        self.__setup_pid_file()
         self.__setup_authorized_keys_script()
         self.__setup_authorized_keys_script()
         self.data_store.__enter__()
