@@ -34,6 +34,9 @@ class Server:
         python_executable = f"{os.getcwd()}/.venv/bin/python"
         target_script = "/ssh_key_switcheroo/retrieve_public_keys.py"
         ky_cmnd = f"{python_executable} {target_script} %u {self.data_store.get_sshd_config_line()}"
+        python_executable = f"{os.getcwd()}/.venv/bin/python"
+        target_script = "/ssh_key_switcheroo/retrieve_public_keys.py"
+        ky_cmnd = f"{python_executable} {target_script} %u {self.data_store.get_sshd_config_line()}"
         config: list[str] = [
             "LogLevel DEBUG3",
             f"Port {self.port}",
@@ -41,6 +44,7 @@ class Server:
             f"PidFile {user_path}/var/run/sshd.pid",
             "UsePAM yes",
             "AuthorizedKeysFile none",
+            f"AuthorizedKeysCommand {ky_cmnd}",
             f"AuthorizedKeysCommand {ky_cmnd}",
             f"AuthorizedKeysCommandUser {self.authorized_key_command_executing_user}",
             "PasswordAuthentication no",
@@ -126,6 +130,7 @@ class Server:
     async def __aenter__(self):
         await self.__setup_host_keys()
         await self.__setup_pid_file()
+        self.__setup_authorized_keys_script()
         self.__setup_authorized_keys_script()
         self.data_store.__enter__()
         await self.start()
