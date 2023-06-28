@@ -2,6 +2,8 @@
 from typing import Callable
 import os
 import asyncio
+import pathlib
+import subprocess
 from asyncio.subprocess import Process
 from tempfile import NamedTemporaryFile
 from ssh_key_rotator.server.data_stores import DataStore
@@ -29,10 +31,9 @@ class Server:
 
     async def start(self):
         user_path = get_user_path()
-        # parent_dir = pathlib.Path(__file__).parent.resolve()
-        bash_script_path = "/authorized_keys_cmd/retrieve_public_keys.sh"
-        # activation_command = f"{os.getcwd()}/.venv/bin/activate"
-        keys_cmnd = f"{bash_script_path} %u {self.data_store.get_sshd_config_line()}"
+        python_executable = f"{os.getcwd()}/.venv/bin/python"
+        target_script = "/ssh_key_switcheroo/retrieve_public_keys.py"
+        ky_cmnd = f"{python_executable} {target_script} %u {self.data_store.get_sshd_config_line()}"
         config: list[str] = [
             "LogLevel DEBUG3",
             f"Port {self.port}",
@@ -40,7 +41,7 @@ class Server:
             f"PidFile {user_path}/var/run/sshd.pid",
             "UsePAM yes",
             "AuthorizedKeysFile none",
-            f"AuthorizedKeysCommand {keys_cmnd}",
+            f"AuthorizedKeysCommand {ky_cmnd}",
             f"AuthorizedKeysCommandUser {self.authorized_key_command_executing_user}",
             "PasswordAuthentication no",
             "KbdInteractiveAuthentication no",
@@ -103,9 +104,29 @@ class Server:
         if not os.path.isdir(run_dir):
             os.mkdir(run_dir)
 
+    def __setup_authorized_keys_script(self):
+        parent_dir = pathlib.Path(__file__).parent.resolve()
+        app_data_dir = "/ssh_key_switcheroo"
+        python_retrieval_script_path = f"{parent_dir}/retrieve_public_keys.py"
+        target_path = f"{app_data_dir}/retrieve_public_keys.py"
+        if not os.path.exists(app_data_dir):
+            subprocess.run(f"sudo mkdir {app_data_dir}", check=True, shell=True)
+        subprocess.run(
+            f"sudo cp {python_retrieval_script_path} {target_path}",
+            shell=True,
+            check=True,
+        )
+        subprocess.run(
+            f"sudo chgrp 0 {python_retrieval_script_path}", check=True, shell=True
+        )
+        subprocess.run(
+            f"sudo chmod 755 {python_retrieval_script_path}", check=True, shell=True
+        )
+
     async def __aenter__(self):
         await self.__setup_host_keys()
         await self.__setup_pid_file()
+        self.__setup_authorized_keys_script()
         self.data_store.__enter__()
         await self.start()
         return self
