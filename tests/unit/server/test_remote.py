@@ -1,4 +1,5 @@
 "Tests the server with keys stored in S3"
+import os
 from unittest import IsolatedAsyncioTestCase
 from io import StringIO
 import socket
@@ -13,9 +14,13 @@ from ssh_key_rotator.util import get_username
 class TestServerRemote(IsolatedAsyncioTestCase):
     "Test server with keys stored in S3"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bucket_name = os.environ["SSH_KEY_DEV_BUCKET_NAME"]
+
     async def test_retrieve_public_keys_from_s3(self):
         "Can the server retrieve public keys from s3?"
-        data_store = S3DataStore("dev-jesse-yonatan", temp=True)
+        data_store = S3DataStore(self.bucket_name, temp=True)
         async with Server(data_store=data_store) as server:
             server: Server = server
             private_key, public_key = generate_private_public_key()
