@@ -27,12 +27,11 @@ def generate_private_public_key_in_file(
     # If private key was not given a separate dir, use the same one as for public key
     if private_key_dir is None:
         private_key_dir = public_key_dir
-    key = RSA.generate(KEY_SIZE_BITS)
+    private_key, public_key = generate_private_public_key()
     user_path = os.path.expanduser("~")
     user_path_components = user_path.split("/")
     user = user_path_components[len(user_path_components) - 1]
 
-    # ssh_path = f"{user_path}/.ssh"
     if not os.path.isdir(private_key_dir):
         os.makedirs(private_key_dir)
     if not os.path.isdir(public_key_dir):
@@ -41,15 +40,12 @@ def generate_private_public_key_in_file(
     private_key_path = f"{private_key_dir}/{private_key_name}"
     public_key_path = f"{public_key_dir}/{public_key_name}"
 
-    private_key = key.export_key()
-
     with open(private_key_path, "wb") as private_out:
         private_out.write(private_key)
 
     shutil.chown(private_key_path, user=user, group=-1)
     os.chmod(private_key_path, 0o600)
 
-    public_key = key.public_key().export_key(format="OpenSSH")
     with open(public_key_path, "wb") as public_out:
         public_out.write(public_key)
     return private_key, public_key
