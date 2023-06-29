@@ -20,6 +20,9 @@ pipeline {
             }
         }
         stage('Test'){
+            environment{
+                SSH_KEY_DEV_BUCKET_NAME = "bigboom"
+            }
             steps {
                 runtests()
             }
