@@ -1,7 +1,6 @@
 "Module for generating public/private SSH key pairs"
 import os
 import shutil
-from typing import Tuple
 from Crypto.PublicKey import RSA
 
 
@@ -9,7 +8,7 @@ PRIVATE_KEY_NAME: str = "key"
 PUBLIC_KEY_NAME: str = f"{PRIVATE_KEY_NAME}-cert.pub"
 
 
-def generate_private_public_key() -> Tuple[bytes, bytes]:
+def generate_private_public_key() -> tuple[bytes, bytes]:
     "Generates a private and public RSA key"
     key = RSA.generate(1024)
     private_key = key.export_key()
@@ -22,7 +21,7 @@ def generate_private_public_key_in_file(
     private_key_dir: str | None = None,
     public_key_name: str = PUBLIC_KEY_NAME,
     private_key_name: str = PRIVATE_KEY_NAME,
-) -> Tuple[bytes, bytes]:
+) -> tuple[bytes, bytes]:
     "Creates a private key and public key at the given paths"
     # If private key was not given a separate dir, use the same one as for public key
     if private_key_dir is None:
