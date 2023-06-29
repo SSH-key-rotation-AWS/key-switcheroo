@@ -10,6 +10,12 @@ from ssh_key_rotator.custom_keygen import (
 from ssh_key_rotator.util import get_user_path, get_username
 
 
+def _ensure_ssh_home_exists():
+    ssh_home = f"{get_user_path()}/.ssh"
+    if not os.path.isdir(ssh_home):
+        os.makedirs(ssh_home)
+
+
 class Publisher(ABC):
     """Abstract key publisher base class"""
 
@@ -29,7 +35,7 @@ class S3Publisher(Publisher):
     def publish_new_key(self) -> str:
         # Generate new public/private key pair
         private_key, public_key = generate_private_public_key()
-
+        _ensure_ssh_home_exists()
         # Store the new public key in S3 bucket
         s3_client = boto3.client("s3")
         s3_client.put_object(
@@ -39,7 +45,10 @@ class S3Publisher(Publisher):
         )
 
         # Store the private key on the local machine
-        private_key_path = f"{get_user_path()}/.ssh/{self.host}/{self.user_id}"
+        private_key_dir = f"{get_user_path()}/.ssh/{self.host}"
+        if not os.path.isdir(private_key_dir):
+            os.makedirs(private_key_dir)
+        private_key_path = f"{private_key_dir}/{self.user_id}"
         with open(private_key_path, "wb") as private_out:
             private_out.write(private_key)
         shutil.chown(private_key_path, user=get_username(), group=-1)
@@ -57,6 +66,7 @@ class LocalPublisher(Publisher):
 
     def publish_new_key(self) -> str:
         user_path = os.path.expanduser("~")
+        _ensure_ssh_home_exists()
         _, public_key = generate_private_public_key_in_file(
             f"{user_path}/.ssh/{self.host}",
             private_key_name=self.user_id,

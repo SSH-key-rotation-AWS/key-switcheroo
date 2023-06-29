@@ -5,10 +5,9 @@ import os
 import boto3
 
 
-def get_public_keys_local(connecting_user: str) -> str:
+def get_public_keys_local(connecting_user: str, ssh_home_dir: str) -> str:
     host_name = socket.getfqdn()
-    user_path = os.path.expanduser("~")
-    key_dir = f"{user_path}/.ssh/{host_name}"
+    key_dir = f"{ssh_home_dir}/{host_name}"
     key_path = f"{key_dir}/{connecting_user}-cert.pub"
     if not os.path.isdir(key_dir):
         os.makedirs(key_dir)
@@ -32,6 +31,6 @@ if __name__ == "__main__":
     CONNECTING_USER = sys.argv[1]
     ORIGIN = sys.argv[2]
     if ORIGIN == "local":
-        print(get_public_keys_local(CONNECTING_USER))
+        print(get_public_keys_local(CONNECTING_USER, sys.argv[3]))
     elif ORIGIN == "s3":
         print(get_public_keys_s3(CONNECTING_USER, sys.argv[3]))
