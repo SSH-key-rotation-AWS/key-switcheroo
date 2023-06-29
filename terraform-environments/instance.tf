@@ -1,5 +1,5 @@
 resource "aws_security_group" "security" {
-  name        = "ec2_security2"
+  name        = "ec2_security"
   description = "Give correct security for ec2"
   #tanis vpc = vpc-0bfb64215145a3e13
   vpc_id      = "vpc-0bfb64215145a3e13"
@@ -33,13 +33,14 @@ resource "aws_security_group" "security" {
   }
 
   tags = {
-    Name = "ec2_security2"
+    Name = "ec2_security"
   }
  }
 
 resource "aws_instance" "app_server" {
   # creates ec2 instance
-  ami = "ami-090e0fc566929d98b"
+  # amazon linux 2 ami ami-090e0fc566929d98b
+  ami = "ami-053b0d53c279acc90"
   instance_type = "t2.micro"
   vpc_security_group_ids  =[aws_security_group.security.id]
   tags = {
@@ -47,15 +48,22 @@ resource "aws_instance" "app_server" {
   }
   user_data = <<-EOF
   #!/bin/bash
-  sudo yum update
-  sudo wget -O /etc/yum.repos.d/jenkins.repo \
-    https://pkg.jenkins.io/redhat-stable/jenkins.repo
-  sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
-  sudo yum upgrade
-  sudo amazon-linux-extras install java-openjdk11 -y
-  sudo dnf install java-11-amazon-corretto -y
-  sudo yum install jenkins -y
-  sudo systemctl enable jenkins
-  sudo systemctl start jenkins
+  sudo apt-get update
+  sudo apt-get upgrade
+  sudo apt-get install openjdk-11-jdk
+  curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee \
+    /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+  echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+    https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+    /etc/apt/sources.list.d/jenkins.list > /dev/null
+  sudo apt-get install jenkins
+  sudo systemctl start jenkins.service
+  sudo apt install wget build-essential libncursesw5-dev libssl-dev \
+    libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev
+  sudo add-apt-repository ppa:deadsnakes/ppa
+  sudo apt install python3.11
+  sudo apt install python3-pip
+  pip install virtualenv
+  echo 'export SSH_KEY_DEV_BUCKET_NAME="testing-bucket-team-henrique"' >> /etc/profile.d/custom_env.sh
   EOF
 }
