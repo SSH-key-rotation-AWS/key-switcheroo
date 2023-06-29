@@ -6,6 +6,7 @@ from Crypto.PublicKey import RSA
 
 PRIVATE_KEY_NAME: str = "key"
 PUBLIC_KEY_NAME: str = f"{PRIVATE_KEY_NAME}-cert.pub"
+KEY_SIZE_BITS = 2048
 
 
 def generate_private_public_key() -> tuple[bytes, bytes]:
@@ -26,7 +27,7 @@ def generate_private_public_key_in_file(
     # If private key was not given a separate dir, use the same one as for public key
     if private_key_dir is None:
         private_key_dir = public_key_dir
-    key = RSA.generate(1024)
+    key = RSA.generate(KEY_SIZE_BITS)
     user_path = os.path.expanduser("~")
     user_path_components = user_path.split("/")
     user = user_path_components[len(user_path_components) - 1]
