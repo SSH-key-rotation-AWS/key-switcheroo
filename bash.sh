@@ -48,5 +48,3 @@ cat "$repo_dir" >> "$system_dir"
 
 #make pre-commit file executable
 chmod +x "$system_dir"
-
-

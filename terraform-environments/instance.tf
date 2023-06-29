@@ -47,7 +47,7 @@ resource "aws_instance" "app_server" {
     Name = "TeamHenrique"
   }
   user_data = <<-EOF
-  #!/bin/bash
+  #!/usr/bin/bash
   sudo apt-get update
   sudo apt-get upgrade
   sudo apt-get install openjdk-11-jdk
