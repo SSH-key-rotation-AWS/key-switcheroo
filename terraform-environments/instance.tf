@@ -66,4 +66,4 @@ resource "aws_instance" "app_server" {
   pip install virtualenv
   echo 'export SSH_KEY_DEV_BUCKET_NAME="testing-bucket-team-henrique"' >> /etc/profile.d/custom_env.sh
   EOF
-}
+} 
