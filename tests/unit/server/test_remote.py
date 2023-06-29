@@ -3,6 +3,7 @@ import os
 from unittest import IsolatedAsyncioTestCase
 from io import StringIO
 import socket
+from hamcrest import assert_that, has_item, contains_string
 from paramiko import SSHClient, RSAKey, AutoAddPolicy
 import boto3
 from ssh_key_rotator.server.server import Server
@@ -42,4 +43,5 @@ class TestServerRemote(IsolatedAsyncioTestCase):
                 pkey=private_key_paramiko,
             )
             key_fingerprint = private_key_paramiko.fingerprint  # type: ignore
-            self.assertTrue(any(key_fingerprint in line for line in await server.logs))
+            logs = await server.logs
+            assert_that(logs, has_item(contains_string(key_fingerprint)))
