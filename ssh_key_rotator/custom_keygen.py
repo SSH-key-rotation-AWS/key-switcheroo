@@ -11,7 +11,7 @@ KEY_SIZE_BITS = 2048
 
 def generate_private_public_key() -> tuple[bytes, bytes]:
     "Generates a private and public RSA key"
-    key = RSA.generate(1024)
+    key = RSA.generate(KEY_SIZE_BITS)
     private_key = key.export_key()
     public_key = key.public_key().export_key(format="OpenSSH")
     return private_key, public_key
