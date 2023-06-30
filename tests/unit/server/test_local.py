@@ -15,7 +15,7 @@ class TestServerLocal(IsolatedAsyncioTestCase):
     "Test server with local keys"
 
     async def test_retrieve_public_keys_locally(self):
-        data_store = FileSystemDataStore()
+        data_store = FileSystemDataStore(temp=True)
         async with Server(data_store=data_store) as server:
             server: Server = server
             host = socket.getfqdn()

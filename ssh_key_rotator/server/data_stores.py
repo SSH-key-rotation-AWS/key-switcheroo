@@ -1,6 +1,7 @@
 "Data stores that specifies where a Server stores its keys"
 import os
 from abc import ABC, abstractmethod
+from tempfile import TemporaryDirectory
 import boto3
 from ssh_key_rotator.util import get_user_path
 
@@ -63,18 +64,35 @@ class FileSystemDataStore(DataStore):
 
     def __init__(self, temp: bool = False):
         self.temp = temp
-        self.dir = f"{get_user_path()}/.ssh"
+        home_dir = f"{get_user_path()}/.ssh"
+        if temp:
+            self._dir: str | TemporaryDirectory = (
+                TemporaryDirectory(  # pylint: disable=consider-using-with
+                    prefix="ssh-keys-", dir=home_dir
+                )
+            )
+        else:
+            self._dir = home_dir
+
+    @property
+    def dir(self) -> str:
+        if isinstance(self._dir, str):
+            return self._dir
+        return self._dir.name
 
     def get_sshd_config_line(self) -> str:
-        return "local"
+        return f"local {self.dir}"
 
     def delete_key(self, host: str, user: str):
-        os.remove(f"{get_user_path()}/.ssh/{host}/{user}")
+        os.remove(f"{self.dir}/{host}/{user}")
 
     def __enter__(self):
-        if self.temp and not os.path.isdir(self.dir):
-            os.mkdir(self.dir)
+        if isinstance(self._dir, str):
+            if not os.path.isdir(self.dir):
+                os.mkdir(self.dir)
+        else:
+            self._dir.__enter__()
 
     def __exit__(self, exc_t, exc_v, exc_tb):
-        if self.temp:
-            os.rmdir(self.dir)
+        if isinstance(self._dir, TemporaryDirectory):
+            self._dir.__exit__(None, None, None)
