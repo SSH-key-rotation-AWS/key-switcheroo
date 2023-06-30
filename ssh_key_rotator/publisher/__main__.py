@@ -10,22 +10,17 @@ def create_argument_parser() -> ArgumentParser:
         epilog="Thanks for using key_publisher! :)",
     )
 
-    # argument_parser.add_argument("user")
-    # argument_parser.add_argument("hostname")
-    # argument_parser.add_argument("-ds", "--datastore", choices=["s3", "local"], default="s3")
-    arguments = argument_parser.add_argument_group("Required Arguments")
-    arguments.add_argument("hostname")
-    arguments.add_argument("user")
+    argument_parser.add_argument("hostname")
+    argument_parser.add_argument("user")
 
-    options = argument_parser.add_argument_group("Options")
-    options.add_argument(
+    argument_parser.add_argument(
         "-ds",
         "--datastore",
         choices=["s3", "local"],
         default="s3",
         help="choose where to store the public key, on S3 or on the local system (default is S3)",
     )
-    options.add_argument(
+    argument_parser.add_argument(
         "--bucket",
         required=False,
         help="If s3 is selected, the bucket name to store the key in",
