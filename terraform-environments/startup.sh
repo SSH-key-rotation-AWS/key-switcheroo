@@ -6,14 +6,11 @@
   sudo apt install python3.11 -y
   sudo apt -y install openjdk-11-jdk
   #commands past here need to be fixed
-  curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee \
-    /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-  echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-    https://pkg.jenkins.io/debian binary/ | sudo tee \
-    /etc/apt/sources.list.d/jenkins.list > /dev/null
-  sudo apt -y install fontconfig openjdk-11-jre
-  sudo apt install jenkins
-  sudo systemctl start jenkins.service
+  sudo ./aws/install
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  sudo apt install unzip
+  unzip awscliv2.zip
+  nohup java -jar jenkins.war &
   sudo apt install wget build-essential libncursesw5-dev libssl-dev \
     libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev
   sudo add-apt-repository ppa:deadsnakes/ppa
