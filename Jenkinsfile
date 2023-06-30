@@ -1,16 +1,17 @@
-path=".venv/bin/activate"
+activatevenv="~/team-henrique/.venv/bin/activate"
+python="/usr/bin/python3.11"
 
 def runShellBuildStage(){
     sh """
-        python3.11 -m venv .venv
-        . $path
+        $python -m venv .venv
+        . $activatevenv
         pip install -r requirements.txt
     """  
 }
 def runtests(){
     sh """
-        . .venv/bin/activate
-        python3.11 -m unittest
+        . $activatevenv
+        $python -m unittest
     """   
 }
 pipeline {

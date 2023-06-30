@@ -9,6 +9,7 @@
   sudo apt install unzip
   unzip awscliv2.zip
   sudo ./aws/install
+  curl -OL http://mirrors.jenkins-ci.org/war/latest/jenkins.war
   nohup java -jar jenkins.war & sudo apt install wget build-essential libncursesw5-dev libssl-dev \
     libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev -y
   sudo apt install python3-pip -y
