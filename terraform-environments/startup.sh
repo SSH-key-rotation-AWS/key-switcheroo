@@ -1,17 +1,19 @@
-#!/usr/bin/bashsud
+#!/usr/bin/bash
   set -x
-  #sudo chmod u+w /etc/needrestart/needresart.conf 
-  #echo "\$nrconf{restart} = 'a';" >> /etc/needrestart/needresart.conf
-  sudo apt install python3.11
-  sudo apt-get update && sudo apt-get -y upgrade
-  sudo apt-get -y install openjdk-11-jdk
+  #export DEBIAN_FRONTEND=noninteractive
+  sudo sed -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
+  sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
+  sudo apt update && sudo apt -y upgrade
+  sudo apt install python3.11 -y
+  sudo apt -y install openjdk-11-jdk
+  #commands past here need to be fixed
   curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee \
     /usr/share/keyrings/jenkins-keyring.asc > /dev/null
   echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
     https://pkg.jenkins.io/debian binary/ | sudo tee \
     /etc/apt/sources.list.d/jenkins.list > /dev/null
-  sudo apt-get -y install fontconfig openjdk-11-jre
-  sudo apt-get install jenkins
+  sudo apt -y install fontconfig openjdk-11-jre
+  sudo apt install jenkins
   sudo systemctl start jenkins.service
   sudo apt install wget build-essential libncursesw5-dev libssl-dev \
     libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev
