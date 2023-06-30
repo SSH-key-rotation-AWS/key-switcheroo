@@ -82,6 +82,8 @@ class Server:
             stderr=asyncio.subprocess.DEVNULL,
         )
         await kill_task.wait()
+        log_file = f"{get_user_path()}/ssh/sshd_log"
+        os.remove(log_file)
 
     @property
     async def logs(self) -> list[str]:

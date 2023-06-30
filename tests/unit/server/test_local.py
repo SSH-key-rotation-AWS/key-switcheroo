@@ -2,6 +2,7 @@
 from io import StringIO
 import socket
 from unittest import IsolatedAsyncioTestCase
+from hamcrest import assert_that, has_item, contains_string
 from paramiko.client import SSHClient, AutoAddPolicy
 from paramiko import RSAKey
 from ssh_key_rotator.server.server import Server
@@ -34,4 +35,5 @@ class TestServerLocal(IsolatedAsyncioTestCase):
                 port=server.port,
                 pkey=key,
             )
-            self.assertTrue(any(key_fingerprint in line for line in await server.logs))
+            logs = await server.logs
+            assert_that(logs, has_item(contains_string(key_fingerprint)))
