@@ -10,7 +10,13 @@ class AWSMetricPublisher:
     Name space AWS cloud_watch will publish the metrics to.
     Region the cloud_watch resource will be placed on."""
 
-    def __init__(self, aws_region: str, name_space_name: str, instance_id: str, do_not_enable: bool):
+    def __init__(
+        self,
+        aws_region: str,
+        name_space_name: str,
+        instance_id: str,
+        do_not_enable: bool,
+    ):
         """Name space represents the title where under all metrics will be published to.
         region represents the region AWS CloudWatch resource should be located"""
         self.region = aws_region
@@ -20,21 +26,28 @@ class AWSMetricPublisher:
         self.do_not_enable = do_not_enable
 
     @contextmanager
-    def timeit_and_publish(self, metric_name: str):
-        """A key generation metric context manager to calculate
-        the time it took for a key to be generated
-        and publish metric to AWS CloudWatch"""
+    def metric_publisher(self,key_count:bool,key_count_metric_name:str,key_publish_time:bool,key_publish_time_metric_name:str):
         if self.do_not_enable:
             yield
             return
-
         start_time = 0
         try:
             start_time = time.time()
-            yield
+            yield 
         finally:
             end_time = time.time() - start_time
-            response = self.cloud_watch.put_metric_data(
+            if key_count:
+                self._inc_count_metric(metric_name=key_count_metric_name)
+            if key_publish_time:
+                self._timeit_and_publish(metric_name=key_publish_time_metric_name,end_time=end_time)
+
+
+   
+    def _timeit_and_publish(self, metric_name: str,end_time:float):
+        """A key generation metric context manager to calculate
+        the time it took for a key to be generated
+        and publish metric to AWS CloudWatch"""         
+        self.cloud_watch.put_metric_data(
                 Namespace=self.name_space,
                 MetricData=[
                     {
@@ -47,15 +60,13 @@ class AWSMetricPublisher:
                     },
                 ],
             )
-            return response
-    def inc_count_metric(self, metric_name: str):
+
+    def _inc_count_metric(self, metric_name: str):
         """Function that publishes the key count
         to AWS CloudWatch under the 'key count' metric,
         within the initialized namespace"""
-        if self.do_not_enable:
-            return
-        
-        response = self.cloud_watch.put_metric_data(
+
+        self.cloud_watch.put_metric_data(
             Namespace=self.name_space,
             MetricData=[
                 {
@@ -68,4 +79,3 @@ class AWSMetricPublisher:
                 }
             ],
         )
-        return response
