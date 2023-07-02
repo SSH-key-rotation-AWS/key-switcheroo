@@ -14,7 +14,6 @@ class AWSMetricPublisher:
         """Name space represents the title where under all metrics will be published to.
         region represents the region AWS CloudWatch resource should be located"""
         self.region = aws_region
-        self.generated_keys = 0
         self.cloud_watch = boto3.client("cloudwatch", region_name=self.region)
         self.name_space = name_space_name
         self.instance_id = instance_id
@@ -53,7 +52,9 @@ class AWSMetricPublisher:
         """Function that publishes the key count
         to AWS CloudWatch under the 'key count' metric,
         within the initialized namespace"""
-        self.generated_keys += 1
+        if self.do_not_enable:
+            return
+        
         response = self.cloud_watch.put_metric_data(
             Namespace=self.name_space,
             MetricData=[
@@ -63,7 +64,7 @@ class AWSMetricPublisher:
                         {"Name": metric_name, "Value": self.instance_id},
                     ],
                     "Unit": "Count",
-                    "Value": self.generated_keys,
+                    "Value": 1,
                 }
             ],
         )

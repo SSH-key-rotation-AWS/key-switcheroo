@@ -12,7 +12,7 @@ import random
 class aws_metric_test(unittest.TestCase):
     def setUp(self) -> None:
         self.REGION = "us-east-1"
-        self.INSTANCE_ID = "TEST INSTANCE " + self.random_name_generator()
+        self.INSTANCE_ID = "TEST INSTANCE " + self._random_name_generator()
         self.NAME_SPACE = "TESTING NAMESPACE FINAL"
         self.cloud_watch = AWSMetricPublisher(
         aws_region=self.REGION,
@@ -26,7 +26,7 @@ class aws_metric_test(unittest.TestCase):
         self.current_time = current_datetime - datetime.timedelta(days=1)
         self.end_date_time = current_datetime + datetime.timedelta(days=1)
 
-    def random_name_generator(self):
+    def _random_name_generator(self):
         random_string = "".join(random.choices(string.ascii_letters, k=10))
         return random_string
 
