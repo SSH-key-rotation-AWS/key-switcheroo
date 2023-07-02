@@ -37,7 +37,7 @@ class AWSMetricPublisher:
         finally:
             end_time = time.time() - start_time
             if key_count:
-                self._inc_count_metric(metric_name=key_count_metric_name)
+                self._count_metric(metric_name=key_count_metric_name)
             if key_publish_time:
                 self._timeit_and_publish(metric_name=key_publish_time_metric_name,end_time=end_time)
 
@@ -61,7 +61,7 @@ class AWSMetricPublisher:
                 ],
             )
 
-    def _inc_count_metric(self, metric_name: str):
+    def _count_metric(self, metric_name: str):
         """Function that publishes the key count
         to AWS CloudWatch under the 'key count' metric,
         within the initialized namespace"""
