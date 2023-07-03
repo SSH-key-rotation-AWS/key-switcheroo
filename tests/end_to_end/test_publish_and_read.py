@@ -9,22 +9,27 @@ from ssh_key_rotator.util import get_username, get_user_path
 
 
 class EndToEnd(IsolatedAsyncioTestCase):
+    "Tests publishing and retrieving SSH keys"
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bucket_name = os.environ["SSH_KEY_DEV_BUCKET_NAME"]
 
     async def test_publish_and_retrieve(self):
+        #Initialize a temporary S3 data store
         data_store = S3DataStore(self.bucket_name, temp=True)
+        #Start the server with the S3 data store
         async with Server(data_store=data_store) as server:
+            #Create public/private key pair and publish the public key to S3
             S3Publisher(
                 self.bucket_name, socket.getfqdn(), get_username()
             ).publish_new_key()
+            #Create an SSH client to connect to the server
             client = SSHClient()
             client.set_missing_host_key_policy(AutoAddPolicy())
             pkey_location = (
                 f"{get_user_path()}/.ssh/{socket.getfqdn()}/{get_username()}"
             )
-            private_key = RSAKey.from_private_key_file(pkey_location)
+            private_key = RSAKey.from_private_key_file(pkey_location) #Fetch private key
             try:
                 client.connect(hostname="127.0.0.1", port=server.port, pkey=private_key)
             except Exception:  # pylint: disable=broad-exception-caught
