@@ -12,3 +12,6 @@ description = "(Optional) A state of versioning."
 default = "Disabled"
 }
 
+variable "username"{
+    description = "Create a username"
+}
