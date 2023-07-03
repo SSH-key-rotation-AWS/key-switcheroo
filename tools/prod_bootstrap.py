@@ -62,9 +62,13 @@ class ProdBootstrap:
 
     @staticmethod
     def _ask(question: str) -> bool:
-        print(question)
-        yes_no = input("please respond 'yes' if you are OK with this or 'no' to exit")
+        print(question+"\n")
+        yes_no = input("please respond 'yes' if you are OK with this or 'no' to exit\n")
         return yes_no == "yes"
+
+    @staticmethod
+    def _print_separator():
+        print("--------------------\n")
 
     @classmethod
     def run_setup(cls):
@@ -73,27 +77,21 @@ class ProdBootstrap:
             return
 
         python_exec = input(
-            """ssh_switcheroo requires boto3 to be installed in order to access AWS.
-                Please provide an absolute path to your python executable which can import
-                boto3.
-                
-                You can reference the system executable if you wish, or create a virtual environment
-                and reference the executable in /[venv_folder]/bin/python.
+"""ssh_switcheroo requires boto3 to be installed in order to access AWS.
+Please provide an absolute path to your python executable which can import
+boto3.
 
-                To find the system executable, run 'which python'
+You can reference the system executable if you wish, or create a virtual environment
+and reference the executable in /[venv_folder]/bin/python.
 
-                Furthermore, this script should be run with the target executable. If it is not,
-                please exit (see below) and re-run the script.
-                
-                If you wish to exit now and configure your python executable, type 'exit'.
-                Otherwise input the *absolute* path to your python executable."""
+To find the system executable, run 'which python'
+
+If you wish to exit now and configure your python executable, type 'exit'.
+Otherwise input the *absolute* path to your python executable.\n"""
         )
 
         if python_exec == "exit":
-            print(
-                """Exiting... Please ensure that when you run this script again, you 
-                  run it with the target executable."""
-            )
+            print("Exiting...")
             return
         ok_to_use_exec = ProdBootstrap._ask(f"Your python executable: {python_exec}")
         if not ok_to_use_exec:
@@ -111,47 +109,50 @@ class ProdBootstrap:
         # if not valid_credentials:
         #     print("Could not verify your aws credentials. Please ensure they are installed "+
         #           " at $HOME/.aws with aws configure")
-
+        ProdBootstrap._print_separator()
         ok_to_copy = ProdBootstrap._ask(
-            "Copying key retrieval script "
-            + f"into {cls.retrieval_script_loc}."
-            + "\nThis uses root permissions."
+f"Copying key retrieval script into {cls.retrieval_script_loc}. \
+This uses root permissions."
         )
         if not ok_to_copy:
             return
         cls._copy_retriever_script_into_root()
-
+        ProdBootstrap._print_separator()
         ok_to_config = ProdBootstrap._ask(
-            """Copying sshd config modification into /etc/ssh/sshd_config.d. This "+
-              "modifies the system sshd to use our key retrieval script. 
-              To undo this action, at any time you can simply delete this file and your
-              initial configuration will not be harmed."""
+"""Copying sshd config modification into /etc/ssh/sshd_config.d.
+This modifies the system sshd to use our key retrieval script. 
+
+To undo this action, at any time you can simply delete this file and your \
+initial configuration will not be harmed."""
         )
         if not ok_to_config:
             return
-
+        ProdBootstrap._print_separator()
         ok_with_settings = False
         bucket = ""
         username = ""
         while not ok_with_settings:
             username = input(
-                "input the linux user to for AWS calls, or leave blank for this one"
+"input the linux user to use for AWS calls. This user should have \
+AWS CLI set up.\n"
             )
             if username == "":
                 username = ProdBootstrap._get_username()
+            ProdBootstrap._print_separator()
             bucket = input(
-                "input the S3 bucket name for the public keys to be stored in"
+"input the S3 bucket name for the public keys to be stored in\n"
             )
+            ProdBootstrap._print_separator()
             ok_with_settings = ProdBootstrap._ask(
-                f"""You have selected the following settings:
-                Python Executable (with boto3): {python_exec}
-                Linux User: {username if username!="" else ProdBootstrap._get_username()}
-                S3 Bucket: {bucket}
-            """
+f"""You have selected the following settings:
+Python Executable (with boto3): {python_exec}
+Linux User: {username if username!="" else ProdBootstrap._get_username()}
+S3 Bucket: {bucket}
+"""
             )
         cls._copy_sshd_config(bucket, python_exec, username)
 
-        print("Finished configuration")
+        print("Finished configuration!")
 
 
 if __name__ == "__main__":
