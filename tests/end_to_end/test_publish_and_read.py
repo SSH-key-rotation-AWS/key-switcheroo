@@ -24,8 +24,7 @@ class EndToEnd(IsolatedAsyncioTestCase):
                 self.bucket_name, socket.getfqdn(), get_username()
             )
             publisher.publish_new_key() #Create public/private key pair and publish the public key to S3
-            #Create an SSH client to connect to the server
-            client = SSHClient()
+            client = SSHClient() #Create an SSH client to connect to the server
             client.set_missing_host_key_policy(AutoAddPolicy())
             pkey_location = (
                 f"{get_user_path()}/.ssh/{socket.getfqdn()}/{get_username()}"
