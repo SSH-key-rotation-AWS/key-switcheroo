@@ -19,10 +19,11 @@ class EndToEnd(IsolatedAsyncioTestCase):
         data_store = S3DataStore(self.bucket_name, temp=True)
         #Start the server with the S3 data store
         async with Server(data_store=data_store) as server:
-            #Create public/private key pair and publish the public key to S3
-            S3Publisher(
+            #Instantiate the S3 publisher
+            publisher = S3Publisher(
                 self.bucket_name, socket.getfqdn(), get_username()
-            ).publish_new_key()
+            )
+            publisher.publish_new_key() #Create public/private key pair and publish the public key to S3
             #Create an SSH client to connect to the server
             client = SSHClient()
             client.set_missing_host_key_policy(AutoAddPolicy())
