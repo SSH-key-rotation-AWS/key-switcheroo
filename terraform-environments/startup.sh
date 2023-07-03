@@ -39,7 +39,7 @@
   -H "Cache-Control: max-age=0" \
   -H "Connection: keep-alive" \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -H "Cookie: JSESSIONID.c4e02e7e=node0fbw6py1od3r215f5dqa4fz4hv0.node0" \
+  -H "Cookie: $cookie_jar" \
   -H "DNT: 1" \
   -H "Origin: $url" \
   -H "Referer: $url/login?from=%2F" \
@@ -48,4 +48,96 @@
   --data-raw "from=%2F&j_username=admin&j_password=$password&json=%7B%22from%22%3A+%22%2F%22%2C+%22j_username%22%3A+%22admin%22%2C+%22j_password%22%3A+%$password%22%2C+%22%24redact%22%3A+%22j_password%22%7D" \
   --compressed \
   --insecure
+
+  # GET for next page
+  # curl 'http://18.212.26.209:8080/' \
+  # -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
+  # -H 'Accept-Language: en-US,en;q=0.9' \
+  # -H 'Cache-Control: max-age=0' \
+  # -H 'Connection: keep-alive' \
+  # -H 'Cookie: JSESSIONID.dcb48f34=node0m3p12kij0pfaezvyz6q477o6.node0' \
+  # -H 'DNT: 1' \
+  # -H 'Referer: http://18.212.26.209:8080/login?from=%2F' \
+  # -H 'Upgrade-Insecure-Requests: 1' \
+  # -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36' \
+  # --compressed \
+  # --insecure
+
+curl "$url/pluginManager/installPlugins" \
+  -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+  -H 'Accept-Language: en-US,en;q=0.9' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json' \
+  -H "Cookie: $cookie_jar" \
+  -H 'DNT: 1' \
+  -H "Jenkins-Crumb: $only_crumb" \
+  -H "Origin: $url" \
+  -H "Referer: $url/" \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36' \
+  -H 'X-Requested-With: XMLHttpRequest' \
+  --data-raw "{\"dynamicLoad\":true,\"plugins\":[\"cloudbees-folder\",\"antisamy-markup-formatter\",\"build-timeout\",\"credentials-binding\",\"timestamper\",\"ws-cleanup\",\"ant\",\"gradle\",\"workflow-aggregator\",\"github-branch-source\",\"pipeline-github-lib\",\"pipeline-stage-view\",\"git\",\"ssh-slaves\",\"matrix-auth\",\"pam-auth\",\"ldap\",\"email-ext\",\"mailer\"],\"Jenkins-Crumb\":\"$only_crumb\"}" \
+  --compressed \
+  --insecure
+
+  # GET for next page
+  # curl 'http://18.212.26.209:8080/setupWizard/setupWizardFirstUser' \
+  # -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
+  # -H 'Accept-Language: en-US,en;q=0.9' \
+  # -H 'Connection: keep-alive' \
+  # -H 'Cookie: JSESSIONID.dcb48f34=node0m3p12kij0pfaezvyz6q477o6.node0' \
+  # -H 'DNT: 1' \
+  # -H 'Referer: http://18.212.26.209:8080/' \
+  # -H 'Upgrade-Insecure-Requests: 1' \
+  # -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36' \
+  # --compressed \
+  # --insecure
+
+  curl "$url/setupWizard/createAdminUser" \
+  -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+  -H 'Accept-Language: en-US,en;q=0.9' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -H "Cookie: $cookie_jar" \
+  -H 'DNT: 1' \
+  -H "Jenkins-Crumb: $only_crumb" \
+  -H "Origin: $url" \
+  -H "Referer: $url/" \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36' \
+  -H 'X-Requested-With: XMLHttpRequest' \
+  --data-raw "username=$username&password1=$password&password2=AWS_SSH&fullname=Ari%20Krakauer&email=krakauer%40mail.yu.edu&Jenkins-Crumb=$only_crumb&json=%7B%22username%22%3A%20%22TeamHenrique%22%2C%20%22password1%22%3A%20%22AWS_SSH%22%2C%20%22%24redact%22%3A%20%5B%22password1%22%2C%20%22password2%22%5D%2C%20%22password2%22%3A%20%22AWS_SSH%22%2C%20%22fullname%22%3A%20%22Ari%20Krakauer%22%2C%20%22email%22%3A%20%22krakauer%40mail.yu.edu%22%2C%20%22Jenkins-Crumb%22%3A%20%222470afbe2f7d0954b61a98b45ce440eef94526dbe9b924227c17c07fd2bf5de2%22%7D&core%3Aapply=&Submit=Save&json=%7B%22username%22%3A%20%22TeamHenrique%22%2C%20%22password1%22%3A%20%22AWS_SSH%22%2C%20%22%24redact%22%3A%20%5B%22password1%22%2C%20%22password2%22%5D%2C%20%22password2%22%3A%20%22AWS_SSH%22%2C%20%22fullname%22%3A%20%22Ari%20Krakauer%22%2C%20%22email%22%3A%20%22krakauer%40mail.yu.edu%22%2C%20%22Jenkins-Crumb%22%3A%20%$only_crumb%22%7D" \
+  --compressed \
+  --insecure
+
+  curl "$url/setupWizard/configureInstance" \
+  -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+  -H 'Accept-Language: en-US,en;q=0.9' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -H "Cookie: $cookie_jar" \
+  -H 'DNT: 1' \
+  -H "Jenkins-Crumb: $only_crumb" \
+  -H "Origin: $url" \
+  -H "Referer: $url/" \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36' \
+  -H 'X-Requested-With: XMLHttpRequest' \
+  --data-raw "rootUrl=http%3A%2F%2F44.212.29.128%3A8080%2F&Jenkins-Crumb=$only_crumb&json=%7B%22rootUrl%22%3A%20%22http%3A%2F%2F44.212.29.128%3A8080%2F%22%2C%20%22Jenkins-Crumb%22%3A%20%22c1bac9707af25665114ceec8582b47b68c7a9c136b6f0f64cdf94f7e95a915cb%22%7D&core%3Aapply=&Submit=Save&json=%7B%22rootUrl%22%3A%20%22http%3A%2F%2F44.212.29.128%3A8080%2F%22%2C%20%22Jenkins-Crumb%22%3A%20%$only_crumb%22%7D" \
+  --compressed \
+  --insecure
+
+  curl "$url/setupWizard/completeInstall" \
+  -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+  -H 'Accept-Language: en-US,en;q=0.9' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json' \
+  -H "Cookie: $cookie_jar" \
+  -H 'DNT: 1' \
+  -H "Jenkins-Crumb: $only_crumb" \
+  -H "Origin: $url" \
+  -H "Referer: $url/" \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36' \
+  -H 'X-Requested-With: XMLHttpRequest' \
+  --data-raw "{\"Jenkins-Crumb\":\"$only_crumb\"}" \
+  --compressed \
+  --insecure
+
   #echo 'export SSH_KEY_DEV_BUCKET_NAME="testing-bucket-team-henrique"' >> /etc/profile.d/custom_env.sh
