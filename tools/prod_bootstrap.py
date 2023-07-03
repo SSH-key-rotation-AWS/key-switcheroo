@@ -62,7 +62,7 @@ class ProdBootstrap:
 
     @staticmethod
     def _ask(question: str) -> bool:
-        print(question+"\n")
+        print(question + "\n")
         yes_no = input("please respond 'yes' if you are OK with this or 'no' to exit\n")
         return yes_no == "yes"
 
@@ -77,7 +77,7 @@ class ProdBootstrap:
             return
 
         python_exec = input(
-"""ssh_switcheroo requires boto3 to be installed in order to access AWS.
+            """ssh_switcheroo requires boto3 to be installed in order to access AWS.
 Please provide an absolute path to your python executable which can import
 boto3.
 
@@ -111,7 +111,7 @@ Otherwise input the *absolute* path to your python executable.\n"""
         #           " at $HOME/.aws with aws configure")
         ProdBootstrap._print_separator()
         ok_to_copy = ProdBootstrap._ask(
-f"Copying key retrieval script into {cls.retrieval_script_loc}. \
+            f"Copying key retrieval script into {cls.retrieval_script_loc}. \
 This uses root permissions."
         )
         if not ok_to_copy:
@@ -119,7 +119,7 @@ This uses root permissions."
         cls._copy_retriever_script_into_root()
         ProdBootstrap._print_separator()
         ok_to_config = ProdBootstrap._ask(
-"""Copying sshd config modification into /etc/ssh/sshd_config.d.
+            """Copying sshd config modification into /etc/ssh/sshd_config.d.
 This modifies the system sshd to use our key retrieval script. 
 
 To undo this action, at any time you can simply delete this file and your \
@@ -133,18 +133,18 @@ initial configuration will not be harmed."""
         username = ""
         while not ok_with_settings:
             username = input(
-"input the linux user to use for AWS calls. This user should have \
+                "input the linux user to use for AWS calls. This user should have \
 AWS CLI set up.\n"
             )
             if username == "":
                 username = ProdBootstrap._get_username()
             ProdBootstrap._print_separator()
             bucket = input(
-"input the S3 bucket name for the public keys to be stored in\n"
+                "input the S3 bucket name for the public keys to be stored in\n"
             )
             ProdBootstrap._print_separator()
             ok_with_settings = ProdBootstrap._ask(
-f"""You have selected the following settings:
+                f"""You have selected the following settings:
 Python Executable (with boto3): {python_exec}
 Linux User: {username if username!="" else ProdBootstrap._get_username()}
 S3 Bucket: {bucket}
