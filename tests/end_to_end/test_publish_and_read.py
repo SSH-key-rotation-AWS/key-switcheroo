@@ -2,10 +2,10 @@ import os
 import socket
 from unittest import IsolatedAsyncioTestCase
 from paramiko import SSHClient, AutoAddPolicy, RSAKey
-from ssh_key_rotator.server.server import Server
-from ssh_key_rotator.server.data_stores import S3DataStore
-from ssh_key_rotator.publisher.key_publisher import S3Publisher
-from ssh_key_rotator.util import get_username, get_user_path
+from key_switcheroo.server.server import Server
+from key_switcheroo.server.data_stores import S3DataStore
+from key_switcheroo.publisher.key_publisher import S3Publisher
+from key_switcheroo.util import get_username, get_user_path
 
 
 class EndToEnd(IsolatedAsyncioTestCase):

@@ -2,7 +2,7 @@ import os
 from unittest import TestCase
 import boto3
 from hamcrest import assert_that, contains_string
-from ssh_key_rotator.publisher.key_publisher import S3Publisher
+from key_switcheroo.publisher.key_publisher import S3Publisher
 
 
 class S3PublisherTests(TestCase):

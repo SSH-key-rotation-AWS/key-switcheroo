@@ -6,9 +6,9 @@ import pathlib
 import subprocess
 from asyncio.subprocess import Process
 from tempfile import NamedTemporaryFile
-from ssh_key_rotator.server.data_stores import DataStore
-from ssh_key_rotator.util import get_open_port
-from ssh_key_rotator.util import get_user_path, get_username
+from key_switcheroo.server.data_stores import DataStore
+from key_switcheroo.util import get_open_port
+from key_switcheroo.util import get_user_path, get_username
 
 
 class Server:
