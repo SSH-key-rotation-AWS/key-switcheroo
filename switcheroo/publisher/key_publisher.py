@@ -37,14 +37,14 @@ class S3Publisher(Publisher):
         s3_client.put_object(
             Body=public_key,
             Bucket=self.bucket_name,
-            Key=f"{self.host}/{self.user_id}-cert.pub",
+            Key=f"{self.host}/{self.user_id}/{KeyGen.PUBLIC_KEY_NAME}",
         )
 
         # Store the private key on the local machine
-        private_key_dir = f"{get_user_path()}/.ssh/{self.host}"
+        private_key_dir = f"{get_user_path()}/.ssh/{self.host}/{self.user_id}"
         if not os.path.isdir(private_key_dir):
             os.makedirs(private_key_dir)
-        private_key_path = f"{private_key_dir}/{self.user_id}"
+        private_key_path = f"{private_key_dir}/{self.user_id}/{KeyGen.PRIVATE_KEY_NAME}"
         with open(private_key_path, "wb") as private_out:
             private_out.write(private_key)
         shutil.chown(private_key_path, user=get_username(), group=-1)
@@ -64,8 +64,8 @@ class LocalPublisher(Publisher):
         user_path = os.path.expanduser("~")
         _ensure_ssh_home_exists()
         _, public_key = KeyGen.generate_private_public_key_in_file(
-            f"{user_path}/.ssh/{self.host}",
-            private_key_name=self.user_id,
-            public_key_name=f"{self.user_id}-cert.pub",
+            f"{user_path}/.ssh/{self.host}/{self.user_id}",
+            private_key_name=KeyGen.PRIVATE_KEY_NAME,
+            public_key_name=KeyGen.PUBLIC_KEY_NAME,
         )
         return public_key.decode()
