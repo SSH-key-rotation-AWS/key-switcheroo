@@ -6,10 +6,10 @@ import socket
 from hamcrest import assert_that, has_item, contains_string
 from paramiko import SSHClient, RSAKey, AutoAddPolicy
 import boto3
-from ssh_key_rotator.server.server import Server
-from ssh_key_rotator.server.data_stores import S3DataStore
-from ssh_key_rotator.custom_keygen import generate_private_public_key
-from ssh_key_rotator.util import get_username
+from switcheroo.server.server import Server
+from switcheroo.server.data_stores import S3DataStore
+from switcheroo.custom_keygen import generate_private_public_key
+from switcheroo.util import get_username
 
 
 class TestServerRemote(IsolatedAsyncioTestCase):

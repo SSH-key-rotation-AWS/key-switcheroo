@@ -1,8 +1,8 @@
 import os
 from unittest import TestCase
 from hamcrest import assert_that, contains_string
-from ssh_key_rotator.publisher.key_publisher import LocalPublisher
-from ssh_key_rotator.util import get_user_path
+from switcheroo.publisher.key_publisher import LocalPublisher
+from switcheroo.util import get_user_path
 
 
 class LocalPublisherTests(TestCase):

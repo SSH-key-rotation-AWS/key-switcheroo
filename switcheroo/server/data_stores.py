@@ -3,7 +3,7 @@ import os
 from abc import ABC, abstractmethod
 from tempfile import TemporaryDirectory
 import boto3
-from ssh_key_rotator.util import get_user_path
+from switcheroo.util import get_user_path
 
 
 class DataStore(ABC):
