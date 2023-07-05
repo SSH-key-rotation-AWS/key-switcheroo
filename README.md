@@ -32,7 +32,7 @@ The *retriever* tool is designed to be used by server hosts for retrieving the p
 
 ### Key rotation
 
-To enhance security, key-switcheroo includes a key rotation feature. The program periodically swaps and rotates the stored public keys. This process helps mitigate the risks associated with long-term key exposure and strengthens the overall security posture.
+To enhance security, **key-switcheroo** includes a key rotation feature. The program periodically swaps and rotates the stored public keys. This process helps mitigate the risks associated with long-term key exposure and strengthens the overall security posture.
 
 
 ## Where to get it
