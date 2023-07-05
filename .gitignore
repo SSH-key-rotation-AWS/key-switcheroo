@@ -87,3 +87,5 @@ test
 pyrightconfig.json
 *.tfstate
 *.backup
+
+dist/
