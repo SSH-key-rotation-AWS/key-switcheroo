@@ -1,7 +1,47 @@
 "Module for generating public/private SSH key pairs"
+from dataclasses import dataclass, field
+import json
+from typing import IO
+from datetime import datetime
 import os
 import shutil
 from Crypto.PublicKey import RSA
+
+
+@dataclass
+class KeyMetadata:
+    created_by: str
+    time_generated: datetime = field(default_factory=datetime.now)
+
+    def serialize(self, target: IO[str]):
+        """
+        Dump the key metadata into the provided target
+
+        Args:
+            target (IO[str]): Where to dump the data in JSON format
+        """
+        json.dump(
+            {"time_generated": str(self.time_generated), "created_by": self.created_by},
+            target,
+        )
+
+    @classmethod
+    def from_io(cls, source: IO[str]):
+        """Returns the parsed KeyMetadata
+
+        Parse and return the KeyMetadata from the provided source
+
+        Args:
+            source (IO[str]): Where to get the JSON from
+        Returns:
+            metadata (KeyMetadata): The key metadata
+        """
+        json_obj = json.load(source)
+        time_generated = datetime.strptime(
+            json_obj["time_generated"], "%Y-%m-%d %H:%M:%S"
+        )
+        created_by = json_obj["created_by"]
+        return KeyMetadata(created_by, time_generated)
 
 
 class KeyGen:
