@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from key_switcheroo.publisher.key_publisher import LocalPublisher, S3Publisher
+from switcheroo.publisher.key_publisher import LocalPublisher, S3Publisher
 
 
 def create_argument_parser() -> ArgumentParser:

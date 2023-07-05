@@ -5,10 +5,10 @@ from unittest import IsolatedAsyncioTestCase
 from hamcrest import assert_that, has_item, contains_string
 from paramiko.client import SSHClient, AutoAddPolicy
 from paramiko import RSAKey
-from key_switcheroo.server.server import Server
-from key_switcheroo.server.data_stores import FileSystemDataStore
-from key_switcheroo.custom_keygen import generate_private_public_key_in_file
-from key_switcheroo.util import get_username
+from switcheroo.server.server import Server
+from switcheroo.server.data_stores import FileSystemDataStore
+from switcheroo.custom_keygen import generate_private_public_key_in_file
+from switcheroo.util import get_username
 
 
 class TestServerLocal(IsolatedAsyncioTestCase):

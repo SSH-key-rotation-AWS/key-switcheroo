@@ -2,11 +2,11 @@ from abc import ABC, abstractmethod
 import os
 import shutil
 import boto3
-from key_switcheroo.custom_keygen import (
+from switcheroo.custom_keygen import (
     generate_private_public_key_in_file,
     generate_private_public_key,
 )
-from key_switcheroo.util import get_user_path, get_username
+from switcheroo.util import get_user_path, get_username
 
 
 def _ensure_ssh_home_exists():
