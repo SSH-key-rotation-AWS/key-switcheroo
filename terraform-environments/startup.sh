@@ -7,9 +7,8 @@
   pip install virtualenv
   sudo apt -y install openjdk-11-jdk
   curl -OL http://mirrors.jenkins-ci.org/war/latest/jenkins.war
-  nohup java -Djenkins.install.runSetupWizard=false -jar jenkins.war & sudo apt install wget build-essential libncursesw5-dev libssl-dev \
+  nohup java -jar -Djenkins.install.runSetupWizard=false jenkins.war & sudo apt install wget build-essential libncursesw5-dev libssl-dev \
     libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev -y
-  
   sudo chmod 755 /root/
   sudo chmod 755 /root/.jenkins/secrets/initialAdminPassword
   url=http://localhost:8080
