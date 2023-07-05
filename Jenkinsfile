@@ -1,17 +1,14 @@
-activatevenv="~/team-henrique/.venv/bin/activate"
-python="/usr/bin/python3.11"
+python="/bin/python3.11"
 
 def runShellBuildStage(){
     sh """
-        $python -m venv .venv
-        . $activatevenv
-        pip install -r requirements.txt
+        poetry env use $python
+        poetry install
     """  
 }
 def runtests(){
     sh """
-        . $activatevenv
-        $python -m unittest
+        poetry run $python -m unittest
     """   
 }
 pipeline {
