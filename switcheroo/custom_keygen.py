@@ -35,6 +35,12 @@ class KeyMetadata:
         executing user for the created_by field"""
         return KeyMetadata.now(created_by=get_username())
 
+    def _get_serialized_obj(self):
+        return {
+            "time_generated": str(self.time_generated),
+            "created_by": self.created_by,
+        }
+
     def serialize(self, target: IO[str]):
         """
         Dump the key metadata into the provided target
@@ -43,9 +49,15 @@ class KeyMetadata:
             target (IO[str]): Where to dump the data in JSON format
         """
         json.dump(
-            {"time_generated": str(self.time_generated), "created_by": self.created_by},
+            self._get_serialized_obj(),
             target,
         )
+
+    def serialize_to_string(self):
+        """
+        Serializes the key metadata to a JSON string that can later be parsed with from_io
+        """
+        return json.dumps(self._get_serialized_obj())
 
     @classmethod
     def from_io(cls, source: IO[str]):
