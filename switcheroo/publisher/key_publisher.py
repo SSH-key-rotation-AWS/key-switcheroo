@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import os
 import shutil
 import boto3
-from switcheroo.custom_keygen import KeyGen
+from switcheroo.custom_keygen import KeyGen, KeyMetadata
 from switcheroo.util import get_user_path, get_username
 
 
@@ -18,6 +18,12 @@ class Publisher(ABC):
     @abstractmethod
     def publish_new_key(self) -> str:
         """Abstract method for publishing a new public key"""
+
+    @abstractmethod
+    def publish_new_key_with_metadata(self, key_metadata: KeyMetadata | None) -> str:
+        """Abstract method for publishing a new public key with metadata
+        If no metadata is passed in, default metadata should be provided
+        """
 
 
 class S3Publisher(Publisher):
@@ -52,6 +58,20 @@ class S3Publisher(Publisher):
 
         return public_key.decode()
 
+    def publish_new_key_with_metadata(self, key_metadata: KeyMetadata | None) -> str:
+        if key_metadata is None:
+            key_metadata = KeyMetadata.now_by_executing_user()
+        # Publish the key
+        public_key = self.publish_new_key()
+        s3_client = boto3.client("s3")
+        # Store the metadata in the same folder - metadata.json
+        s3_client.put_object(
+            Body=key_metadata.serialize_to_string(),
+            Bucket=self.bucket_name,
+            Key=f"{self.host}/{self.user_id}/{KeyMetadata.FILE_NAME}",
+        )
+        return public_key
+
 
 class LocalPublisher(Publisher):
     """Local Publisher class"""
@@ -61,7 +81,7 @@ class LocalPublisher(Publisher):
         self.user_id = user_id
 
     def publish_new_key(self) -> str:
-        user_path = os.path.expanduser("~")
+        user_path = get_user_path()
         _ensure_ssh_home_exists()
         _, public_key = KeyGen.generate_private_public_key_in_file(
             f"{user_path}/.ssh/{self.host}/{self.user_id}",
@@ -69,3 +89,15 @@ class LocalPublisher(Publisher):
             public_key_name=KeyGen.PUBLIC_KEY_NAME,
         )
         return public_key.decode()
+
+    def publish_new_key_with_metadata(self, key_metadata: KeyMetadata | None) -> str:
+        if key_metadata is None:
+            key_metadata = KeyMetadata.now_by_executing_user()
+        # Publish the key
+        public_key = self.publish_new_key()
+        metadata_file = (
+            f"{get_user_path()}/.ssh/{self.host}/{self.user_id}/{KeyMetadata.FILE_NAME}"
+        )
+        with open(metadata_file, encoding="utf-8", mode="wt") as metadata_file:
+            key_metadata.serialize(metadata_file)
+        return public_key
