@@ -1,0 +1,18 @@
+name: Poetry version update control
+
+on:
+    push:
+        branches: [ main ]
+
+jobs:
+    versioning:
+        runs-on: ubuntu-latest
+        steps:
+        - name: add poetry git plugin
+          run: poetry self add poetry-git-version-plugin
+
+        - name: Write package version based on git tag
+          run: poetry git-version
+          
+        - name: Build package with version based on git tag
+          run: poetry build
