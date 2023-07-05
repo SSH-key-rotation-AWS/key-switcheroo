@@ -46,10 +46,25 @@ Binary installer for the latest released version is available at the [Python Pac
 
 ## How to use
 
-Once the package is installed, 
+Once the package is installed, commands can be called from the user's CLI for both the *publisher* and *retriever* using different optional arguments.
+
+For help with command-line arguments,
+
+`switcheroo --help` or `switcheroo -h`
 
 ### Publisher
 
+When using the *publisher* for creating and publishing new SSH keys, the user has a couple of different *optional* arguments, in addition to the *required* arguments.
+
+**Required Arguments:**
+1. `hostname`
+2. `user`
+
+**Optional Arguments:**
+- `--datastore local` or `-ds local`
+- `--datastore s3` or `-ds s3`
+    - If `s3` is selected, the user MUST also input `--bucketname`, followed by a name for their S3 bucket
+    - If no `--datastore` is selected, the program will default to `s3`
 
 
 ### Retriever
