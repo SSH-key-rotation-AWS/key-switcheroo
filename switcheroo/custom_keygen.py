@@ -1,7 +1,7 @@
 "Module for generating public/private SSH key pairs"
 from dataclasses import dataclass, field
 import json
-from typing import IO
+from typing import IO, ClassVar
 from datetime import datetime
 import os
 import shutil
@@ -11,6 +11,7 @@ from switcheroo.util import get_username
 
 @dataclass
 class KeyMetadata:
+    FILE_NAME: ClassVar[str] = "metadata.json"
     created_by: str
     time_generated: datetime = field(default_factory=datetime.now)
 
