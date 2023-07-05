@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import os
+from pathlib import Path
 import shutil
 import boto3
 from switcheroo.custom_keygen import KeyGen, KeyMetadata
@@ -15,12 +16,19 @@ def _ensure_ssh_home_exists():
 class Publisher(ABC):
     """Abstract key publisher base class"""
 
+    @property
+    @abstractmethod
+    def publishing_location(self) -> Path:
+        "Returns the location of where the directory the key will be in is, relative to the root"
+
     @abstractmethod
     def publish_new_key(self) -> str:
         """Abstract method for publishing a new public key"""
 
     @abstractmethod
-    def publish_new_key_with_metadata(self, key_metadata: KeyMetadata | None) -> str:
+    def publish_new_key_with_metadata(
+        self, key_metadata: KeyMetadata | None
+    ) -> tuple[str, KeyMetadata]:
         """Abstract method for publishing a new public key with metadata
         If no metadata is passed in, default metadata should be provided
         """
@@ -34,6 +42,10 @@ class S3Publisher(Publisher):
         self.host = host
         self.user_id = user_id
 
+    @property
+    def publishing_location(self) -> Path:
+        return Path(self.host) / self.user_id
+
     def publish_new_key(self) -> str:
         # Generate new public/private key pair
         private_key, public_key = KeyGen.generate_private_public_key()
@@ -43,7 +55,7 @@ class S3Publisher(Publisher):
         s3_client.put_object(
             Body=public_key,
             Bucket=self.bucket_name,
-            Key=f"{self.host}/{self.user_id}/{KeyGen.PUBLIC_KEY_NAME}",
+            Key=str(self.publishing_location / KeyGen.PUBLIC_KEY_NAME),
         )
 
         # Store the private key on the local machine
@@ -58,7 +70,9 @@ class S3Publisher(Publisher):
 
         return public_key.decode()
 
-    def publish_new_key_with_metadata(self, key_metadata: KeyMetadata | None) -> str:
+    def publish_new_key_with_metadata(
+        self, key_metadata: KeyMetadata | None = None
+    ) -> tuple[str, KeyMetadata]:
         if key_metadata is None:
             key_metadata = KeyMetadata.now_by_executing_user()
         # Publish the key
@@ -68,9 +82,9 @@ class S3Publisher(Publisher):
         s3_client.put_object(
             Body=key_metadata.serialize_to_string(),
             Bucket=self.bucket_name,
-            Key=f"{self.host}/{self.user_id}/{KeyMetadata.FILE_NAME}",
+            Key=str(self.publishing_location / KeyMetadata.FILE_NAME),
         )
-        return public_key
+        return public_key, key_metadata
 
 
 class LocalPublisher(Publisher):
@@ -80,24 +94,27 @@ class LocalPublisher(Publisher):
         self.host = host
         self.user_id = user_id
 
+    @property
+    def publishing_location(self) -> Path:
+        return Path(get_user_path()) / ".ssh" / self.host / self.user_id
+
     def publish_new_key(self) -> str:
-        user_path = get_user_path()
         _ensure_ssh_home_exists()
         _, public_key = KeyGen.generate_private_public_key_in_file(
-            f"{user_path}/.ssh/{self.host}/{self.user_id}",
+            str(self.publishing_location),
             private_key_name=KeyGen.PRIVATE_KEY_NAME,
             public_key_name=KeyGen.PUBLIC_KEY_NAME,
         )
         return public_key.decode()
 
-    def publish_new_key_with_metadata(self, key_metadata: KeyMetadata | None) -> str:
+    def publish_new_key_with_metadata(
+        self, key_metadata: KeyMetadata | None = None
+    ) -> tuple[str, KeyMetadata]:
         if key_metadata is None:
             key_metadata = KeyMetadata.now_by_executing_user()
         # Publish the key
         public_key = self.publish_new_key()
-        metadata_file = (
-            f"{get_user_path()}/.ssh/{self.host}/{self.user_id}/{KeyMetadata.FILE_NAME}"
-        )
+        metadata_file = str(self.publishing_location / KeyMetadata.FILE_NAME)
         with open(metadata_file, encoding="utf-8", mode="wt") as metadata_file:
             key_metadata.serialize(metadata_file)
-        return public_key
+        return public_key, key_metadata

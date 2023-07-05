@@ -71,9 +71,22 @@ class KeyMetadata:
         Returns:
             metadata (KeyMetadata): The key metadata
         """
-        json_obj = json.load(source)
+        return cls.from_string(source.read())
+
+    @classmethod
+    def from_string(cls, source: str):
+        """Returns the parsed KeyMetadata
+
+        Parse and return the KeyMetadata from the provided string source
+
+        Args:
+            source (str): The JSON in a string
+        Returns:
+            metadata (KeyMetadata): The key metadata
+        """
+        json_obj = json.loads(source)
         time_generated = datetime.strptime(
-            json_obj["time_generated"], "%Y-%m-%d %H:%M:%S"
+            json_obj["time_generated"], "%Y-%m-%d %H:%M:%S.%f"
         )
         created_by = json_obj["created_by"]
         return KeyMetadata(created_by, time_generated)
