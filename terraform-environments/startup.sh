@@ -104,7 +104,7 @@ curl "$url/pluginManager/installPlugins" \
   -H "Referer: $url/" \
   -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36' \
   -H 'X-Requested-With: XMLHttpRequest' \
-  --data-raw "username=$username&password1=$password&password2=AWS_SSH&fullname=Ari%20Krakauer&email=krakauer%40mail.yu.edu&Jenkins-Crumb=$only_crumb&json=%7B%22username%22%3A%20%22TeamHenrique%22%2C%20%22password1%22%3A%20%22AWS_SSH%22%2C%20%22%24redact%22%3A%20%5B%22password1%22%2C%20%22password2%22%5D%2C%20%22password2%22%3A%20%22AWS_SSH%22%2C%20%22fullname%22%3A%20%22Ari%20Krakauer%22%2C%20%22email%22%3A%20%22krakauer%40mail.yu.edu%22%2C%20%22Jenkins-Crumb%22%3A%20%222470afbe2f7d0954b61a98b45ce440eef94526dbe9b924227c17c07fd2bf5de2%22%7D&core%3Aapply=&Submit=Save&json=%7B%22username%22%3A%20%22TeamHenrique%22%2C%20%22password1%22%3A%20%22AWS_SSH%22%2C%20%22%24redact%22%3A%20%5B%22password1%22%2C%20%22password2%22%5D%2C%20%22password2%22%3A%20%22AWS_SSH%22%2C%20%22fullname%22%3A%20%22Ari%20Krakauer%22%2C%20%22email%22%3A%20%22krakauer%40mail.yu.edu%22%2C%20%22Jenkins-Crumb%22%3A%20%$only_crumb%22%7D" \
+  --data-raw "username=$username&password1=$password&password2=AWS_SSH&fullname=Ari%20Krakauer&email=krakauer%40mail.yu.edu&Jenkins-Crumb=$only_crumb&json=%7B%22username%22%3A%20%22TeamHenrique%22%2C%20%22password1%22%3A%20%22AWS_SSH%22%2C%20%22%24redact%22%3A%20%5B%22password1%22%2C%20%22password2%22%5D%2C%20%22password2%22%3A%20%22AWS_SSH%22%2C%20%22fullname%22%3A%20%22Ari%20Krakauer%22%2C%20%22email%22%3A%20%22krakauer%40mail.yu.edu%22%2C%20%22Jenkins-Crumb%22%3A%20%$only_crumb%22%7D&core%3Aapply=&Submit=Save&json=%7B%22username%22%3A%20%22TeamHenrique%22%2C%20%22password1%22%3A%20%22AWS_SSH%22%2C%20%22%24redact%22%3A%20%5B%22password1%22%2C%20%22password2%22%5D%2C%20%22password2%22%3A%20%22AWS_SSH%22%2C%20%22fullname%22%3A%20%22Ari%20Krakauer%22%2C%20%22email%22%3A%20%22krakauer%40mail.yu.edu%22%2C%20%22Jenkins-Crumb%22%3A%20%$only_crumb%22%7D" \
   --compressed \
   --insecure
 
@@ -120,7 +120,7 @@ curl "$url/pluginManager/installPlugins" \
   -H "Referer: $url/" \
   -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36' \
   -H 'X-Requested-With: XMLHttpRequest' \
-  --data-raw "rootUrl=http%3A%2F%2F44.212.29.128%3A8080%2F&Jenkins-Crumb=$only_crumb&json=%7B%22rootUrl%22%3A%20%22http%3A%2F%2F44.212.29.128%3A8080%2F%22%2C%20%22Jenkins-Crumb%22%3A%20%22c1bac9707af25665114ceec8582b47b68c7a9c136b6f0f64cdf94f7e95a915cb%22%7D&core%3Aapply=&Submit=Save&json=%7B%22rootUrl%22%3A%20%22http%3A%2F%2F44.212.29.128%3A8080%2F%22%2C%20%22Jenkins-Crumb%22%3A%20%$only_crumb%22%7D" \
+  --data-raw "rootUrl=$url%2F&Jenkins-Crumb=$only_crumb&json=%7B%22rootUrl%22%3A%20%22$url%2F%22%2C%20%22Jenkins-Crumb%22%3A%20%$only_crumb%22%7D&core%3Aapply=&Submit=Save&json=%7B%22rootUrl%22%3A%20%22$url%2F%22%2C%20%22Jenkins-Crumb%22%3A%20%$only_crumb%22%7D" \
   --compressed \
   --insecure
 
@@ -140,4 +140,4 @@ curl "$url/pluginManager/installPlugins" \
   --compressed \
   --insecure
 
-  #echo 'export SSH_KEY_DEV_BUCKET_NAME="testing-bucket-team-henrique"' >> /etc/profile.d/custom_env.sh
+  export SSH_KEY_DEV_BUCKET_NAME="testing-bucket-team-henrique"
