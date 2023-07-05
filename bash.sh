@@ -29,7 +29,7 @@ if [ -d $venv ]; then
     fi
 else # i.e there is no venv
     # create the venv, activate it, install requirements.txt, and save a copy of them (see above why)
-    poetry use python3.11
+    poetry env use python3.11
     poetry install
     cp pyproject.toml $git_base_dir/.venv/bin/
 fi
