@@ -6,12 +6,34 @@ from datetime import datetime
 import os
 import shutil
 from Crypto.PublicKey import RSA
+from switcheroo.util import get_username
 
 
 @dataclass
 class KeyMetadata:
     created_by: str
     time_generated: datetime = field(default_factory=datetime.now)
+
+    @classmethod
+    def now(cls, created_by: str | None):
+        """Returns a new metadata object
+
+        Create a new key metadata, using now as the creation time
+
+        Args:
+            created_by (str): The user that created this key. Not required.
+        """
+        if created_by is None:
+            created_by = ""
+        return KeyMetadata(created_by=created_by, time_generated=datetime.now())
+
+    @classmethod
+    def now_by_executing_user(cls):
+        """Returns a new metadata object
+        
+        Create a new key metadata, using now as the creation time and the current\
+        executing user for the created_by field"""
+        return KeyMetadata.now(created_by=get_username())
 
     def serialize(self, target: IO[str]):
         """
