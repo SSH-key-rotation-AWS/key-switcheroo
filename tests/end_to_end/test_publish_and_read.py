@@ -4,6 +4,7 @@ from unittest import IsolatedAsyncioTestCase
 from paramiko import SSHClient, AutoAddPolicy, RSAKey
 from switcheroo.server.server import Server
 from switcheroo.server.data_stores import S3DataStore
+from switcheroo.custom_keygen import KeyGen
 from switcheroo.publisher.key_publisher import S3Publisher
 from switcheroo.util import get_username, get_user_path
 
@@ -27,9 +28,8 @@ class EndToEnd(IsolatedAsyncioTestCase):
             # Create an SSH client to connect to the server
             client = SSHClient()
             client.set_missing_host_key_policy(AutoAddPolicy())
-            pkey_location = (
-                f"{get_user_path()}/.ssh/{socket.getfqdn()}/{get_username()}"
-            )
+            pkey_dir = f"{get_user_path()}/.ssh/{socket.getfqdn()}/{get_username()}"
+            pkey_location = f"{pkey_dir}/{KeyGen.PRIVATE_KEY_NAME}"
             private_key = RSAKey.from_private_key_file(
                 pkey_location
             )  # Fetch private key

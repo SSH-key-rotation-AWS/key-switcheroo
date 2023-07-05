@@ -7,8 +7,8 @@ import boto3
 
 def get_public_keys_local(connecting_user: str, ssh_home_dir: str) -> str:
     host_name = socket.getfqdn()
-    key_dir = f"{ssh_home_dir}/{host_name}"
-    key_path = f"{key_dir}/{connecting_user}-cert.pub"
+    key_dir = f"{ssh_home_dir}/{host_name}/{connecting_user}"
+    key_path = f"{key_dir}/key-cert.pub"
     if not os.path.isdir(key_dir):
         os.makedirs(key_dir)
     if not os.path.exists(key_path):
@@ -21,7 +21,7 @@ def get_public_keys_s3(connecting_user: str, bucket_name: str) -> str:
     host_name = socket.getfqdn()
     s3_client = boto3.client("s3")
     response = s3_client.get_object(
-        Bucket=bucket_name, Key=f"{host_name}/{connecting_user}-cert.pub"
+        Bucket=bucket_name, Key=f"{host_name}/{connecting_user}/key-cert.pub"
     )
     ssh_key = response["Body"].read().decode()
     return ssh_key

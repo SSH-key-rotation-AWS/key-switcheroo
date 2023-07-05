@@ -29,7 +29,7 @@ class TestServerRemote(IsolatedAsyncioTestCase):
                 StringIO(private_key.decode())
             )
             s3_client = boto3.client("s3")
-            key_name = f"{socket.getfqdn()}/{get_username()}-cert.pub"
+            key_name = f"{socket.getfqdn()}/{get_username()}/{KeyGen.PUBLIC_KEY_NAME}"
             s3_client.put_object(
                 Bucket=data_store.s3_bucket_name, Key=key_name, Body=public_key
             )

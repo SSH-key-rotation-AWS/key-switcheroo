@@ -44,7 +44,7 @@ class S3Publisher(Publisher):
         private_key_dir = f"{get_user_path()}/.ssh/{self.host}/{self.user_id}"
         if not os.path.isdir(private_key_dir):
             os.makedirs(private_key_dir)
-        private_key_path = f"{private_key_dir}/{self.user_id}/{KeyGen.PRIVATE_KEY_NAME}"
+        private_key_path = f"{private_key_dir}/{KeyGen.PRIVATE_KEY_NAME}"
         with open(private_key_path, "wb") as private_out:
             private_out.write(private_key)
         shutil.chown(private_key_path, user=get_username(), group=-1)
