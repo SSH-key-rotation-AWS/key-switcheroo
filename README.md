@@ -17,7 +17,7 @@
 
 ## What is it?
 
-**key-switcheroo** is a Python package that provides tools for **easy** :smile:, **reliable** :white_check_mark:, and **secure** :lock: SSH key management. The package contains tools to allow users to generate SSH public/private key pairs and securely store the public key either on AWS S3 or locally based on user preferences. The package also contains a tool used by the server host to retrieve and match the public keys with the corresponding private key during SSH connection attempts. Additionally, the package includes a feature for periodic rotation and swapping of public keys to enhance security.
+**key-switcheroo** is a Python package that provides tools for **easy** :smile:, **reliable** :white_check_mark:, and **secure** :lock: SSH key management. The package contains tools to allow users to generate SSH public/private key pairs and securely store the public key either on AWS S3 or locally based on user preferences. The package also contains a tool used by the server host to retrieve and match the public keys with the corresponding private key during SSH connection attempts. Additionally, the package supports a feature for periodic rotation and swapping of public keys to enhance security.
 
 
 ## Features
@@ -32,7 +32,7 @@ The *retriever* tool is designed to be used by server hosts for retrieving the p
 
 ### Key rotation
 
-To enhance security, **key-switcheroo** includes a key rotation feature. The program periodically swaps and rotates the stored public keys. This process helps mitigate the risks associated with long-term key exposure and strengthens the overall security posture.
+To enhance security, **key-switcheroo** supports a key rotation feature. The user simply needs to call the publisher script again with the same credentials and the program will swap and rotate the stored public keys. This process helps mitigate the risks associated with long-term key exposure and strengthens the overall security posture.
 
 
 ## Where to get it
@@ -57,19 +57,40 @@ For help with command-line arguments,
 When using the *publisher* for creating and publishing new SSH keys, the user has a couple of different *optional* arguments, in addition to the *required* arguments.
 
 **Required Arguments:**
-1. `hostname`
-2. `user`
+1. `hostname` - host server
+2. `user` - username of the connecting client
 
 **Optional Arguments:**
 - `--datastore local` or `-ds local`
+    - Stores the public key on the local file system
 - `--datastore s3` or `-ds s3`
+    - Stores the public key in an S3 bucket
     - If `s3` is selected, the user MUST also input `--bucketname`, followed by a name for their S3 bucket
     - If no `--datastore` is selected, the program will default to `s3`
+
+**Example**
+
+`publisher 127.0.0.1 johndoe --datastore s3 --bucketname mybucket`
 
 
 ### Retriever
 
+When using the *retriever* for fetching the public SSH keys, the user has a couple of different *optional* arguments, in addition to the *required* arguments.
 
+**Required Arguments:**
+1. `user` - username of the client whose key is being fetched
+
+**Optional Arguments:**
+- `--datastore local` or `-ds local`
+    - Retrieves the public key from the local file system
+- `--datastore s3` or `-ds s3`
+    - Retrieves the public key from the S3 bucket
+    - If `s3` is selected, the user MUST also input `--bucketname`, followed by their S3 bucket name
+    - If no `--datastore` is selected, the program will default to `s3`
+
+**Example**
+
+`retriever johndoe --datastore s3 --bucketname mybucket`
 
 
 ## Dependencies
