@@ -1,6 +1,7 @@
 """AWS metric publisher """
 import time
 from contextlib import contextmanager
+from typing_extensions import override
 import boto3
 from Metric import Metric
 from Metrics import CounterMetric, TimingMetric
@@ -51,9 +52,8 @@ class AWSMetricPublisher(MetricPublisher):
                 ],
             )
 
-  
 
-    def _inc_key_count(self, metric_name: str):
+    def inc_key_count(self, metric_name: str):
         """Function that publishes the key count
         to AWS CloudWatch under the 'key count' metric,
         within the initialized namespace"""
