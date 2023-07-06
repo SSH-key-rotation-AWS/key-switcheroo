@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from pathlib import Path
+from botocore.exceptions import ClientError
 from switcheroo.server.retrieve_public_keys import (
     get_public_keys_local,
     get_public_keys_s3,
@@ -34,8 +35,16 @@ def main():
 
     if args.datastore == "local":
         ssh_dir = Path("~/.ssh").expanduser()
-        print(get_public_keys_local(args.user, ssh_dir))
+        try:
+            public_key = get_public_keys_local(args.user, ssh_dir)
+            print(public_key)
+        except Exception as error:
+            print(error)
     else:
         if args.bucket is None:
             parser.error("The s3 option requires a specified bucket name!")
-        print(get_public_keys_s3(args.user, args.bucketname))
+        try:
+            public_key = get_public_keys_s3(args.user, args.bucketname)
+            print(public_key)
+        except ClientError as error:
+            print(error)
