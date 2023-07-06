@@ -65,7 +65,7 @@ class S3DataStore(DataStore):
 
     def __exit__(self, exc_t, exc_v, exc_tb):
         super().__exit__(None, None, None)
-        if self.temp:
+        if self._temp:
             objects = self._s3_client.list_objects_v2(Bucket=self.s3_bucket_name)[
                 "Contents"
             ]

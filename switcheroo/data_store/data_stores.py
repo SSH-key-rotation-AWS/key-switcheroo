@@ -11,7 +11,7 @@ class DataStore(ABC):
 
     def __init__(self, ssh_home: Path | None = None, temp: bool = False):
         # If temp is true, will reset the home_dir to a temp file upon usage as a context manager
-        self.temp = temp
+        self._temp = temp
         # ssh_home is only relevant if not being used as a context manager
         self._dir: Path = paths.local_ssh_home() if ssh_home is None else ssh_home
         # To be used later if we decide to use this as a context manager, and temp is selected
@@ -20,7 +20,7 @@ class DataStore(ABC):
     @property
     def home_dir(self) -> Path:
         """The folder where local files are stored"""
-        if self.temp and self._temp_dir is not None:
+        if self._temp and self._temp_dir is not None:
             return Path(self._temp_dir.name)
         return self._dir
 
@@ -43,7 +43,7 @@ class DataStore(ABC):
         """Retrieve the public key for the given host and user"""
 
     def __enter__(self):
-        if self.temp:
+        if self._temp:
             self._temp_dir: TemporaryDirectory[str] | None = TemporaryDirectory[
                 str
             ](  # pylint: disable=consider-using-with
@@ -51,7 +51,7 @@ class DataStore(ABC):
             )
 
     def __exit__(self, exc_t, exc_v, exc_tb):
-        if self.temp:
+        if self._temp:
             assert self._temp_dir is not None
             self._temp_dir.__exit__(None, None, None)
 
