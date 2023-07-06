@@ -1,12 +1,16 @@
 from argparse import ArgumentParser
 from pathlib import Path
-from switcheroo.server.retrieve_public_keys import get_public_keys_local, get_public_keys_s3
+from switcheroo.server.retrieve_public_keys import (
+    get_public_keys_local,
+    get_public_keys_s3,
+)
+
 
 def create_argument_parser() -> ArgumentParser:
     argument_parser = ArgumentParser(
         prog="key_retriever",
         description="Fetches the public SSH keys from S3 or the local machine",
-        epilog="Thanks for using key_retriever! :)"
+        epilog="Thanks for using key_retriever! :)",
     )
     argument_parser.add_argument("user")
     argument_parser.add_argument(
@@ -23,7 +27,8 @@ def create_argument_parser() -> ArgumentParser:
     )
     return argument_parser
 
-if __name__ == "__main__":
+
+def main():
     parser = create_argument_parser()
     args = parser.parse_args()
 
