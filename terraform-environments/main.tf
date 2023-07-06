@@ -16,11 +16,11 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "production" {
-  bucket = "production-bucket-team-henriqu2e"
+  bucket = "production-bucket-team-henrique"
   acl = "private"
  }
 
  resource "aws_s3_bucket" "testing" {
-  bucket = "testing-bucket-team-henrique2"
+  bucket = "testing-bucket-team-henrique"
   acl = "private"
  }
