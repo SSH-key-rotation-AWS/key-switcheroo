@@ -1,25 +1,28 @@
 """AWS metric publisher """
-from os import name
 import time
 from contextlib import contextmanager
 import boto3
+from Metric import Metric
+from Metrics import CounterMetric, TimingMetric
+from MetricPublisher import MetricPublisher
+import json
 
-from AWS_CloudWatch.Metrics.general_metrics import general_metrics
 
-
-class AWSMetricPublisher(general_metrics):
+class AWSMetricPublisher(MetricPublisher):
     """cloud_watch class.
     Stores:
     Name space AWS cloud_watch will publish the metrics to.
     Region the cloud_watch resource will be placed on."""
 
-    def __init__(self,instance_id:str, name_space:str, aws_region:str):
+    def __init__(self,instance_id:str, name_space:str, aws_region:str ):
         """Name space represents the title where under all metrics will be published to.
         region represents the region AWS CloudWatch resource should be located"""
-        super().__init__(name_space = name_space, instance_id=instance_id)
+        self._name_space = name_space
         self._aws_region = aws_region
         self.cloud_watch = boto3.client("cloudwatch", region_name=self._aws_region)
-
+        self._instance_id = instance_id
+        self.counter_metric = CounterMetric(self._name_space)
+        self.time_to_generate_key_metric = TimingMetric(self._name_space)
 
 
     @contextmanager
@@ -30,9 +33,10 @@ class AWSMetricPublisher(general_metrics):
         start_time = 0
         try:
             start_time = time.time()
-            yield 
+            yield
         finally:
-            end_time = time.time() - start_time     
+            end_time = time.time() - start_time
+          
         self.cloud_watch.put_metric_data(
                 Namespace=self._name_space,
                 MetricData=[
@@ -47,13 +51,19 @@ class AWSMetricPublisher(general_metrics):
                 ],
             )
 
-    def _count_metric(self, metric_name: str):
+  
+
+    def _inc_key_count(self, metric_name: str):
         """Function that publishes the key count
         to AWS CloudWatch under the 'key count' metric,
         within the initialized namespace"""
-        self._key_count = self._key_count+1
+
+        count_data = self.counter_metric.publish_metric(metric_name=metric_name)
+        data_dict = json.loads(str(count_data))
+        count = data_dict["Metric Data"]["Value"]
         
-        self.cloud_watch.put_metric_data(
+
+        self.cloud_watch.put_metric_data( 
             Namespace=self._name_space,
             MetricData=[
                 {
@@ -62,7 +72,7 @@ class AWSMetricPublisher(general_metrics):
                         {"Name": metric_name, "Value": self._instance_id},
                     ],
                     "Unit": "Count",
-                    "Value": self._key_count,
+                    "Value": count,
                 }
             ],
         )
