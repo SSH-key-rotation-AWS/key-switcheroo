@@ -8,7 +8,7 @@ from paramiko import SSHClient, RSAKey, AutoAddPolicy
 import boto3
 from switcheroo.server.server import Server
 from switcheroo.server.data_stores import S3DataStore
-from switcheroo.custom_keygen import generate_private_public_key
+from switcheroo.custom_keygen import KeyGen
 from switcheroo.util import get_username
 
 
@@ -24,12 +24,12 @@ class TestServerRemote(IsolatedAsyncioTestCase):
         data_store = S3DataStore(self.bucket_name, temp=True)
         async with Server(data_store=data_store) as server:
             server: Server = server
-            private_key, public_key = generate_private_public_key()
+            private_key, public_key = KeyGen.generate_private_public_key()
             private_key_paramiko = RSAKey.from_private_key(
                 StringIO(private_key.decode())
             )
             s3_client = boto3.client("s3")
-            key_name = f"{socket.getfqdn()}/{get_username()}-cert.pub"
+            key_name = f"{socket.getfqdn()}/{get_username()}/{KeyGen.PUBLIC_KEY_NAME}"
             s3_client.put_object(
                 Bucket=data_store.s3_bucket_name, Key=key_name, Body=public_key
             )

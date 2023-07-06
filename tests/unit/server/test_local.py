@@ -7,7 +7,7 @@ from paramiko.client import SSHClient, AutoAddPolicy
 from paramiko import RSAKey
 from switcheroo.server.server import Server
 from switcheroo.server.data_stores import FileSystemDataStore
-from switcheroo.custom_keygen import generate_private_public_key_in_file
+from switcheroo.custom_keygen import KeyGen
 from switcheroo.util import get_username
 
 
@@ -19,11 +19,11 @@ class TestServerLocal(IsolatedAsyncioTestCase):
         async with Server(data_store=data_store) as server:
             server: Server = server
             host = socket.getfqdn()
-            random_host_dir = f"{data_store.dir}/{host}"
-            private_key, _ = generate_private_public_key_in_file(
+            random_host_dir = f"{data_store.dir}/{host}/{get_username()}"
+            private_key, _ = KeyGen.generate_private_public_key_in_file(
                 random_host_dir,
-                private_key_name=get_username(),
-                public_key_name=f"{get_username()}-cert.pub",
+                private_key_name=KeyGen.PRIVATE_KEY_NAME,
+                public_key_name=KeyGen.PUBLIC_KEY_NAME,
             )
             key: RSAKey = RSAKey.from_private_key(StringIO(private_key.decode()))
             key_fingerprint = key.fingerprint  # type: ignore

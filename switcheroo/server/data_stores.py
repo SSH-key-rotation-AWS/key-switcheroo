@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from tempfile import TemporaryDirectory
 import boto3
 from switcheroo.util import get_user_path
+from switcheroo.custom_keygen import KeyGen
 
 
 class DataStore(ABC):
@@ -84,7 +85,7 @@ class FileSystemDataStore(DataStore):
         return f"local {self.dir}"
 
     def delete_key(self, host: str, user: str):
-        os.remove(f"{self.dir}/{host}/{user}")
+        os.remove(f"{self.dir}/{host}/{user}/{KeyGen.PRIVATE_KEY_NAME}")
 
     def __enter__(self):
         if isinstance(self._dir, str):
