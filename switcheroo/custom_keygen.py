@@ -108,9 +108,7 @@ class KeyGen:
     def store_private_key(cls, private_key: bytes, private_key_dir: Path):
         private_key_dir.mkdir(parents=True, exist_ok=True)
         private_key_path = private_key_dir / KeyGen.PRIVATE_KEY_NAME
-        # If old key is there, delete it
-        private_key_path.unlink(missing_ok=True)
-        private_key_path.touch(mode=0o600)
+        private_key_path.touch(mode=0o600, exist_ok=True)
         with open(private_key_path, mode="wb") as private_out:
             private_out.write(private_key)
 
@@ -118,8 +116,6 @@ class KeyGen:
     def store_public_key(cls, public_key: bytes, public_key_dir: Path):
         public_key_dir.mkdir(parents=True, exist_ok=True)
         public_key_path = public_key_dir / KeyGen.PUBLIC_KEY_NAME
-        # If old key is there, delete it
-        public_key_path.unlink(missing_ok=True)
         public_key_path.touch(exist_ok=True)
         with open(public_key_path, mode="wb") as public_out:
             public_out.write(public_key)
