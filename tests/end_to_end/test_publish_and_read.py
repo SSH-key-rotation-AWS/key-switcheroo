@@ -4,7 +4,7 @@ from getpass import getuser
 from unittest import IsolatedAsyncioTestCase
 from paramiko import SSHClient, AutoAddPolicy, RSAKey
 from switcheroo.server.server import Server
-from switcheroo.data_stores import S3DataStore
+from switcheroo.data_store.s3 import S3DataStore
 from switcheroo.publisher.key_publisher import S3Publisher
 from switcheroo import paths
 

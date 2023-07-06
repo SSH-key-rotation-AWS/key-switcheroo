@@ -7,7 +7,7 @@ from hamcrest import assert_that, has_item, contains_string
 from paramiko.client import SSHClient, AutoAddPolicy
 from paramiko import RSAKey
 from switcheroo.server.server import Server
-from switcheroo.data_stores import FileSystemDataStore
+from switcheroo.data_store import FileSystemDataStore
 from switcheroo.custom_keygen import KeyGen
 from switcheroo import paths
 
