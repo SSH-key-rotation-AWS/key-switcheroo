@@ -3,13 +3,14 @@ import os
 from unittest import IsolatedAsyncioTestCase
 from io import StringIO
 import socket
+from getpass import getuser
 from hamcrest import assert_that, has_item, contains_string
 from paramiko import SSHClient, RSAKey, AutoAddPolicy
 import boto3
 from switcheroo.server.server import Server
-from switcheroo.server.data_stores import S3DataStore
+from switcheroo.data_store.s3 import S3DataStore
 from switcheroo.custom_keygen import KeyGen
-from switcheroo.util import get_username
+from switcheroo import paths
 
 
 class TestServerRemote(IsolatedAsyncioTestCase):
@@ -29,9 +30,9 @@ class TestServerRemote(IsolatedAsyncioTestCase):
                 StringIO(private_key.decode())
             )
             s3_client = boto3.client("s3")
-            key_name = f"{socket.getfqdn()}/{get_username()}/{KeyGen.PUBLIC_KEY_NAME}"
+            key_name = paths.cloud_public_key_loc(host=socket.getfqdn(), user=getuser())
             s3_client.put_object(
-                Bucket=data_store.s3_bucket_name, Key=key_name, Body=public_key
+                Bucket=data_store.s3_bucket_name, Key=str(key_name), Body=public_key
             )
             ssh_client = SSHClient()
             ssh_client.load_system_host_keys()
@@ -39,7 +40,7 @@ class TestServerRemote(IsolatedAsyncioTestCase):
             ssh_client.connect(
                 "127.0.0.1",
                 server.port,
-                username=get_username(),
+                username=getuser(),
                 pkey=private_key_paramiko,
             )
             key_fingerprint = private_key_paramiko.fingerprint  # type: ignore
