@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from switcheroo.custom_keygen import KeyMetadata
-from switcheroo.server.data_stores import FileSystemDataStore, DataStore, S3DataStore
+from switcheroo.data_stores import FileSystemDataStore, DataStore, S3DataStore
 
 
 class Publisher(ABC):

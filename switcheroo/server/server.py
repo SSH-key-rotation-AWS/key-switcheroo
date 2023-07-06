@@ -7,7 +7,7 @@ import subprocess
 from asyncio.subprocess import Process
 from getpass import getuser
 from tempfile import NamedTemporaryFile
-from switcheroo.server.data_stores import DataStore
+from switcheroo.data_stores import DataStore
 from switcheroo.util import get_open_port
 from switcheroo.util import get_user_path
 

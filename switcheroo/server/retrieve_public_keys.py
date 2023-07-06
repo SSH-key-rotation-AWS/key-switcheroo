@@ -2,7 +2,7 @@
 import sys
 import socket
 from pathlib import Path
-from switcheroo.server import data_stores
+from switcheroo import data_stores
 
 if __name__ == "__main__":
     CONNECTING_USER = sys.argv[1]

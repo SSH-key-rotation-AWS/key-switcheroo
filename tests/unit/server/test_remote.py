@@ -8,7 +8,7 @@ from hamcrest import assert_that, has_item, contains_string
 from paramiko import SSHClient, RSAKey, AutoAddPolicy
 import boto3
 from switcheroo.server.server import Server
-from switcheroo.server.data_stores import S3DataStore
+from switcheroo.data_stores import S3DataStore
 from switcheroo.custom_keygen import KeyGen
 from switcheroo import paths
 
