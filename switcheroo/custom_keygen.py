@@ -1,15 +1,14 @@
 "Module for generating public/private SSH key pairs"
+from getpass import getuser
 from dataclasses import dataclass, field
 import json
 from typing import IO, ClassVar
 from datetime import datetime
-import os
-import shutil
+from pathlib import Path
 from Crypto.PublicKey import RSA
-from switcheroo.util import get_username
 
 
-@dataclass
+@dataclass(frozen=True)
 class KeyMetadata:
     FILE_NAME: ClassVar[str] = "metadata.json"
     created_by: str
@@ -34,7 +33,7 @@ class KeyMetadata:
         
         Create a new key metadata, using now as the creation time and the current\
         executing user for the created_by field"""
-        return KeyMetadata.now(created_by=get_username())
+        return KeyMetadata.now(created_by=getuser())
 
     def _get_serialized_obj(self):
         return {
@@ -106,36 +105,36 @@ class KeyGen:
         return private_key, public_key
 
     @classmethod
+    def store_private_key(cls, private_key: bytes, private_key_dir: Path):
+        private_key_dir.mkdir(parents=True, exist_ok=True)
+        private_key_path = private_key_dir / KeyGen.PRIVATE_KEY_NAME
+        # If old key is there, delete it
+        private_key_path.unlink(missing_ok=True)
+        private_key_path.touch(mode=0o600)
+        with open(private_key_path, mode="wb") as private_out:
+            private_out.write(private_key)
+
+    @classmethod
+    def store_public_key(cls, public_key: bytes, public_key_dir: Path):
+        public_key_dir.mkdir(parents=True, exist_ok=True)
+        public_key_path = public_key_dir / KeyGen.PUBLIC_KEY_NAME
+        # If old key is there, delete it
+        public_key_path.unlink(missing_ok=True)
+        public_key_path.touch(exist_ok=True)
+        with open(public_key_path, mode="wb") as public_out:
+            public_out.write(public_key)
+
+    @classmethod
     def generate_private_public_key_in_file(
-        cls,
-        public_key_dir: str,
-        private_key_dir: str | None = None,
-        public_key_name: str = PUBLIC_KEY_NAME,
-        private_key_name: str = PRIVATE_KEY_NAME,
+        cls, public_key_dir: Path, private_key_dir: Path | None = None
     ) -> tuple[bytes, bytes]:
         "Creates a private key and public key at the given paths"
         # If private key was not given a separate dir, use the same one as for public key
         if private_key_dir is None:
             private_key_dir = public_key_dir
+        # Generate the keys
         private_key, public_key = KeyGen.generate_private_public_key()
-        user_path = os.path.expanduser("~")
-        user_path_components = user_path.split("/")
-        user = user_path_components[len(user_path_components) - 1]
-
-        if not os.path.isdir(private_key_dir):
-            os.makedirs(private_key_dir)
-        if not os.path.isdir(public_key_dir):
-            os.makedirs(public_key_dir)
-
-        private_key_path = f"{private_key_dir}/{private_key_name}"
-        public_key_path = f"{public_key_dir}/{public_key_name}"
-
-        with open(private_key_path, "wb") as private_out:
-            private_out.write(private_key)
-
-        shutil.chown(private_key_path, user=user, group=-1)
-        os.chmod(private_key_path, 0o600)
-
-        with open(public_key_path, "wb") as public_out:
-            public_out.write(public_key)
+        # Store them
+        KeyGen.store_private_key(private_key, private_key_dir)
+        KeyGen.store_public_key(public_key, public_key_dir)
         return private_key, public_key

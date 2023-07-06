@@ -1,38 +1,70 @@
 "Data stores that specifies where a Server stores its keys"
-import os
 from abc import ABC, abstractmethod
+from pathlib import Path
 from tempfile import TemporaryDirectory
 import boto3
-from switcheroo.util import get_user_path
-from switcheroo.custom_keygen import KeyGen
+from switcheroo import paths
+from switcheroo.custom_keygen import KeyGen, KeyMetadata
 
 
 class DataStore(ABC):
     "A server uses a DataStore to get public keys from somewhere."
+
+    def __init__(self, ssh_home: Path | None = None, temp: bool = False):
+        # If temp is true, will reset the home_dir to a temp file upon usage as a context manager
+        self.temp = temp
+        # ssh_home is only relevant if not being used as a context manager
+        self._dir: Path = paths.local_ssh_home() if ssh_home is None else ssh_home
+        # To be used later if we decide to use this as a context manager, and temp is selected
+        self._temp_dir: TemporaryDirectory[str] | None = None
+
+    @property
+    def home_dir(self) -> Path:
+        """The folder where local files are stored"""
+        if self.temp and self._temp_dir is not None:
+            return Path(self._temp_dir.name)
+        return self._dir
 
     @abstractmethod
     def get_sshd_config_line(self):
         "Return the config line that the server will add to the sshd_config"
 
     @abstractmethod
-    def delete_key(self, host: str, user: str):
-        "Delete the key for the host/user"
+    def publish(self, host: str, user: str) -> str:
+        """Publish a new public key for the given host and user"""
 
     @abstractmethod
+    def publish_with_metadata(
+        self, host: str, user: str, metadata: KeyMetadata | None
+    ) -> tuple[str, KeyMetadata]:
+        """Publish a new public key for the given host and user with metadata"""
+
+    @abstractmethod
+    def retrieve(self, host: str, user: str) -> str:
+        """Retrieve the public key for the given host and user"""
+
     def __enter__(self):
-        pass
+        if self.temp:
+            self._temp_dir: TemporaryDirectory[str] | None = TemporaryDirectory[
+                str
+            ](  # pylint: disable=consider-using-with
+                prefix="ssh-keys-", dir=self._dir
+            )
 
-    @abstractmethod
     def __exit__(self, exc_t, exc_v, exc_tb):
-        pass
+        if self.temp:
+            assert self._temp_dir is not None
+            self._temp_dir.__exit__(None, None, None)
 
 
 class S3DataStore(DataStore):
     "Store the public keys in an S3 bucket"
 
-    def __init__(self, _s3_bucket_name: str, temp: bool = False):
+    def __init__(
+        self, _s3_bucket_name: str, ssh_home: Path | None = None, temp: bool = False
+    ):
+        super().__init__(ssh_home=ssh_home, temp=temp)
         self._s3_bucket_name = _s3_bucket_name
-        self.temp = temp
 
     @property
     def s3_bucket_name(self):
@@ -42,14 +74,51 @@ class S3DataStore(DataStore):
     def get_sshd_config_line(self) -> str:
         return f"s3 {self.s3_bucket_name}"
 
-    def delete_key(self, host: str, user: str):
+    def retrieve(self, host: str, user: str):
         s3_client = boto3.client("s3")
-        s3_client.delete_object(Bucket=self.s3_bucket_name, Key=f"{host}/{user}")
+        response = s3_client.get_object(
+            Bucket=self.s3_bucket_name, Key=str(paths.cloud_public_key_loc(host, user))
+        )
+        ssh_key = response["Body"].read().decode()
+        return ssh_key
 
-    def __enter__(self):
-        pass
+    def publish(self, host: str, user: str) -> str:
+        # Generate new public/private key pair
+        private_key, public_key = KeyGen.generate_private_public_key()
+        # Store the new public key in S3 bucket
+        s3_client = boto3.client("s3")
+        s3_client.put_object(
+            Body=public_key,
+            Bucket=self.s3_bucket_name,
+            Key=str(paths.cloud_public_key_loc(host, user)),
+        )
+
+        # Store the private key on the local machine
+        KeyGen.store_private_key(
+            private_key=private_key,
+            private_key_dir=paths.local_key_dir(host, user, home_dir=self.home_dir),
+        )
+
+        return public_key.decode()
+
+    def publish_with_metadata(
+        self, host: str, user: str, metadata: KeyMetadata | None
+    ) -> tuple[str, KeyMetadata]:
+        if metadata is None:
+            metadata = KeyMetadata.now_by_executing_user()
+        # Publish the key
+        public_key = self.publish(host, user)
+        s3_client = boto3.client("s3")
+        # Store the metadata in the same folder - metadata.json
+        s3_client.put_object(
+            Body=metadata.serialize_to_string(),
+            Bucket=self.s3_bucket_name,
+            Key=str(paths.cloud_metadata_loc(host, user)),
+        )
+        return public_key, metadata
 
     def __exit__(self, exc_t, exc_v, exc_tb):
+        super().__exit__(None, None, None)
         if self.temp:
             s3_client = boto3.client("s3")
             objects = s3_client.list_objects_v2(Bucket=self.s3_bucket_name)["Contents"]
@@ -63,37 +132,30 @@ class S3DataStore(DataStore):
 class FileSystemDataStore(DataStore):
     "Stores keys in a file system"
 
-    def __init__(self, temp: bool = False):
-        self.temp = temp
-        home_dir = f"{get_user_path()}/.ssh"
-        if temp:
-            self._dir: str | TemporaryDirectory = (
-                TemporaryDirectory(  # pylint: disable=consider-using-with
-                    prefix="ssh-keys-", dir=home_dir
-                )
-            )
-        else:
-            self._dir = home_dir
-
-    @property
-    def dir(self) -> str:
-        if isinstance(self._dir, str):
-            return self._dir
-        return self._dir.name
-
     def get_sshd_config_line(self) -> str:
-        return f"local {self.dir}"
+        return f"local {str(self.home_dir)}"
 
-    def delete_key(self, host: str, user: str):
-        os.remove(f"{self.dir}/{host}/{user}/{KeyGen.PRIVATE_KEY_NAME}")
+    def publish(self, host: str, user: str) -> str:
+        _, public_key = KeyGen.generate_private_public_key_in_file(
+            paths.local_key_dir(host, user, home_dir=self.home_dir)
+        )
+        return public_key.decode()
 
-    def __enter__(self):
-        if isinstance(self._dir, str):
-            if not os.path.isdir(self.dir):
-                os.mkdir(self.dir)
-        else:
-            self._dir.__enter__()
+    def publish_with_metadata(
+        self, host: str, user: str, metadata: KeyMetadata | None = None
+    ) -> tuple[str, KeyMetadata]:
+        if metadata is None:
+            metadata = KeyMetadata.now_by_executing_user()
+        # Publish the key
+        public_key = self.publish(host, user)
+        metadata_file = paths.local_metadata_loc(host, user, home_dir=self.home_dir)
+        with open(metadata_file, encoding="utf-8", mode="wt") as metadata_file:
+            metadata.serialize(metadata_file)
+        return public_key, metadata
 
-    def __exit__(self, exc_t, exc_v, exc_tb):
-        if isinstance(self._dir, TemporaryDirectory):
-            self._dir.__exit__(None, None, None)
+    def retrieve(self, host: str, user: str) -> str:
+        key_path = paths.local_public_key_loc(host, user, home_dir=self.home_dir)
+        if not key_path.exists():
+            return ""
+        with open(key_path, mode="rt", encoding="utf-8") as key_file:
+            return key_file.read()
