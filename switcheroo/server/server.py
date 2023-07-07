@@ -3,13 +3,13 @@ from typing import Callable
 import os
 import asyncio
 import pathlib
+from pathlib import Path
 import subprocess
 from asyncio.subprocess import Process
 from getpass import getuser
 from tempfile import NamedTemporaryFile
 from switcheroo.data_store import DataStore
 from switcheroo.util import get_open_port
-from switcheroo.util import get_user_path
 
 
 class Server:
@@ -29,10 +29,10 @@ class Server:
             authorized_key_command_executing_user
         )
         self.process: Process | None = None
-        self.log_file = get_user_path() / "ssh" / "sshd_log"
+        self.log_file = Path.home() / "ssh" / "sshd_log"
 
     async def start(self):
-        user_path = get_user_path()
+        user_path = Path.home()
         self.log_file.parent.mkdir(parents=True, exist_ok=True)
         self.log_file.touch(exist_ok=True)
         python_executable = f"{os.getcwd()}/.venv/bin/python"
@@ -93,14 +93,14 @@ class Server:
 
     @staticmethod
     def __setup_host_keys():
-        user_path = get_user_path()
+        user_path = Path.home()
         ssh_dir = user_path / "etc" / "ssh"
         ssh_dir.mkdir(parents=True, exist_ok=True)
         subprocess.run("ssh-keygen -A -f ~", shell=True, check=True)
 
     @staticmethod
     def __setup_pid_file():
-        user_path = get_user_path()
+        user_path = Path.home()
         run_dir = user_path / "var" / "run"
         run_dir.mkdir(exist_ok=True, parents=True)
 

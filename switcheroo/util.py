@@ -1,9 +1,6 @@
 """Utility functions"""
-from pathlib import Path
 from socket import getservbyport
 from random import randint
-from psutil import Process
-from switcheroo import paths
 
 
 def get_open_port() -> int:
@@ -34,19 +31,3 @@ def get_open_port() -> int:
             getservbyport(selected_port)
         except OSError:
             return selected_port
-
-
-def get_default_authorized_keys_path() -> Path:
-    "Returns the default authorized keys path - ~/.ssh/authorized_keys"
-    return paths.local_ssh_home() / "authorized_keys"
-
-
-def get_user_path() -> Path:
-    "Returns the user path"
-    return Path.home()
-
-
-def get_process_running_with_pid(pid: int) -> str:
-    "Returns the name of the process running with the given process id"
-    process = Process(pid)
-    return process.name()
