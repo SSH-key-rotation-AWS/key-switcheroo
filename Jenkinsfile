@@ -2,16 +2,26 @@ python="/bin/python3.11"
 
 def runShellBuildStage(){
     sh """
-        #pip install poetry-git-version-plugin (maybe already have in terraform)
         poetry env use $python
         poetry install
+        poetry build
     """  
 }
-def runtests(){
+def runTests(){
     sh """
+        poetry env use $python
         poetry run $python -m unittest
     """   
 }
+
+// def publishToPyPi(){
+//     //needs api key
+//     sh """
+//         poetry env use $python
+//         poetry publish
+//     """
+// }
+
 pipeline {
     agent any 
     stages {
@@ -25,8 +35,13 @@ pipeline {
                 SSH_KEY_DEV_BUCKET_NAME = "testing-bucket-team-henrique"
             }
             steps {
-                runtests()
+                runTests()
             }
         }
+        // stage('Publish'){
+        //     steps {
+        //         publishToPyPi()
+        //     }
+        // }
     }
 }
