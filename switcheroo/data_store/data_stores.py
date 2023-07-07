@@ -75,7 +75,9 @@ class FileSystemDataStore(DataStore):
 
     def retrieve(self, host: str, user: str) -> str:
         key_path = paths.local_public_key_loc(host, user, home_dir=self.home_dir)
-        if not key_path.exists():
+        try:
+            with open(key_path, mode="rt", encoding="utf-8") as key_file:
+                return key_file.read()
+        except FileNotFoundError:
             raise KeyNotFoundException()
-        with open(key_path, mode="rt", encoding="utf-8") as key_file:
-            return key_file.read()
+
