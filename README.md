@@ -50,7 +50,11 @@ Once the package is installed, commands can be called from the user's CLI for bo
 
 For help with command-line arguments,
 
-`switcheroo --help` or `switcheroo -h`
+
+`publisher --help` or `publisher -h`
+
+`retriever --help` or `retriever -h`
+
 
 ### Publisher
 
@@ -65,12 +69,14 @@ When using the *publisher* for creating and publishing new SSH keys, the user ha
     - Stores the public key on the local file system
 - `--datastore s3` or `-ds s3`
     - Stores the public key in an S3 bucket
-    - If `s3` is selected, the user MUST also input `--bucketname`, followed by a name for their S3 bucket
+    - If `s3` is selected, the user MUST also input `--bucket`, followed by a name for their S3 bucket
     - If no `--datastore` is selected, the program will default to `s3`
 
 **Example**
 
-`publisher 127.0.0.1 johndoe --datastore s3 --bucketname mybucket`
+`publisher 127.0.0.1 johndoe --datastore s3 --bucket mybucket`
+
+`publisher 127.0.0.1 johndoe -ds local`
 
 
 ### Retriever
@@ -83,14 +89,17 @@ When using the *retriever* for fetching the public SSH keys, the user has a coup
 **Optional Arguments:**
 - `--datastore local` or `-ds local`
     - Retrieves the public key from the local file system
+    - If `local` is selected, the user can input `--sshdir` followed by the absolute path to the directory that stores the keys (defaults to local .ssh home directory)
 - `--datastore s3` or `-ds s3`
     - Retrieves the public key from the S3 bucket
-    - If `s3` is selected, the user MUST also input `--bucketname`, followed by their S3 bucket name
+    - If `s3` is selected, the user MUST also input `--bucket`, followed by their S3 bucket name
     - If no `--datastore` is selected, the program will default to `s3`
 
 **Example**
 
-`retriever johndoe --datastore s3 --bucketname mybucket`
+`retriever johndoe --datastore s3 --bucket mybucket`
+
+`retriever johndoe -ds local --sshdir /home/johndoe/.ssh`
 
 
 ## Dependencies
