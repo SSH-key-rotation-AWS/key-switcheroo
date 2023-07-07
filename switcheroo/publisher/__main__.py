@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from switcheroo.publisher.key_publisher import LocalPublisher, S3Publisher
+from switcheroo.publisher.key_publisher import Publisher, LocalPublisher, S3Publisher
 
 
 def create_argument_parser() -> ArgumentParser:
@@ -29,15 +29,19 @@ def create_argument_parser() -> ArgumentParser:
     return argument_parser
 
 
-if __name__ == "__main__":
+def main():
     parser = create_argument_parser()
     args = parser.parse_args()
-
+    publisher: Publisher | None = None
     if args.datastore == "local":  # If the user chose to store the public key locally
         publisher = LocalPublisher(args.hostname, args.user)
-        publisher.publish_new_key()
     else:  # If the user chose to store the public key on S3 or chose to default to S3
         if args.bucket is None:
             parser.error("The s3 option requires a bucket name!")
         publisher = S3Publisher(args.bucket, args.hostname, args.user)
-        publisher.publish_new_key()
+    assert publisher is not None
+    publisher.publish_new_key_with_metadata()
+
+
+if __name__ == "__main__":
+    main()
