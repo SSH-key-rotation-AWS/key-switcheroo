@@ -2,6 +2,7 @@ python="/bin/python3.11"
 
 def runShellBuildStage(){
     sh """
+        #pip install poetry-git-version-plugin (maybe already have in terraform)
         poetry env use $python
         poetry install
     """  
