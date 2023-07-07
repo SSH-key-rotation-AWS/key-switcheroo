@@ -14,7 +14,7 @@ class LocalPublisherTests(TestCase):
         host = "ExampleServer"
         user_id = "1234567"
         localpub = LocalPublisher(host, user_id)
-        public_key = localpub.publish_new_key()
+        public_key, _ = localpub.publish_new_key()
         public_key_path = paths.local_public_key_loc(host, user_id, None)
         private_key_path = paths.local_private_key_loc(host, user_id, None)
         with open(public_key_path, encoding="utf-8") as public_key_file:

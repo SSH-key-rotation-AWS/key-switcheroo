@@ -29,11 +29,7 @@ class DataStore(ABC):
         "Return the config line that the server will add to the sshd_config"
 
     @abstractmethod
-    def publish(self, host: str, user: str) -> str:
-        """Publish a new public key for the given host and user"""
-
-    @abstractmethod
-    def publish_with_metadata(
+    def publish(
         self, host: str, user: str, metadata: KeyMetadata | None
     ) -> tuple[str, KeyMetadata]:
         """Publish a new public key for the given host and user with metadata"""
@@ -62,23 +58,18 @@ class FileSystemDataStore(DataStore):
     def get_sshd_config_line(self) -> str:
         return f'-ds local --sshdir "{str(self.home_dir)}"'
 
-    def publish(self, host: str, user: str) -> str:
-        _, public_key = KeyGen.generate_private_public_key_in_file(
-            paths.local_key_dir(host, user, home_dir=self.home_dir)
-        )
-        return public_key.decode()
-
-    def publish_with_metadata(
+    def publish(
         self, host: str, user: str, metadata: KeyMetadata | None = None
     ) -> tuple[str, KeyMetadata]:
         if metadata is None:
             metadata = KeyMetadata.now_by_executing_user()
-        # Publish the key
-        public_key = self.publish(host, user)
+        _, public_key = KeyGen.generate_private_public_key_in_file(
+            paths.local_key_dir(host, user, home_dir=self.home_dir)
+        )
         metadata_file = paths.local_metadata_loc(host, user, home_dir=self.home_dir)
         with open(metadata_file, encoding="utf-8", mode="wt") as metadata_file:
             metadata.serialize(metadata_file)
-        return public_key, metadata
+        return public_key.decode(), metadata
 
     def retrieve(self, host: str, user: str) -> str:
         key_path = paths.local_public_key_loc(host, user, home_dir=self.home_dir)

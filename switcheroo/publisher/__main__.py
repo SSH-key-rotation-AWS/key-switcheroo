@@ -40,7 +40,7 @@ def main():
             parser.error("The s3 option requires a bucket name!")
         publisher = S3Publisher(args.bucket, args.hostname, args.user)
     assert publisher is not None
-    publisher.publish_new_key_with_metadata()
+    publisher.publish_new_key()
 
 
 if __name__ == "__main__":
