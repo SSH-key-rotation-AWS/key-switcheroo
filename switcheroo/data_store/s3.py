@@ -4,6 +4,7 @@ from switcheroo.data_store import DataStore
 from switcheroo import paths
 from switcheroo.custom_keygen import KeyGen, KeyMetadata
 from switcheroo import util
+from switcheroo.exceptions import KeyNotFoundException
 
 
 class S3DataStore(DataStore):
@@ -28,8 +29,11 @@ class S3DataStore(DataStore):
         response = self._s3_client.get_object(
             Bucket=self.s3_bucket_name, Key=str(paths.cloud_public_key_loc(host, user))
         )
-        ssh_key = response["Body"].read().decode()
-        return ssh_key
+        if response["Body"] == "":
+            raise KeyNotFoundException()
+        else:
+            ssh_key = response["Body"].read().decode()
+            return ssh_key
 
     def publish(
         self, host: str, user: str, metadata: KeyMetadata | None

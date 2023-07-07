@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 from switcheroo import paths
 from switcheroo.custom_keygen import KeyMetadata
 from switcheroo import util
+from switcheroo.exceptions import KeyNotFoundException
 
 
 class DataStore(ABC):
@@ -75,6 +76,6 @@ class FileSystemDataStore(DataStore):
     def retrieve(self, host: str, user: str) -> str:
         key_path = paths.local_public_key_loc(host, user, home_dir=self.home_dir)
         if not key_path.exists():
-            return ""
+            raise KeyNotFoundException()
         with open(key_path, mode="rt", encoding="utf-8") as key_file:
             return key_file.read()
