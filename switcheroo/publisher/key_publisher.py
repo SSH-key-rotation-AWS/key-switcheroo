@@ -25,23 +25,15 @@ class Publisher(ABC):
     def _create_publishing_datastore(self) -> DataStore:
         "Returns a datastore that will be used to publish keys"
 
-    def publish_new_key(self, data_store: DataStore | None = None) -> str:
-        """Publishes a new key using the given datastore"""
-        if data_store is None:
-            data_store = self._create_publishing_datastore()
-        return data_store.publish(self.host, self.user_id)
-
-    def publish_new_key_with_metadata(
+    def publish_new_key(
         self,
         data_store: DataStore | None = None,
         key_metadata: KeyMetadata | None = None,
     ) -> tuple[str, KeyMetadata]:
-        "Publishes a new key with metadata using the given datastore"
+        """Publishes a new key using the given datastore"""
         if data_store is None:
             data_store = self._create_publishing_datastore()
-        return data_store.publish_with_metadata(
-            self.host, self.user_id, metadata=key_metadata
-        )
+        return data_store.publish(self.host, self.user_id, key_metadata)
 
 
 class S3Publisher(Publisher):

@@ -29,17 +29,12 @@ class S3PublisherTests(TestCase):
 
     def test_s3_publish(self):
         """Test for S3 publisher"""
-        public_key = self.s3_publisher.publish_new_key()
-        self._check_published_key_contains(public_key)
-
-    def test_publish_key_in_metadata_method(self):
-        """Does using the with metadata method publish the key correctly??"""
-        public_key, _ = self.s3_publisher.publish_new_key_with_metadata()
+        public_key, _ = self.s3_publisher.publish_new_key()
         self._check_published_key_contains(public_key)
 
     def test_public_metadata_works(self):
         """Does using the with metadata method publish the metadata correctly?"""
-        _, metadata = self.s3_publisher.publish_new_key_with_metadata()
+        _, metadata = self.s3_publisher.publish_new_key()
         s3_client = boto3.client("s3")
         metadata_loc = paths.cloud_metadata_loc(
             self.s3_publisher.host, self.s3_publisher.user_id

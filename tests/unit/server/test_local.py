@@ -8,8 +8,8 @@ from paramiko.client import SSHClient, AutoAddPolicy
 from paramiko import RSAKey
 from switcheroo.server.server import Server
 from switcheroo.data_store import FileSystemDataStore
-from switcheroo.custom_keygen import KeyGen
 from switcheroo import paths
+from switcheroo import util
 
 
 class TestServerLocal(IsolatedAsyncioTestCase):
@@ -21,7 +21,7 @@ class TestServerLocal(IsolatedAsyncioTestCase):
             server: Server = server
             host = socket.getfqdn()
             random_host_dir = paths.local_key_dir(host, getuser(), data_store.home_dir)
-            private_key, _ = KeyGen.generate_private_public_key_in_file(random_host_dir)
+            private_key, _ = util.generate_private_public_key_in_file(random_host_dir)
             key: RSAKey = RSAKey.from_private_key(StringIO(private_key.decode()))
             key_fingerprint = key.fingerprint  # type: ignore
             client = SSHClient()

@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 import json
 from typing import IO, ClassVar
 from datetime import datetime
-from pathlib import Path
 from Crypto.PublicKey import RSA
 
 
@@ -102,35 +101,4 @@ class KeyGen:
         key = RSA.generate(cls.KEY_SIZE_BITS)
         private_key = key.export_key()
         public_key = key.public_key().export_key(format="OpenSSH")
-        return private_key, public_key
-
-    @classmethod
-    def store_private_key(cls, private_key: bytes, private_key_dir: Path):
-        private_key_dir.mkdir(parents=True, exist_ok=True)
-        private_key_path = private_key_dir / KeyGen.PRIVATE_KEY_NAME
-        private_key_path.touch(mode=0o600, exist_ok=True)
-        with open(private_key_path, mode="wb") as private_out:
-            private_out.write(private_key)
-
-    @classmethod
-    def store_public_key(cls, public_key: bytes, public_key_dir: Path):
-        public_key_dir.mkdir(parents=True, exist_ok=True)
-        public_key_path = public_key_dir / KeyGen.PUBLIC_KEY_NAME
-        public_key_path.touch(exist_ok=True)
-        with open(public_key_path, mode="wb") as public_out:
-            public_out.write(public_key)
-
-    @classmethod
-    def generate_private_public_key_in_file(
-        cls, public_key_dir: Path, private_key_dir: Path | None = None
-    ) -> tuple[bytes, bytes]:
-        "Creates a private key and public key at the given paths"
-        # If private key was not given a separate dir, use the same one as for public key
-        if private_key_dir is None:
-            private_key_dir = public_key_dir
-        # Generate the keys
-        private_key, public_key = KeyGen.generate_private_public_key()
-        # Store them
-        KeyGen.store_private_key(private_key, private_key_dir)
-        KeyGen.store_public_key(public_key, public_key_dir)
         return private_key, public_key
