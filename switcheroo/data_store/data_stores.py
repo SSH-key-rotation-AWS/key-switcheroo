@@ -3,7 +3,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from switcheroo import paths
-from switcheroo.custom_keygen import KeyGen, KeyMetadata
+from switcheroo.custom_keygen import KeyMetadata
+from switcheroo import util
 
 
 class DataStore(ABC):
@@ -63,7 +64,7 @@ class FileSystemDataStore(DataStore):
     ) -> tuple[str, KeyMetadata]:
         if metadata is None:
             metadata = KeyMetadata.now_by_executing_user()
-        _, public_key = KeyGen.generate_private_public_key_in_file(
+        _, public_key = util.generate_private_public_key_in_file(
             paths.local_key_dir(host, user, home_dir=self.home_dir)
         )
         metadata_file = paths.local_metadata_loc(host, user, home_dir=self.home_dir)

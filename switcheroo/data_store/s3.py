@@ -3,6 +3,7 @@ import boto3
 from switcheroo.data_store import DataStore
 from switcheroo import paths
 from switcheroo.custom_keygen import KeyGen, KeyMetadata
+from switcheroo import util
 
 
 class S3DataStore(DataStore):
@@ -45,7 +46,7 @@ class S3DataStore(DataStore):
         )
 
         # Store the private key on the local machine
-        KeyGen.store_private_key(
+        util.store_private_key(
             private_key=private_key,
             private_key_dir=paths.local_key_dir(host, user, home_dir=self.home_dir),
         )
