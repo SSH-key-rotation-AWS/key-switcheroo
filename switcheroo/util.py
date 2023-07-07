@@ -1,6 +1,7 @@
 """Utility functions"""
 from socket import getservbyport
 from random import randint
+import os
 from pathlib import Path
 from switcheroo.custom_keygen import KeyGen
 
@@ -38,15 +39,21 @@ def get_open_port() -> int:
 def store_private_key(private_key: bytes, private_key_dir: Path):
     private_key_dir.mkdir(parents=True, exist_ok=True)
     private_key_path = private_key_dir / KeyGen.PRIVATE_KEY_NAME
-    private_key_path.touch(mode=0o600, exist_ok=True)
-    with open(private_key_path, mode="wb") as private_out:
+    os.umask(0)
+
+    # Opener to restrict permissions
+    def open_restricted_permissions(path: str, flags: int):
+        return os.open(path=str(path), flags=flags, mode=0o600)
+
+    with open(
+        str(private_key_path), mode="wb", opener=open_restricted_permissions
+    ) as private_out:
         private_out.write(private_key)
 
 
 def store_public_key(public_key: bytes, public_key_dir: Path):
     public_key_dir.mkdir(parents=True, exist_ok=True)
     public_key_path = public_key_dir / KeyGen.PUBLIC_KEY_NAME
-    public_key_path.touch(exist_ok=True)
     with open(public_key_path, mode="wb") as public_out:
         public_out.write(public_key)
 
