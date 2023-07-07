@@ -1,10 +1,9 @@
 from argparse import ArgumentParser
 from pathlib import Path
-from botocore.exceptions import ClientError
-from switcheroo.server.retrieve_public_keys import (
-    get_public_keys_local,
-    get_public_keys_s3,
-)
+import socket
+from switcheroo.data_store import DataStore, FileSystemDataStore
+from switcheroo.data_store.s3 import S3DataStore
+from switcheroo import paths
 
 
 def create_argument_parser() -> ArgumentParser:
@@ -22,9 +21,16 @@ def create_argument_parser() -> ArgumentParser:
         help="choose where to fetch the public key from, S3 or the local system (default is S3)",
     )
     argument_parser.add_argument(
-        "--bucketname",
+        "--bucket",
         required=False,
         help="If s3 is selected, the bucket name to look for the key",
+    )
+    argument_parser.add_argument(
+        "--sshdir",
+        required=False,
+        help="If local is selected, the absolute path to\
+            the directory that stores the keys (ie /home/you/.ssh)",
+        default=paths.local_ssh_home(),
     )
     return argument_parser
 
@@ -32,19 +38,23 @@ def create_argument_parser() -> ArgumentParser:
 def main():
     parser = create_argument_parser()
     args = parser.parse_args()
+    data_store: DataStore | None = None
 
     if args.datastore == "local":
-        ssh_dir = Path("~/.ssh").expanduser()
-        try:
-            public_key = get_public_keys_local(args.user, ssh_dir)
-            print(public_key)
-        except Exception as error:
-            print(error)
-    else:
+        data_store = FileSystemDataStore(Path(args.sshdir))
+    elif args.datastore == "s3":
         if args.bucket is None:
             parser.error("The s3 option requires a specified bucket name!")
-        try:
-            public_key = get_public_keys_s3(args.user, args.bucketname)
-            print(public_key)
-        except ClientError as error:
-            print(error)
+        data_store = S3DataStore(args.bucket)
+    try:
+        assert data_store is not None
+        public_key = data_store.retrieve(socket.getfqdn(), args.user)
+        print(public_key)
+    except Exception:  # pylint: disable = broad-exception-caught
+        print(
+            "An unexpected error occured! Please ensure your arguments are configured correctly"
+        )
+
+
+if __name__ == "__main__":
+    main()

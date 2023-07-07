@@ -60,7 +60,7 @@ class FileSystemDataStore(DataStore):
     "Stores keys in a file system"
 
     def get_sshd_config_line(self) -> str:
-        return f"local {str(self.home_dir)}"
+        return f'-ds local --sshdir "{str(self.home_dir)}"'
 
     def publish(self, host: str, user: str) -> str:
         _, public_key = KeyGen.generate_private_public_key_in_file(
