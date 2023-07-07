@@ -21,7 +21,7 @@ class S3DataStore(DataStore):
         return self._s3_bucket_name
 
     def get_sshd_config_line(self) -> str:
-        return f"s3 {self.s3_bucket_name}"
+        return f"-ds s3 --bucket {self.s3_bucket_name}"
 
     def retrieve(self, host: str, user: str):
         response = self._s3_client.get_object(
