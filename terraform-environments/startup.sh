@@ -10,9 +10,7 @@
   sudo apt -y install openjdk-11-jdk
   curl -OL http://mirrors.jenkins-ci.org/war/latest/jenkins.war
   nohup java -jar -Djenkins.install.runSetupWizard=false jenkins.war &
-  # sudo apt install wget build-essential libncursesw5-dev libssl-dev \
-  #   libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev -y
-  url="http://localhost:8080"
+  url="http://localhost:8080/"
   while [ "$(curl -s -o /dev/null -w "%{http_code}" $url)" != "200" ]; do sleep 1; done
   wget $url/jnlpJars/jenkins-cli.jar
   touch setup.groovy
@@ -29,5 +27,73 @@
   def strategy = new hudson.security.FullControlOnceLoggedInAuthorizationStrategy()
   strategy.setAllowAnonymousRead(false)
   instance.setAuthorizationStrategy(strategy)" >> setup.groovy
-  java -jar jenkins-cli.jar -s $url/ groovy = < setup.groovy
-  java -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" install-plugin github-branch-source
+  java -jar jenkins-cli.jar -s $url groovy = < setup.groovy
+  java -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" install-plugin github-branch-source workflow-multibranch multibranch-action-triggers config-file-provider \
+    branch-api cloudbees-folder -restart
+  touch config.xml
+  echo "<?xml version='1.1' encoding='UTF-8'?>
+<org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin=\"workflow-multibranch@756.v891d88f2cd46\">
+  <actions/>
+  <description></description>
+  <displayName>MultiBranch</displayName>
+  <properties>
+    <org.jenkinsci.plugins.workflow.multibranch.PipelineTriggerProperty plugin=\"multibranch-action-triggers@1.8.6\">
+      <createActionJobsToTrigger></createActionJobsToTrigger>
+      <deleteActionJobsToTrigger></deleteActionJobsToTrigger>
+      <actionJobsToTriggerOnRunDelete></actionJobsToTriggerOnRunDelete>
+      <quitePeriod>0</quitePeriod>
+      <branchIncludeFilter>*</branchIncludeFilter>
+      <branchExcludeFilter></branchExcludeFilter>
+      <additionalParameters/>
+    </org.jenkinsci.plugins.workflow.multibranch.PipelineTriggerProperty>
+    <org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty plugin=\"config-file-provider@938.ve2b_8a_591c596\">
+      <configs class=\"sorted-set\">
+        <comparator class=\"org.jenkinsci.plugins.configfiles.ConfigByIdComparator\"/>
+      </configs>
+    </org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty>
+  </properties>
+  <folderViews class=\"jenkins.branch.MultiBranchProjectViewHolder\" plugin=\"branch-api@2.1109.vdf225489a_16d\">
+    <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../..\"/>
+  </folderViews>
+  <healthMetrics/>
+  <icon class=\"jenkins.branch.MetadataActionFolderIcon" plugin="branch-api@2.1109.vdf225489a_16d\">
+    <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../..\"/>
+  </icon>
+  <orphanedItemStrategy class=\"com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy\" plugin=\"cloudbees-folder@6.815.v0dd5a_cb_40e0e\">
+    <pruneDeadBranches>false</pruneDeadBranches>
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>-1</numToKeep>
+    <abortBuilds>false</abortBuilds>
+  </orphanedItemStrategy>
+  <triggers/>
+  <disabled>false</disabled>
+  <sources class=\"jenkins.branch.MultiBranchProject\$BranchSourceList\" plugin=\"branch-api@2.1109.vdf225489a_16d\">
+    <data>
+      <jenkins.branch.BranchSource>
+        <source class=\"org.jenkinsci.plugins.github_branch_source.GitHubSCMSource\" plugin=\"github-branch-source@1728.v859147241f49\">
+          <id>d6f1f5bc-bbf7-4241-ada7-a8aa7a8877e9</id>
+          <apiUri>https://api.github.com</apiUri>
+          <credentialsId>3fe44166-23de-4180-8491-bbdc0c854bcc</credentialsId>
+          <repoOwner>SSH-key-rotation-AWS</repoOwner>
+          <repository>Team-Henrique</repository>
+          <repositoryUrl>https://github.com/SSH-key-rotation-AWS/team-henrique</repositoryUrl>
+          <traits>
+            <org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
+              <strategyId>3</strategyId>
+            </org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
+          </traits>
+        </source>
+        <strategy class=\"jenkins.branch.NamedExceptionsBranchPropertyStrategy\">
+          <defaultProperties class=\"empty-list\"/>
+          <namedExceptions class=\"empty-list\"/>
+        </strategy>
+      </jenkins.branch.BranchSource>
+    </data>
+    <owner class=\"org.jenkinsci.plugins.workflow.mulrtibranch.WorkflowMultiBranchProject\" reference=\"../..\"/>
+  </sources>
+  <factory class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory\">
+    <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../..\"/>
+    <scriptPath>Jenkinsfile</scriptPath>
+  </factory>
+</org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>" >> config.xml
+  java -jar jenkins-cli.jar -s $url create-job MultiBranch < config.xml
