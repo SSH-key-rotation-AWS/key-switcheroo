@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from pathlib import Path
 import socket
+import traceback
 from switcheroo.data_store import DataStore, FileSystemDataStore
 from switcheroo.data_store.s3 import S3DataStore
 from switcheroo import paths
@@ -50,10 +51,9 @@ def main():
         assert data_store is not None
         public_key = data_store.retrieve(socket.getfqdn(), args.user)
         print(public_key)
-    except Exception:  # pylint: disable = broad-exception-caught
-        print(
-            "An unexpected error occured! Please ensure your arguments are configured correctly"
-        )
+    except Exception as exc:  # pylint: disable = broad-exception-caught
+        print(exc)
+        print(traceback.format_exc())
 
 
 if __name__ == "__main__":
