@@ -36,7 +36,8 @@ class S3DataStore(DataStore):
             return ssh_key
         except ClientError as exc:
             if exc.response["Error"]["Code"] == "NoSuchKey":
-                raise KeyNotFoundException() from exc
+                exception_data = KeyNotFoundException.Data(user, host)
+                raise KeyNotFoundException(exception_data) from exc
             raise exc
 
     def publish(

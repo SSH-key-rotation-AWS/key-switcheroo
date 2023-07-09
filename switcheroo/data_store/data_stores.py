@@ -78,6 +78,6 @@ class FileSystemDataStore(DataStore):
         try:
             with open(key_path, mode="rt", encoding="utf-8") as key_file:
                 return key_file.read()
-        except FileNotFoundError:
-            raise KeyNotFoundException()
-
+        except FileNotFoundError as exc:
+            exception_data = KeyNotFoundException.Data(user, host)
+            raise KeyNotFoundException(exception_data) from exc
