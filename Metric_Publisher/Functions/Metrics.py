@@ -1,5 +1,5 @@
+from Metric_Publisher.Functions.Metric import Metric
 from contextlib import contextmanager
-from Metric import Metric
 import time
 
 
@@ -41,16 +41,16 @@ class CounterMetric(Metric):
 
     def inc_count_metric(self):
         """Increments the count metric by 1."""
-        self._value += 1 
+        self._value += 1
 
     def get_name(self) -> str:
         """Returns the metric name."""
         return super().get_name()
-    
+
     def get_unit(self) -> str:
         """Returns the unit associated with the metric."""
         return super().get_unit()
-    
+
     def get_value(self):
         """Returns the value associated with the metric."""
         return super().get_value()

@@ -1,26 +1,26 @@
-"""File metric publisher """
+"""
+file_metric_publisher.py
+"""
+
 import os
-import sys
-from Metric_Publisher.Functions.Metrics import TimingMetric , CounterMetric
-from Metric_Publisher.Functions.Metric import Metric
-from Metric_Publisher.Functions.MetricPublisher import MetricPublisher
-
-sys.path.insert(0, '/Users/dothanbar/Desktop/ComputerScience/YU/SummerProgram/team-henrique/AWS_CloudWatch/Functions')
-
+import json
 from datetime import datetime
-
-
+from Metric_Publisher.Functions.Metric import Metric
+from Metric_Publisher.Functions.Metrics import TimingMetric, CounterMetric
+from Metric_Publisher.Functions.MetricPublisher import MetricPublisher
 
 
 class FileMetricPublisher(MetricPublisher):
-    """Publishes Metric sspecificed data"""
+    """Publishes specified metric data to a file"""
 
     def __init__(self, name_space: str, instance_id: str):
         self.file_name = name_space
         self._instance_id = instance_id
-        self._file_location = os.getcwd() + "/test/FileMetricPublisherTest"
+        self._file_location = (
+            os.getcwd() + "/tests/test_cloud_watch/FileMetricPublisherTest"
+        )
 
-    def publish_metric(self, metric:Metric):
+    def publish_metric(self, metric: Metric):
         """Publish metrics to a file"""
         metric_name = metric.get_name()
         metric_value = metric.get_value()
@@ -44,5 +44,5 @@ class FileMetricPublisher(MetricPublisher):
     def write_to_file(self, file_path, content):
         """Write to file"""
         with open(file_path, "w") as file:
-            file.write(content)
-
+            # Write the JSON data to the file
+            json.dump(content, file)

@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from Metric import Metric
+from Metric_Publisher.Functions.Metric import Metric
+
 
 class MetricPublisher(ABC):
-
     @abstractmethod
     def publish_metric(self, metric: Metric):
         """Publishes a metric.
@@ -10,4 +10,3 @@ class MetricPublisher(ABC):
         Args:
             metric (Metric): The metric object to be published.
         """
-        
