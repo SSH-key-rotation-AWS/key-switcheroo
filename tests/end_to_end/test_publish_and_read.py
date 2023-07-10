@@ -29,14 +29,14 @@ class EndToEnd(IsolatedAsyncioTestCase):
         # Start the server with the S3 data store
         async with Server(retriever=retriever) as server:
             # Instantiate the S3 publisher
-            publisher = S3KeyPublisher(self.bucket_name, paths.local_ssh_home())
+            publisher = S3KeyPublisher(self.bucket_name, self._temp_dir)
             # Create public/private key pair and publish the public key to S3
             publisher.publish_key(socket.getfqdn(), getuser())
             # Create an SSH client to connect to the server
             client = SSHClient()
             client.set_missing_host_key_policy(AutoAddPolicy())
             pkey_location = paths.local_private_key_loc(
-                socket.getfqdn(), getuser(), home_dir=paths.local_ssh_home()
+                socket.getfqdn(), getuser(), self._temp_dir
             )
             private_key = RSAKey.from_private_key_file(
                 str(pkey_location)
