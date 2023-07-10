@@ -1,9 +1,9 @@
 """File metric publisher """
 import os
 import sys
-from AWS_CloudWatch.Functions.Metrics import TimingMetric , CounterMetric
-from AWS_CloudWatch.Functions.Metric import Metric
-from AWS_CloudWatch.Functions.MetricPublisher import MetricPublisher
+from Metric_Publisher.Functions.Metrics import TimingMetric , CounterMetric
+from Metric_Publisher.Functions.Metric import Metric
+from Metric_Publisher.Functions.MetricPublisher import MetricPublisher
 
 sys.path.insert(0, '/Users/dothanbar/Desktop/ComputerScience/YU/SummerProgram/team-henrique/AWS_CloudWatch/Functions')
 

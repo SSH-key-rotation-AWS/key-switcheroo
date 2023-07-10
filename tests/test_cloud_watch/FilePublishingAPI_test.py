@@ -1,6 +1,6 @@
 import hamcrest
 from FileMetricPublisher import FileMetricPublisher
-from AWS_CloudWatch.Functions.Metrics import CounterMetric , TimingMetric
+from Metric_Publisher.Functions.Metrics import CounterMetric , TimingMetric
 import unittest
 from hamcrest import assert_that, equal_to, is_in
 

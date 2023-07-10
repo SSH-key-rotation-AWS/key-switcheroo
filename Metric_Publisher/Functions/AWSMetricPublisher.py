@@ -1,7 +1,7 @@
 """AWS metric publisher"""
 import boto3
 from Metric import Metric
-from MetricPublisher import MetricPublisher
+from Metric_Publisher import MetricPublisher
 
 
 class AWSMetricPublisher(MetricPublisher):
