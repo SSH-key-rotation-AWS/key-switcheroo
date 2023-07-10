@@ -57,11 +57,11 @@ class FileKeyRetriever(KeyRetriever):
     def __init__(self, key_dir: Path) -> None:
         super().__init__()
         self._key_dir = key_dir
-        self._file_ds = ssh_home_file_ds(key_dir)
+        self._key_datastore = ssh_home_file_ds(key_dir)
 
     def retrieve_public_key(self, host: str, user: str) -> Key.PublicComponent:
         return retrieve_or_throw(
-            self._file_ds,
+            self._key_datastore,
             location=paths.local_relative_public_key_loc(host, user),
             clas=Key.PublicComponent,
             ssh_item="public key",
@@ -71,7 +71,7 @@ class FileKeyRetriever(KeyRetriever):
 
     def retrieve_private_key(self, host: str, user: str) -> Key.PrivateComponent:
         return retrieve_or_throw(
-            self._file_ds,
+            self._key_datastore,
             location=paths.local_relative_private_key_loc(host, user),
             clas=Key.PrivateComponent,
             ssh_item="private key",
@@ -81,7 +81,7 @@ class FileKeyRetriever(KeyRetriever):
 
     def retrieve_key_metadata(self, host: str, user: str) -> KeyMetadata:
         return retrieve_or_throw(
-            self._file_ds,
+            self._key_datastore,
             location=paths.local_relative_metadata_loc(host, user),
             clas=KeyMetadata,
             ssh_item="metadata",
