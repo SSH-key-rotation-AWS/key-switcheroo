@@ -49,9 +49,15 @@ class FileDataStore(DataStore):
     class FilePermissions:
         mode: int
 
-    def __init__(self, root: Path):
+    @dataclass(frozen=True)
+    class RootInfo:
+        location: Path
+        mode: int = 511
+
+    def __init__(self, root: RootInfo):
         super().__init__()
-        self._root = root
+        self._root = root.location
+        root.location.mkdir(exist_ok=True, mode=root.mode)
         self._file_permission_settings: dict[str, FileDataStore.FilePermissions]
 
     def register_file_permissions(self, clas: type, perms: FilePermissions):
