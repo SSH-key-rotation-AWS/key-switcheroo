@@ -1,3 +1,4 @@
+from pathlib import Path
 from argparse import ArgumentParser
 from switcheroo.ssh.data_org.publisher import KeyPublisher, FileKeyPublisher
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
@@ -45,11 +46,11 @@ def main():
     args = parser.parse_args()
     publisher: KeyPublisher | None = None
     if args.datastore == "local":  # If the user chose to store the public key locally
-        publisher = FileKeyPublisher(args.sshdir)
+        publisher = FileKeyPublisher(Path(args.sshdir))
     else:  # If the user chose to store the public key on S3 or chose to default to S3
         if args.bucket is None:
             parser.error("The s3 option requires a bucket name!")
-        publisher = S3KeyPublisher(args.bucket, root_ssh_dir=args.sshdir)
+        publisher = S3KeyPublisher(args.bucket, root_ssh_dir=Path(args.sshdir))
     assert publisher is not None
     publisher.publish_key(args.hostname, args.user)
 
