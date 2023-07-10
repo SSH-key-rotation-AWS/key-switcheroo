@@ -30,8 +30,8 @@ def create_argument_parser() -> ArgumentParser:
     argument_parser.add_argument(
         "--sshdir",
         required=False,
-        help="If local is selected, the absolute path to\
-            the directory that stores the keys (ie /home/you/.ssh)",
+        help="The absolute path to\
+            the directory that stores local keys (ie /home/you/.ssh)",
         default=paths.local_ssh_home(),
     )
     return argument_parser
