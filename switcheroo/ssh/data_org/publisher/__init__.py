@@ -39,19 +39,19 @@ class KeyPublisher(ABC):
 class FileKeyPublisher(KeyPublisher):
     def __init__(self, ssh_home: Path = paths.local_ssh_home()):
         self._ssh_home = ssh_home
-        self._file_ds = ssh_home_file_ds(ssh_home)
+        self._key_ds = ssh_home_file_ds(ssh_home)
 
     def publish_public_key(self, key: Key.PublicComponent, host: str, user: str):
-        return self._file_ds.publish(
+        return self._key_ds.publish(
             item=key, location=paths.local_relative_public_key_loc(host, user)
         )
 
     def publish_private_key(self, key: Key.PrivateComponent, host: str, user: str):
-        return self._file_ds.publish(
+        return self._key_ds.publish(
             item=key, location=paths.local_relative_private_key_loc(host, user)
         )
 
     def publish_key_metadata(self, metadata: KeyMetadata, host: str, user: str):
-        return self._file_ds.publish(
+        return self._key_ds.publish(
             item=metadata, location=paths.local_relative_metadata_loc(host, user)
         )
