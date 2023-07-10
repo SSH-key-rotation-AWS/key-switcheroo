@@ -30,15 +30,5 @@ pipeline {
                 runTests()
             }
         }
-        stage('Publish'){
-            when {
-                branch 'main'
-            }
-            steps{
-                script{
-                    sh 'gh workflow run main.yml -R SSH-key-rotation-AWS/team-henrique'
-                }
-            }
-        }
     }
 }
