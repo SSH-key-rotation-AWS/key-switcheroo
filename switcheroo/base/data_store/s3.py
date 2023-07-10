@@ -35,10 +35,18 @@ class S3DataStore(DataStore):
             Bucket=self._bucket_name, Key=str(location), Body=serialized_data
         )
 
-    def retrieve(self, location: Path, clas: type[T]) -> T:
-        response = self._s3_client.get_object(
-            Bucket=self._bucket_name, Key=str(location)
-        )
-        str_data: str = response["Body"].read().decode()
-        deserialized_item: T = super().deserialize(str_data, clas)
-        return deserialized_item
+    def retrieve(self, location: Path, clas: type[T]) -> T | None:
+        try:
+            response = self._s3_client.get_object(
+                Bucket=self._bucket_name, Key=str(location)
+            )
+            # Found item
+            str_data: str = response["Body"].read().decode()
+            deserialized_item: T = super().deserialize(str_data, clas)
+            return deserialized_item
+        except ClientError as exc:
+            # Item does not exist in the bucket
+            if exc.response["Error"]["Code"] == "NoSuchKey":  # type: ignore
+                return None
+            # Something else AWS-related went wrong - throw the exception back at the user
+            raise exc

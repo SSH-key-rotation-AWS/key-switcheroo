@@ -57,6 +57,7 @@ class FileDataStore(DataStore):
     def __init__(self, root: RootInfo):
         super().__init__()
         self._root = root.location
+        # If root folder does not exist, create it
         root.location.mkdir(exist_ok=True, mode=root.mode)
         self._file_permission_settings: dict[str, FileDataStore.FilePermissions]
 
@@ -88,7 +89,12 @@ class FileDataStore(DataStore):
         serialized_data = super().serialize(item)
         self._write(item, serialized_data, location)
 
-    def retrieve(self, location: Path, clas: type[T]) -> T:
-        with open(str(self._root / location), mode="rt", encoding="utf-8") as data_file:
-            data: str = data_file.read()
-            return super().deserialize(data, clas)
+    def retrieve(self, location: Path, clas: type[T]) -> T | None:
+        try:
+            with open(
+                str(self._root / location), mode="rt", encoding="utf-8"
+            ) as data_file:
+                data: str = data_file.read()
+                return super().deserialize(data, clas)
+        except FileNotFoundError:
+            return None
