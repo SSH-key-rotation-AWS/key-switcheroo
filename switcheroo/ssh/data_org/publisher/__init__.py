@@ -8,11 +8,11 @@ from switcheroo import paths
 
 class KeyPublisher(ABC):
     @abstractmethod
-    def publish_public_key(self, key: Key.Component, host: str, user: str):
+    def publish_public_key(self, key: Key.PublicComponent, host: str, user: str):
         pass
 
     @abstractmethod
-    def publish_private_key(self, key: Key.Component, host: str, user: str):
+    def publish_private_key(self, key: Key.PrivateComponent, host: str, user: str):
         pass
 
     @abstractmethod
@@ -34,12 +34,12 @@ class FileKeyPublisher(KeyPublisher):
         self._ssh_home = ssh_home
         self._file_ds = sshify(FileDataStore(ssh_home))
 
-    def publish_public_key(self, key: Key.Component, host: str, user: str):
+    def publish_public_key(self, key: Key.PublicComponent, host: str, user: str):
         return self._file_ds.publish(
             item=key, location=paths.local_relative_public_key_loc(host, user)
         )
 
-    def publish_private_key(self, key: Key.Component, host: str, user: str):
+    def publish_private_key(self, key: Key.PrivateComponent, host: str, user: str):
         return self._file_ds.publish(
             item=key, location=paths.local_relative_private_key_loc(host, user)
         )

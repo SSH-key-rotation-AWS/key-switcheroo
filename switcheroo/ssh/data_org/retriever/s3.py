@@ -14,15 +14,15 @@ class S3Retriever(KeyRetriever):
         self._file_ds = sshify(FileDataStore(ssh_local_dir))
         self._s3_ds = sshify(S3DataStore(bucket_name))
 
-    def retrieve_public_key(self, host: str, user: str) -> Key.Component:
+    def retrieve_public_key(self, host: str, user: str) -> Key.PublicComponent:
         return self._s3_ds.retrieve(
-            location=paths.cloud_public_key_loc(host, user), clas=Key.Component
+            location=paths.cloud_public_key_loc(host, user), clas=Key.PublicComponent
         )
 
-    def retrieve_private_key(self, host: str, user: str) -> Key.Component:
+    def retrieve_private_key(self, host: str, user: str) -> Key.PrivateComponent:
         return self._file_ds.retrieve(
             location=paths.local_private_key_loc(host, user, self._ssh_local_dir),
-            clas=Key.Component,
+            clas=Key.PrivateComponent,
         )
 
     def retrieve_key_metadata(self, host: str, user: str) -> KeyMetadata:

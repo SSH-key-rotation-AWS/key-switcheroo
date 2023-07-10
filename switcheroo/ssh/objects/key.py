@@ -8,7 +8,11 @@ from switcheroo.custom_keygen import KeyGen
 
 
 class Key:  # pylint: disable=too-few-public-methods
-    class Component:
+    class PrivateComponent:
+        def __init__(self, byte_data: bytes):
+            self.byte_data = byte_data
+
+    class PublicComponent:
         def __init__(self, byte_data: bytes):
             self.byte_data = byte_data
 
@@ -16,16 +20,24 @@ class Key:  # pylint: disable=too-few-public-methods
         super().__init__()
         if key_tuple is None:
             key_tuple = KeyGen.generate_private_public_key()
-        self.private_key: Key.Component = Key.Component(key_tuple[0])
-        self.public_key: Key.Component = Key.Component(key_tuple[1])
+        self.private_key: Key.PrivateComponent = Key.PrivateComponent(key_tuple[0])
+        self.public_key: Key.PublicComponent = Key.PublicComponent(key_tuple[1])
 
 
-class KeySerializer(Serializer[Key.Component]):
-    def serialize(self, storable: Key.Component) -> str:
+class PrivateKeySerializer(Serializer[Key.PrivateComponent]):
+    def serialize(self, storable: Key.PrivateComponent) -> str:
         return storable.byte_data.decode()
 
-    def deserialize(self, data_str: str) -> Key.Component:
-        return Key.Component(data_str.encode())
+    def deserialize(self, data_str: str) -> Key.PrivateComponent:
+        return Key.PrivateComponent(data_str.encode())
+
+
+class PublicKeySerializer(Serializer[Key.PublicComponent]):
+    def serialize(self, storable: Key.PublicComponent) -> str:
+        return storable.byte_data.decode()
+
+    def deserialize(self, data_str: str) -> Key.PublicComponent:
+        return Key.PublicComponent(data_str.encode())
 
 
 @dataclass(frozen=True)

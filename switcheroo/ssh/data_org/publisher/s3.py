@@ -15,12 +15,12 @@ class S3Publisher(KeyPublisher):
         self._file_ds = sshify(FileDataStore(root_ssh_dir))
         self._s3_ds = sshify(S3DataStore(s3_bucket_name))
 
-    def publish_public_key(self, key: Key.Component, host: str, user: str):
+    def publish_public_key(self, key: Key.PublicComponent, host: str, user: str):
         return self._s3_ds.publish(
             item=key, location=paths.cloud_public_key_loc(host, user)
         )
 
-    def publish_private_key(self, key: Key.Component, host: str, user: str):
+    def publish_private_key(self, key: Key.PrivateComponent, host: str, user: str):
         return self._file_ds.publish(
             item=key, location=paths.local_relative_private_key_loc(host, user)
         )

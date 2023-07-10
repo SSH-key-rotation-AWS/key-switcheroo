@@ -2,6 +2,7 @@
 from switcheroo.ssh.objects.key import (
     Key,
     KeyMetadata,
-    KeySerializer,
+    PublicKeySerializer,
+    PrivateKeySerializer,
     KeyMetadataSerializer,
 )
