@@ -1,46 +1,56 @@
 from contextlib import contextmanager
-from Functions.Metric import Metric
+from Metric import Metric
 import time
 
+
 class TimingMetric(Metric):
-    def __init__(self,metric_name:str):
-        self._end_time = 0
-        self._metric_name = metric_name
-        self._unit = "Seconds"
-         
+    """Timing metric that calculates the time the metric has run."""
+
+    def __init__(self, metric_name: str, unit: str):
+        super().__init__(metric_name, unit)
 
     @contextmanager
     def timeit_metric(self):
+        """Context manager used to calculate the time the method has run."""
         start_time = 0
         try:
             start_time = time.time()
             yield
         finally:
-            self._end_time = time.time() - start_time
+            self._value = time.time() - start_time
 
-    def get_metric_name(self) -> str:
-        return self._metric_name
-    def get_metric_value(self):
-        return self._end_time
-    def get_metric_unit(self):
-        return self._unit
+    def get_name(self) -> str:
+        """Returns the metric name."""
+        return super().get_name()
+
+    def get_unit(self) -> str:
+        """Returns the unit associated with the metric."""
+        return super().get_unit()
+
+    def get_value(self):
+        """Returns the value associated with the metric."""
+        return super().get_value()
+
 
 class CounterMetric(Metric):
-    def __init__(self,metric_name:str):
-        self._counter = 0
-        self._metric_name = metric_name
-        self._unit = "Count"
-    
-    def inc_count_metric(self):
-        self._counter +=1
+    """Counter metric that counts the key count."""
 
-    def get_metric_name(self) -> str:
-        return self._metric_name
+    def __init__(self, metric_name: str, unit: str):
+        super().__init__(metric_name, unit)
+        self._value = 0
+
+    def inc_count_metric(self):
+        """Increments the count metric by 1."""
+        self._value += 1 
+
+    def get_name(self) -> str:
+        """Returns the metric name."""
+        return super().get_name()
     
-    def get_metric_value(self):
-        return self._counter
+    def get_unit(self) -> str:
+        """Returns the unit associated with the metric."""
+        return super().get_unit()
     
-    def get_metric_unit(self):
-        return self.get_metric_unit
-    
-        
+    def get_value(self):
+        """Returns the value associated with the metric."""
+        return super().get_value()
