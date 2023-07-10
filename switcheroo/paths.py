@@ -19,6 +19,14 @@ def local_public_key_loc(host: str, user: str, home_dir: Path | None) -> Path:
     return local_key_dir(host, user, home_dir=home_dir) / KeyGen.PUBLIC_KEY_NAME
 
 
+def local_relative_public_key_loc(host: str, user: str) -> Path:
+    return Path(host) / user / KeyGen.PUBLIC_KEY_NAME
+
+
+def local_relative_private_key_loc(host: str, user: str) -> Path:
+    return Path(host) / user / KeyGen.PRIVATE_KEY_NAME
+
+
 def local_private_key_loc(host: str, user: str, home_dir: Path | None) -> Path:
     """Path to the private key for a host/user"""
     return local_key_dir(host, user, home_dir=home_dir) / KeyGen.PRIVATE_KEY_NAME
@@ -26,6 +34,10 @@ def local_private_key_loc(host: str, user: str, home_dir: Path | None) -> Path:
 
 def local_metadata_loc(host: str, user: str, home_dir: Path | None) -> Path:
     return local_key_dir(host, user, home_dir=home_dir) / KeyMetadata.FILE_NAME
+
+
+def local_relative_metadata_loc(host: str, user: str) -> Path:
+    return Path(host) / user / KeyMetadata.FILE_NAME
 
 
 def cloud_key_dir(host: str, user: str) -> Path:
