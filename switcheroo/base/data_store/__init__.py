@@ -11,7 +11,7 @@ T = TypeVar("T")
 
 class DataStore(ABC):
     def __init__(self):
-        self._serializers: dict[str, Serializer[Any]] = dict[str, Serializer[Any]]()
+        self._serializers: dict[str, Serializer[Any]] = {}
 
     def _get_serializer_for(self, clas: type[T]) -> Serializer[T]:
         class_identifier = util.get_class_identifier(clas)
@@ -59,12 +59,16 @@ class FileDataStore(DataStore):
         self._root = root.location
         # If root folder does not exist, create it
         root.location.mkdir(exist_ok=True, mode=root.mode)
-        self._file_permission_settings: dict[str, FileDataStore.FilePermissions]
+        self._file_permission_settings: dict[str, FileDataStore.FilePermissions] = {}
 
     def register_file_permissions(self, clas: type, perms: FilePermissions):
         self._file_permission_settings[util.get_class_identifier(clas)] = perms
 
     def _write(self, unserialized_item: Any, data: str, relative_loc: Path):
+        absolute_location = self._root / relative_loc
+        # Create enclosing dir if it does not already exist
+        absolute_location.parent.mkdir(parents=True, exist_ok=True)
+
         os.umask(0)
         file_perms = self._file_permission_settings.get(
             util.get_class_identifier(unserialized_item.__class__)
@@ -77,8 +81,9 @@ class FileDataStore(DataStore):
         def open_restricted_permissions(path: str, flags: int):
             return os.open(path=str(path), flags=flags, mode=target_mode)
 
+        # Write to the file
         with open(
-            str(self._root / relative_loc),
+            str(absolute_location),
             mode="wt",
             opener=open_restricted_permissions,
             encoding="utf-8",

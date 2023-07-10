@@ -7,7 +7,7 @@ from switcheroo.ssh.data_org.retriever import retrieve_or_throw
 from switcheroo import paths
 
 
-class S3Retriever(KeyRetriever):
+class S3KeyRetriever(KeyRetriever):
     def __init__(self, ssh_local_dir: Path, bucket_name: str) -> None:
         self._bucket_name = bucket_name
         self._ssh_local_dir = ssh_local_dir

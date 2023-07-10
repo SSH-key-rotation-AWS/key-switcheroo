@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from switcheroo.base.data_store import FileDataStore
 from switcheroo.ssh.objects import Key, KeyMetadata
-from switcheroo.ssh.data_stores import sshify
+from switcheroo.ssh.data_stores import ssh_home_file_ds
 from switcheroo import paths
 
 
@@ -20,8 +19,15 @@ class KeyPublisher(ABC):
         pass
 
     def publish_key(
-        self, key: Key, host: str, user: str, metadata: KeyMetadata | None = None
+        self,
+        host: str,
+        user: str,
+        key: Key | None = None,
+        metadata: KeyMetadata | None = None,
     ):
+        # Lazy evaluation of default values
+        if key is None:
+            key = Key()
         if metadata is None:
             metadata = KeyMetadata.now_by_executing_user()
         self.publish_public_key(key.public_key, host, user)
@@ -30,9 +36,9 @@ class KeyPublisher(ABC):
 
 
 class FileKeyPublisher(KeyPublisher):
-    def __init__(self, ssh_home: Path):
+    def __init__(self, ssh_home: Path = paths.local_ssh_home()):
         self._ssh_home = ssh_home
-        self._file_ds = sshify(FileDataStore(ssh_home))
+        self._file_ds = ssh_home_file_ds(ssh_home)
 
     def publish_public_key(self, key: Key.PublicComponent, host: str, user: str):
         return self._file_ds.publish(

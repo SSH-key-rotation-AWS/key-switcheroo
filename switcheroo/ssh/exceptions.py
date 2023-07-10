@@ -22,7 +22,7 @@ class SSHItemNotFoundException(Exception):
             self.message = "Some SSH-related item could not be found!"
         else:
             self.message = (
-                f"{data.requested_item} could not be found for user"
+                f"{data.requested_item} could not be found for user "
                 f"{data.requested_user} and host {data.requested_host}"
             )
         super().__init__(self.message)

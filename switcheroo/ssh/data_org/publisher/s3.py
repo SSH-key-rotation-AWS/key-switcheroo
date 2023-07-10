@@ -1,18 +1,17 @@
 from pathlib import Path
 from switcheroo.ssh.objects import Key, KeyMetadata
-from switcheroo.base.data_store import FileDataStore
 from switcheroo.base.data_store.s3 import S3DataStore
-from switcheroo.ssh.data_stores import sshify
+from switcheroo.ssh.data_stores import sshify, ssh_home_file_ds
 from switcheroo.ssh.data_org.publisher import KeyPublisher
 from switcheroo import paths
 
 
-class S3Publisher(KeyPublisher):
+class S3KeyPublisher(KeyPublisher):
     def __init__(
         self, s3_bucket_name: str, root_ssh_dir: Path = paths.local_ssh_home()
     ):
         self._s3_bucket_name = s3_bucket_name
-        self._file_ds = sshify(FileDataStore(root_ssh_dir))
+        self._file_ds = ssh_home_file_ds(root_ssh_dir)
         self._s3_ds = sshify(S3DataStore(s3_bucket_name))
 
     def publish_public_key(self, key: Key.PublicComponent, host: str, user: str):

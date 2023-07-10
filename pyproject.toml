@@ -22,8 +22,8 @@ boto3-stubs = {version = "1.27.0", extras = ["s3", "sts"]}
 
 [tool.poetry.scripts]
 
-switcheroo_publish = "switcheroo.publisher.__main__:main"
-switcheroo_retrieve = "switcheroo.server.__main__:main"
+switcheroo_publish = "switcheroo.ssh.scripts.publish:main"
+switcheroo_retrieve = "switcheroo.ssh.scripts.retrieve:main"
 
 [build-system]
 requires = ["poetry-core"]
