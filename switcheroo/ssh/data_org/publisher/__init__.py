@@ -24,7 +24,7 @@ class KeyPublisher(ABC):
         user: str,
         key: Key | None = None,
         metadata: KeyMetadata | None = None,
-    ):
+    ) -> tuple[Key, KeyMetadata]:
         # Lazy evaluation of default values
         if key is None:
             key = Key()
@@ -33,6 +33,7 @@ class KeyPublisher(ABC):
         self.publish_public_key(key.public_key, host, user)
         self.publish_private_key(key.private_key, host, user)
         self.publish_key_metadata(metadata, host, user)
+        return (key, metadata)
 
 
 class FileKeyPublisher(KeyPublisher):
