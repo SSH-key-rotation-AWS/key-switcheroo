@@ -15,5 +15,5 @@ default = "Disabled"
 variable "username"{
     description = "Create a username"
     #TODO
-    default ="isaacsoffer"
+    default ="ec2-user"
 }
