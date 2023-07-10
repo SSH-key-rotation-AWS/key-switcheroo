@@ -25,7 +25,7 @@ class S3PublisherTests(TestCase):
     def setUp(self) -> None:
         self._temp_dir = self.enterContext(SSHDirCleanup())
         self._publisher = S3KeyPublisher(self.bucket_name, self._temp_dir)
-        self.enterContext(S3Cleanup(self._s3_client, self._publisher))
+        self.enterContext(S3Cleanup(self._s3_client, self.bucket_name))
 
     def _check_published_key_contains(self, expected_key: str):
         key_loc = paths.cloud_public_key_loc(self.some_host, self.some_user)

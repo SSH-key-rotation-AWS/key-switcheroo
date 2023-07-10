@@ -34,6 +34,7 @@ class TestServerLocal(IsolatedAsyncioTestCase):
             private_key, _ = util.generate_private_public_key_in_file(random_host_dir)
             key: RSAKey = RSAKey.from_private_key(StringIO(private_key.decode()))
             key_fingerprint: str = key.fingerprint  # type: ignore
+            retriever.retrieve_key(host, getuser())
             client = SSHClient()
             client.load_system_host_keys()
             client.set_missing_host_key_policy(AutoAddPolicy())
