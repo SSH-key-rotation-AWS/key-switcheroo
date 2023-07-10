@@ -1,10 +1,32 @@
 from abc import abstractmethod
+from typing import TypeVar
 from pathlib import Path
-from switcheroo.base.data_store import FileDataStore
-from switcheroo.ssh.data_stores import sshify
+from switcheroo.base.data_store import DataStore
+from switcheroo.ssh.data_stores import ssh_home_file_ds
 from switcheroo.ssh.objects import Key, KeyMetadata
+from switcheroo.ssh.exceptions import SSHItem, SSHItemNotFoundException
 from switcheroo.ssh import AuthorizedKeysCmndProvider
 from switcheroo import paths
+
+T = TypeVar("T")
+
+
+def retrieve_or_throw(  # pylint: disable=too-many-arguments
+    data_store: DataStore,
+    location: Path,
+    clas: type[T],
+    ssh_item: SSHItem,
+    user: str,
+    host: str,
+) -> T:
+    result = data_store.retrieve(location, clas)
+    if result is None:
+        raise SSHItemNotFoundException(
+            SSHItemNotFoundException.Data(
+                requested_user=user, requested_host=host, requested_item=ssh_item
+            )
+        )
+    return result
 
 
 class KeyRetriever(AuthorizedKeysCmndProvider):
@@ -35,23 +57,36 @@ class FileKeyRetriever(KeyRetriever):
     def __init__(self, key_dir: Path) -> None:
         super().__init__()
         self._key_dir = key_dir
-        self._file_ds = sshify(FileDataStore(key_dir))
+        self._file_ds = ssh_home_file_ds(key_dir)
 
     def retrieve_public_key(self, host: str, user: str) -> Key.PublicComponent:
-        return self._file_ds.retrieve(
+        return retrieve_or_throw(
+            self._file_ds,
             location=paths.local_relative_public_key_loc(host, user),
             clas=Key.PublicComponent,
+            ssh_item="public key",
+            host=host,
+            user=user,
         )
 
     def retrieve_private_key(self, host: str, user: str) -> Key.PrivateComponent:
-        return self._file_ds.retrieve(
+        return retrieve_or_throw(
+            self._file_ds,
             location=paths.local_relative_private_key_loc(host, user),
             clas=Key.PrivateComponent,
+            ssh_item="private key",
+            host=host,
+            user=user,
         )
 
     def retrieve_key_metadata(self, host: str, user: str) -> KeyMetadata:
-        return self._file_ds.retrieve(
-            location=paths.local_relative_metadata_loc(host, user), clas=KeyMetadata
+        return retrieve_or_throw(
+            self._file_ds,
+            location=paths.local_relative_metadata_loc(host, user),
+            clas=KeyMetadata,
+            ssh_item="metadata",
+            host=host,
+            user=user,
         )
 
     @property

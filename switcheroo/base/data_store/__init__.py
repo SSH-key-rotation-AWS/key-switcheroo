@@ -37,7 +37,7 @@ class DataStore(ABC):
         pass
 
     @abstractmethod
-    def retrieve(self, location: Path, clas: type[T]) -> T:
+    def retrieve(self, location: Path, clas: type[T]) -> T | None:
         pass
 
     def register_serializer(self, clas: type[T], serializer: Serializer[T]):
