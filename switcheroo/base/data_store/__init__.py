@@ -59,13 +59,16 @@ class FileDataStore(DataStore):
 
     def _write(self, unserialized_item: Any, data: str, relative_loc: Path):
         os.umask(0)
-        file_perms = self._file_permission_settings[
+        file_perms = self._file_permission_settings.get(
             util.get_class_identifier(unserialized_item.__class__)
-        ]
+        )
+
+        # 511 is the default value of os.open
+        target_mode = 511 if file_perms is None else file_perms.mode
 
         # Opener to restrict permissions
         def open_restricted_permissions(path: str, flags: int):
-            return os.open(path=str(path), flags=flags, mode=file_perms.mode)
+            return os.open(path=str(path), flags=flags, mode=target_mode)
 
         with open(
             str(self._root / relative_loc),
