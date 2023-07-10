@@ -1,28 +1,3 @@
-# resource "null_resource" "ssh_keygen" {
-#   provisioner "local-exec" {
-#     command = "rm keys/mykey keys/mykey.pub"
-#     working_dir = "${path.module}"
-#   }
-#   provisioner "local-exec" {
-#     command = "ssh-keygen -t rsa -b 1024 -f keys/mykey -N 'PASSWORD'"
-#     working_dir = "${path.module}"
-#   }
-# }
-
-# variable "key_pair_name" {
-#   type    = string
-#   default = "terraform key pair"
-# }
-
-# data "local_file" "example" {
-#   filename = "keys/mykey.pub"
-# }
-
-# locals {
-#   output = data.local_file.example.content
-# }
-
-
 resource "aws_security_group" "allow_ingress" {
   name        = "allow_ingress"
   description = "Give correct security for baremetal hosts"
@@ -75,55 +50,10 @@ resource "null_resource" "set_permissions" {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-# resource "aws_key_pair" "demo_key_pair" {
-#   key_name   = var.key_pair_name
-#   # public_key = "${data.external.multiple_commands.result}"
-#   public_key = "${local.output}"
-# }
-
-
-data "template_file" "user_data" {
-  template = <<-EOT
-    #!/bin/bash
-
-    #add user
-    sudo adduser ${var.username}
-
-    # Service setup
-    sudo yum update -y
-    
-    #install python3.11
-    sudo yum install gcc openssl-devel bzip2-devel libffi-devel zlib-devel -y 
-    wget https://www.python.org/ftp/python/3.11.4/Python-3.11.4.tgz 
-    tar xzf Python-3.11.4.tgz 
-    cd Python-3.11.4 
-    sudo ./configure --enable-optimizations 
-    sudo make altinstall 
-    sudo rm -f /opt/Python-3.11.4.tgz 
-
-    sudo yum install -y ssh python3.11-pip
-
-    # test installation of pycryptome to ensure pip is installed 
-    sudo pip3 install pycryptome
-
-  EOT
-}
-
-
 resource "aws_instance" "baremetal-host-1" {
-  ami = "ami-090e0fc566929d98b"
+  ami = "ami-053b0d53c279acc90"
   instance_type = "t2.micro"      # Update with your desired instance type
-  user_data = data.template_file.user_data.rendered
+  user_data = file("hosts-user-data.sh")
   key_name      = aws_key_pair.demo_key_pair.key_name
   vpc_security_group_ids  =[aws_security_group.allow_ingress.id]
   tags = {
@@ -132,12 +62,12 @@ resource "aws_instance" "baremetal-host-1" {
 }
 
 resource "aws_instance" "baremetal-host-2" {
-  ami = "ami-090e0fc566929d98b"
+  ami = "ami-053b0d53c279acc90"
   instance_type = "t2.micro"      # Update with your desired instance type
-  user_data = data.template_file.user_data.rendered
   key_name      = aws_key_pair.demo_key_pair.key_name
   vpc_security_group_ids  =[aws_security_group.allow_ingress.id]
   tags = {
     Name = "host-2"
   }
+      user_data = file("hosts-user-data.sh")
 }
