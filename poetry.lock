@@ -129,6 +129,7 @@ files = [
 [package.dependencies]
 botocore-stubs = "*"
 mypy-boto3-s3 = {version = ">=1.27.0,<1.28.0", optional = true, markers = "extra == \"s3\""}
+mypy-boto3-sts = {version = ">=1.27.0,<1.28.0", optional = true, markers = "extra == \"sts\""}
 types-s3transfer = "*"
 
 [package.extras]
@@ -771,6 +772,17 @@ files = [
 ]
 
 [[package]]
+name = "mypy-boto3-sts"
+version = "1.27.0"
+description = "Type annotations for boto3.STS 1.27.0 service generated with mypy-boto3-builder 7.14.5"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mypy-boto3-sts-1.27.0.tar.gz", hash = "sha256:f05808854c562989af5f94987e20f222a94042ea427d7059d08b68116c9d14a8"},
+    {file = "mypy_boto3_sts-1.27.0-py3-none-any.whl", hash = "sha256:8ba651babcb29c27b74e007d7d48ad92b0badc7442455ca1e42239a53b2e5cfd"},
+]
+
+[[package]]
 name = "mypy-extensions"
 version = "1.0.0"
 description = "Type system extensions for programs checked with the mypy type checker."
@@ -1213,4 +1225,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "3ebab572981d754341fa89ec55b52dd77164fc5e3115a1a96fca1372e5101b84"
+content-hash = "a0d60db86de2caa426e9cbed054c7e2d9fd3b5f105f8eab0a926abef913015f6"

@@ -1,7 +1,12 @@
 from typing import Any, TypeVar
 from pathlib import Path
 import boto3
+from botocore.exceptions import ClientError
 from switcheroo.base.data_store import DataStore
+from switcheroo.base.exceptions.s3 import (
+    UnconfiguredAWSException,
+    NoBucketFoundException,
+)
 
 T = TypeVar("T")
 
@@ -11,6 +16,18 @@ class S3DataStore(DataStore):
         super().__init__()
         self._bucket_name = _bucket_name
         self._s3_client = boto3.client("s3")  # type: ignore
+        # Ensure AWS credentials are configured
+        sts_client = boto3.client("sts")  # type: ignore
+        try:
+            sts_client.get_caller_identity()
+        except ClientError as exc:
+            raise UnconfiguredAWSException() from exc
+
+        # Ensure bucket exists - will error out otheriwse
+        try:
+            self._s3_client.head_bucket(Bucket=self._bucket_name)
+        except ClientError as exc:
+            raise NoBucketFoundException(self._bucket_name) from exc
 
     def publish(self, item: Any, location: Path):
         serialized_data = super().serialize(item)
