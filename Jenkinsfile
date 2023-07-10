@@ -14,14 +14,6 @@ def runTests(){
     """   
 }
 
-// def publishToPyPi(){
-//     //needs api key
-//     sh """
-//         poetry env use $python
-//         poetry publish
-//     """
-// }
-
 pipeline {
     agent any 
     stages {
@@ -38,10 +30,15 @@ pipeline {
                 runTests()
             }
         }
-        // stage('Publish'){
-        //     steps {
-        //         publishToPyPi()
-        //     }
-        // }
+        stage('Publish'){
+            when {
+                branch 'main'
+            }
+            steps{
+                script{
+                    sh 'gh workflow run main.yml -R SSH-key-rotation-AWS/team-henrique'
+                }
+            }
+        }
     }
 }
