@@ -18,14 +18,15 @@ def get_open_port() -> int:
             nonlocal last_selectable_port
             # Create a new port range to choose from
             all_primary_ports = list(
-                range(last_selectable_port + 1, last_selectable_port + 1001)
+                range(last_selectable_port + 1, last_selectable_port + 101)
             )
-            last_selectable_port += 100
+            last_selectable_port += 101
         # Choose a new port
         new_port_index = randint(0, len(all_primary_ports) - 1)
         # Remove it from our options, so we dont choose it again
+        port = all_primary_ports[new_port_index]
         del all_primary_ports[new_port_index]
-        return all_primary_ports[new_port_index]
+        return port
 
     # Select a new port until we find an open one
     while True:
