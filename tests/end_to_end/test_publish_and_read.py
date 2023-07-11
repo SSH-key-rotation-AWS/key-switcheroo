@@ -25,7 +25,7 @@ class EndToEnd(IsolatedAsyncioTestCase):
         self.enterContext(S3Cleanup(self._s3_client, self.bucket_name))
 
     async def test_publish_and_retrieve(self):
-        retriever = S3KeyRetriever(paths.local_ssh_home(), self.bucket_name)
+        retriever = S3KeyRetriever(self._temp_dir, self.bucket_name)
         # Start the server with the S3 data store
         async with Server(retriever=retriever) as server:
             # Instantiate the S3 publisher

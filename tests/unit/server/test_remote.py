@@ -9,7 +9,7 @@ from paramiko import SSHClient, RSAKey, AutoAddPolicy
 import boto3
 from switcheroo.ssh.server.server import Server
 from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
-from switcheroo.ssh.objects.key import KeyMetadata, KeyGen
+from switcheroo.ssh.objects.key import KeyGen
 from switcheroo import paths
 from tests.util.s3 import S3Cleanup
 
@@ -39,11 +39,6 @@ class TestServerRemote(IsolatedAsyncioTestCase):
             key_name = paths.cloud_public_key_loc(host=socket.getfqdn(), user=getuser())
             self._s3_client.put_object(
                 Bucket=self._bucket_name, Key=str(key_name), Body=public_key
-            )
-            self._s3_client.put_object(
-                Bucket=self._bucket_name,
-                Key=str(paths.cloud_metadata_loc(socket.getfqdn(), getuser())),
-                Body=KeyMetadata.now_by_executing_user().serialize_to_string(),
             )
             ssh_client = SSHClient()
             ssh_client.load_system_host_keys()
