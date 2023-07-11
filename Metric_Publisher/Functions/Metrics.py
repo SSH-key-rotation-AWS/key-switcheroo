@@ -6,9 +6,6 @@ import time
 class TimingMetric(Metric):
     """Timing metric that calculates the time the metric has run."""
 
-    def __init__(self, metric_name: str, unit: str):
-        super().__init__(metric_name, unit)
-
     @contextmanager
     def timeit_metric(self):
         """Context manager used to calculate the time the method has run."""
@@ -19,17 +16,6 @@ class TimingMetric(Metric):
         finally:
             self._value = time.time() - start_time
 
-    def get_name(self) -> str:
-        """Returns the metric name."""
-        return super().get_name()
-
-    def get_unit(self) -> str:
-        """Returns the unit associated with the metric."""
-        return super().get_unit()
-
-    def get_value(self):
-        """Returns the value associated with the metric."""
-        return super().get_value()
 
 
 class CounterMetric(Metric):
@@ -42,15 +28,3 @@ class CounterMetric(Metric):
     def inc_count_metric(self):
         """Increments the count metric by 1."""
         self._value += 1
-
-    def get_name(self) -> str:
-        """Returns the metric name."""
-        return super().get_name()
-
-    def get_unit(self) -> str:
-        """Returns the unit associated with the metric."""
-        return super().get_unit()
-
-    def get_value(self):
-        """Returns the value associated with the metric."""
-        return super().get_value()

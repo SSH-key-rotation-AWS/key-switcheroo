@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 class Metric(ABC):
     """Abstract class used to publish metrics"""
@@ -8,7 +8,6 @@ class Metric(ABC):
         self._unit = unit
         self._value = None  
 
-    @abstractmethod
     def get_name(self) -> str:
         """Returns metric name"""
         return self._metric_name
