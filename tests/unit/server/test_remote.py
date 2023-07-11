@@ -7,32 +7,43 @@ from getpass import getuser
 from hamcrest import assert_that, has_item, contains_string
 from paramiko import SSHClient, RSAKey, AutoAddPolicy
 import boto3
-from switcheroo.server.server import Server
-from switcheroo.data_store.s3 import S3DataStore
-from switcheroo.custom_keygen import KeyGen
+from switcheroo.ssh.server.server import Server
+from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
+from switcheroo.ssh.objects.key import KeyMetadata, KeyGen
 from switcheroo import paths
+from tests.util.s3 import S3Cleanup
 
 
 class TestServerRemote(IsolatedAsyncioTestCase):
     "Test server with keys stored in S3"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.bucket_name = os.environ["SSH_KEY_DEV_BUCKET_NAME"]
+    def __init__(self, methodName: str = "runTest") -> None:
+        super().__init__(methodName)
+        self._bucket_name = os.environ["SSH_KEY_DEV_BUCKET_NAME"]
+        self._s3_retriever: S3KeyRetriever = S3KeyRetriever(
+            paths.local_ssh_home(), self._bucket_name
+        )
+        self._s3_client = boto3.client("s3")  # type: ignore
+
+    def setUp(self) -> None:
+        self.enterContext(S3Cleanup(self._s3_client, self._bucket_name))
 
     async def test_retrieve_public_keys_from_s3(self):
         "Can the server retrieve public keys from s3?"
-        data_store = S3DataStore(self.bucket_name, temp=True)
-        async with Server(data_store=data_store) as server:
+        async with Server(retriever=self._s3_retriever) as server:
             server: Server = server
             private_key, public_key = KeyGen.generate_private_public_key()
             private_key_paramiko = RSAKey.from_private_key(
                 StringIO(private_key.decode())
             )
-            s3_client = boto3.client("s3")
             key_name = paths.cloud_public_key_loc(host=socket.getfqdn(), user=getuser())
-            s3_client.put_object(
-                Bucket=data_store.s3_bucket_name, Key=str(key_name), Body=public_key
+            self._s3_client.put_object(
+                Bucket=self._bucket_name, Key=str(key_name), Body=public_key
+            )
+            self._s3_client.put_object(
+                Bucket=self._bucket_name,
+                Key=str(paths.cloud_metadata_loc(socket.getfqdn(), getuser())),
+                Body=KeyMetadata.now_by_executing_user().serialize_to_string(),
             )
             ssh_client = SSHClient()
             ssh_client.load_system_host_keys()
@@ -43,6 +54,7 @@ class TestServerRemote(IsolatedAsyncioTestCase):
                 username=getuser(),
                 pkey=private_key_paramiko,
             )
-            key_fingerprint = private_key_paramiko.fingerprint  # type: ignore
+            key_fingerprint: str = private_key_paramiko.fingerprint  # type: ignore
             logs = await server.logs
+            assert isinstance(key_fingerprint, str)
             assert_that(logs, has_item(contains_string(key_fingerprint)))

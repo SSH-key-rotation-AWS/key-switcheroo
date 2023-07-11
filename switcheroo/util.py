@@ -3,7 +3,7 @@ from socket import getservbyport
 from random import randint
 import os
 from pathlib import Path
-from switcheroo.custom_keygen import KeyGen
+from switcheroo.ssh.objects.key import KeyMetadata, KeyGen
 
 
 def get_open_port() -> int:
@@ -46,16 +46,19 @@ def store_private_key(private_key: bytes, private_key_dir: Path):
         return os.open(path=str(path), flags=flags, mode=0o600)
 
     with open(
-        str(private_key_path), mode="wb", opener=open_restricted_permissions
+        str(private_key_path),
+        mode="wt",
+        encoding="utf-8",
+        opener=open_restricted_permissions,
     ) as private_out:
-        private_out.write(private_key)
+        private_out.write(private_key.decode())
 
 
 def store_public_key(public_key: bytes, public_key_dir: Path):
     public_key_dir.mkdir(parents=True, exist_ok=True)
     public_key_path = public_key_dir / KeyGen.PUBLIC_KEY_NAME
-    with open(public_key_path, mode="wb") as public_out:
-        public_out.write(public_key)
+    with open(public_key_path, mode="wt", encoding="utf-8") as public_out:
+        public_out.write(public_key.decode())
 
 
 def generate_private_public_key_in_file(
@@ -70,4 +73,9 @@ def generate_private_public_key_in_file(
     # Store them
     store_private_key(private_key, private_key_dir)
     store_public_key(public_key, public_key_dir)
+    metadata = KeyMetadata.now_by_executing_user()
+    with open(
+        public_key_dir / KeyMetadata.FILE_NAME, mode="wt", encoding="utf-8"
+    ) as metadata_file:
+        metadata_file.write(metadata.serialize_to_string())
     return private_key, public_key

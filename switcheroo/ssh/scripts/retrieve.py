@@ -2,12 +2,13 @@ from argparse import ArgumentParser
 from pathlib import Path
 import socket
 import traceback
-from switcheroo.data_store import DataStore, FileSystemDataStore
-from switcheroo.data_store.s3 import S3DataStore
+from switcheroo.ssh.data_org.retriever import KeyRetriever, FileKeyRetriever
+from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
 from switcheroo import paths
 
 
 def create_argument_parser() -> ArgumentParser:
+    # pylint: disable=R0801
     argument_parser = ArgumentParser(
         prog="key_retriever",
         description="Fetches the public SSH keys from S3 or the local machine",
@@ -29,8 +30,8 @@ def create_argument_parser() -> ArgumentParser:
     argument_parser.add_argument(
         "--sshdir",
         required=False,
-        help="If local is selected, the absolute path to\
-            the directory that stores the keys (ie /home/you/.ssh)",
+        help="The absolute path to\
+            the directory that stores local keys (ie /home/you/.ssh)",
         default=paths.local_ssh_home(),
     )
     return argument_parser
@@ -39,18 +40,18 @@ def create_argument_parser() -> ArgumentParser:
 def main():
     parser = create_argument_parser()
     args = parser.parse_args()
-    data_store: DataStore | None = None
+    retriever: KeyRetriever | None = None
 
     if args.datastore == "local":
-        data_store = FileSystemDataStore(Path(args.sshdir))
+        retriever = FileKeyRetriever(Path(args.sshdir))
     elif args.datastore == "s3":
         if args.bucket is None:
             parser.error("The s3 option requires a specified bucket name!")
-        data_store = S3DataStore(args.bucket)
+        retriever = S3KeyRetriever(paths.local_ssh_home(), args.bucket)
     try:
-        assert data_store is not None
-        public_key = data_store.retrieve(socket.getfqdn(), args.user)
-        print(public_key)
+        assert retriever is not None
+        public_key = retriever.retrieve_key(socket.getfqdn(), args.user)
+        print(public_key[0].public_key.byte_data.decode())
     except Exception as exc:  # pylint: disable = broad-exception-caught
         print(exc)
         print(traceback.format_exc())

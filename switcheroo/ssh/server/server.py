@@ -8,7 +8,7 @@ import subprocess
 from asyncio.subprocess import Process
 from getpass import getuser
 from tempfile import NamedTemporaryFile
-from switcheroo.data_store import DataStore
+from switcheroo.ssh.data_org.retriever import KeyRetriever
 from switcheroo.util import get_open_port
 
 
@@ -17,14 +17,14 @@ class Server:
 
     def __init__(
         self,
-        data_store: DataStore,
+        retriever: KeyRetriever,
         port: int | Callable[[], int] = get_open_port,
         authorized_key_command_executing_user: str = getuser(),
     ):
         if callable(port):
             port = port()
         self.port = port
-        self.data_store = data_store
+        self.key_retriever = retriever
         self.authorized_key_command_executing_user = (
             authorized_key_command_executing_user
         )
@@ -36,8 +36,8 @@ class Server:
         self.log_file.parent.mkdir(parents=True, exist_ok=True)
         self.log_file.touch(exist_ok=True)
         python_executable = f"{os.getcwd()}/.venv/bin/python"
-        target_script = "/ssh_key_switcheroo/__main__.py"
-        ky_cmnd = f"{python_executable} {target_script} %u {self.data_store.get_sshd_config_line()}"
+        target_script = "/ssh_key_switcheroo/retrieve.py"
+        ky_cmnd = f"{python_executable} {target_script} %u {self.key_retriever.command}"
         config: list[str] = [
             "LogLevel DEBUG3",
             f"Port {self.port}",
@@ -105,10 +105,10 @@ class Server:
         run_dir.mkdir(exist_ok=True, parents=True)
 
     def __setup_authorized_keys_script(self):
-        parent_dir = pathlib.Path(__file__).parent.resolve()
+        scripts_dir = pathlib.Path(__file__).parent.parent.resolve() / "scripts"
         app_data_dir = "/ssh_key_switcheroo"
-        python_retrieval_script_path = f"{parent_dir}/__main__.py"
-        target_path = f"{app_data_dir}/__main__.py"
+        python_retrieval_script_path = f"{scripts_dir}/retrieve.py"
+        target_path = f"{app_data_dir}/retrieve.py"
         if not os.path.exists(app_data_dir):
             subprocess.run(f"sudo mkdir {app_data_dir}", check=True, shell=True)
         # Will change to rsync
@@ -128,10 +128,8 @@ class Server:
         self.__setup_host_keys()
         self.__setup_pid_file()
         self.__setup_authorized_keys_script()
-        self.data_store.__enter__()
         await self.start()
         return self
 
-    async def __aexit__(self, one, two, three):
+    async def __aexit__(self, one, two, three):  # type: ignore
         await self.stop()
-        self.data_store.__exit__(None, None, None)

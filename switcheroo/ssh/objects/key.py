@@ -1,10 +1,57 @@
-"Module for generating public/private SSH key pairs"
-from getpass import getuser
 from dataclasses import dataclass, field
 import json
+from getpass import getuser
 from typing import IO, ClassVar
 from datetime import datetime
 from Crypto.PublicKey import RSA
+from switcheroo.base import Serializer
+
+
+class Key:  # pylint: disable=too-few-public-methods
+    class PrivateComponent:
+        def __init__(self, byte_data: bytes):
+            self.byte_data = byte_data
+
+    class PublicComponent:
+        def __init__(self, byte_data: bytes):
+            self.byte_data = byte_data
+
+    def __init__(self, key_tuple: tuple[bytes, bytes] | None = None) -> None:
+        super().__init__()
+        if key_tuple is None:
+            key_tuple = KeyGen.generate_private_public_key()
+        self.private_key: Key.PrivateComponent = Key.PrivateComponent(key_tuple[0])
+        self.public_key: Key.PublicComponent = Key.PublicComponent(key_tuple[1])
+
+
+class PrivateKeySerializer(Serializer[Key.PrivateComponent]):
+    def serialize(self, storable: Key.PrivateComponent) -> str:
+        return storable.byte_data.decode()
+
+    def deserialize(self, data_str: str) -> Key.PrivateComponent:
+        return Key.PrivateComponent(data_str.encode())
+
+
+class PublicKeySerializer(Serializer[Key.PublicComponent]):
+    def serialize(self, storable: Key.PublicComponent) -> str:
+        return storable.byte_data.decode()
+
+    def deserialize(self, data_str: str) -> Key.PublicComponent:
+        return Key.PublicComponent(data_str.encode())
+
+
+class KeyGen:
+    PRIVATE_KEY_NAME: str = "key"
+    PUBLIC_KEY_NAME: str = f"{PRIVATE_KEY_NAME}-cert.pub"
+    KEY_SIZE_BITS = 2048
+
+    @classmethod
+    def generate_private_public_key(cls) -> tuple[bytes, bytes]:
+        "Generates a private and public RSA key"
+        key = RSA.generate(cls.KEY_SIZE_BITS)
+        private_key = key.export_key()
+        public_key = key.public_key().export_key(format="OpenSSH")
+        return private_key, public_key
 
 
 @dataclass(frozen=True)
@@ -90,15 +137,9 @@ class KeyMetadata:
         return KeyMetadata(created_by, time_generated)
 
 
-class KeyGen:
-    PRIVATE_KEY_NAME: str = "key"
-    PUBLIC_KEY_NAME: str = f"{PRIVATE_KEY_NAME}-cert.pub"
-    KEY_SIZE_BITS = 2048
+class KeyMetadataSerializer(Serializer[KeyMetadata]):
+    def serialize(self, storable: KeyMetadata) -> str:
+        return storable.serialize_to_string()
 
-    @classmethod
-    def generate_private_public_key(cls) -> tuple[bytes, bytes]:
-        "Generates a private and public RSA key"
-        key = RSA.generate(cls.KEY_SIZE_BITS)
-        private_key = key.export_key()
-        public_key = key.public_key().export_key(format="OpenSSH")
-        return private_key, public_key
+    def deserialize(self, data_str: str) -> KeyMetadata:
+        return KeyMetadata.from_string(data_str)
