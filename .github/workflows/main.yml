@@ -2,7 +2,7 @@ name: Poetry version update control
 
 on:
     push:
-        branches: [ fake-main ]
+        branches: [ main ]
 
 jobs:
     versioning:
