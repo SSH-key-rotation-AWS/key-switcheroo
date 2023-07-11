@@ -36,7 +36,7 @@ class Server:
         self.log_file.parent.mkdir(parents=True, exist_ok=True)
         self.log_file.touch(exist_ok=True)
         python_executable = f"{os.getcwd()}/.venv/bin/python"
-        target_script = "/ssh_key_switcheroo/retrieve.py"
+        target_script = "/private/ssh_key_switcheroo/retrieve.py"
         ky_cmnd = f"{python_executable} {target_script} %u {self.key_retriever.command}"
         config: list[str] = [
             "LogLevel DEBUG3",
@@ -106,10 +106,12 @@ class Server:
 
     def __setup_authorized_keys_script(self):
         scripts_dir = pathlib.Path(__file__).parent.parent.resolve() / "scripts"
-        app_data_dir = "/ssh_key_switcheroo"
+        private_dir = Path("/private")
+        app_data_dir = private_dir / "ssh_key_switcheroo"
         python_retrieval_script_path = f"{scripts_dir}/retrieve.py"
         target_path = f"{app_data_dir}/retrieve.py"
-        if not os.path.exists(app_data_dir):
+        if not app_data_dir.exists():
+            subprocess.run(f"sudo mkdir {private_dir}", check=True, shell=True)
             subprocess.run(f"sudo mkdir {app_data_dir}", check=True, shell=True)
         # Will change to rsync
         subprocess.run(
