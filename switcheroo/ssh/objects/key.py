@@ -3,8 +3,8 @@ import json
 from getpass import getuser
 from typing import IO, ClassVar
 from datetime import datetime
+from Crypto.PublicKey import RSA
 from switcheroo.base import Serializer
-from switcheroo.custom_keygen import KeyGen
 
 
 class Key:  # pylint: disable=too-few-public-methods
@@ -38,6 +38,20 @@ class PublicKeySerializer(Serializer[Key.PublicComponent]):
 
     def deserialize(self, data_str: str) -> Key.PublicComponent:
         return Key.PublicComponent(data_str.encode())
+
+
+class KeyGen:
+    PRIVATE_KEY_NAME: str = "key"
+    PUBLIC_KEY_NAME: str = f"{PRIVATE_KEY_NAME}-cert.pub"
+    KEY_SIZE_BITS = 2048
+
+    @classmethod
+    def generate_private_public_key(cls) -> tuple[bytes, bytes]:
+        "Generates a private and public RSA key"
+        key = RSA.generate(cls.KEY_SIZE_BITS)
+        private_key = key.export_key()
+        public_key = key.public_key().export_key(format="OpenSSH")
+        return private_key, public_key
 
 
 @dataclass(frozen=True)

@@ -3,8 +3,7 @@ from socket import getservbyport
 from random import randint
 import os
 from pathlib import Path
-from switcheroo.custom_keygen import KeyGen
-from switcheroo.ssh.objects.key import KeyMetadata
+from switcheroo.ssh.objects.key import KeyMetadata, KeyGen
 
 
 def get_open_port() -> int:

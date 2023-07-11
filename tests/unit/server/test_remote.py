@@ -8,9 +8,8 @@ from hamcrest import assert_that, has_item, contains_string
 from paramiko import SSHClient, RSAKey, AutoAddPolicy
 import boto3
 from switcheroo.ssh.server.server import Server
-from switcheroo.custom_keygen import KeyGen
 from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
-from switcheroo.ssh.objects.key import KeyMetadata
+from switcheroo.ssh.objects.key import KeyMetadata, KeyGen
 from switcheroo import paths
 from tests.util.s3 import S3Cleanup
 

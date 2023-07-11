@@ -1,5 +1,5 @@
 from pathlib import Path
-from switcheroo.custom_keygen import KeyGen, KeyMetadata
+from switcheroo.ssh.objects.key import KeyMetadata, KeyGen
 
 
 def local_ssh_home() -> Path:
