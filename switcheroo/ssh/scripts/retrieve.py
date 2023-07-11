@@ -50,8 +50,8 @@ def main():
         retriever = S3KeyRetriever(paths.local_ssh_home(), args.bucket)
     try:
         assert retriever is not None
-        public_key = retriever.retrieve_key(socket.getfqdn(), args.user)
-        print(public_key[0].public_key.byte_data.decode())
+        public_key = retriever.retrieve_public_key(socket.getfqdn(), args.user)
+        print(public_key.byte_data.decode())
     except Exception as exc:  # pylint: disable = broad-exception-caught
         print(exc)
         print(traceback.format_exc())
