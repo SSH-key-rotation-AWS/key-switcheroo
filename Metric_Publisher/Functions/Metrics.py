@@ -17,7 +17,6 @@ class TimingMetric(Metric):
             self._value = time.time() - start_time
 
 
-
 class CounterMetric(Metric):
     """Counter metric that counts the key count."""
 

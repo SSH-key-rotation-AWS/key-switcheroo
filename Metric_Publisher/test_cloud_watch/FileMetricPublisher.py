@@ -13,7 +13,7 @@ from datetime import datetime
 
 
 class FileMetricPublisher(MetricPublisher):
-    """Publishes Metric sspecificed data"""
+    """Publishes Metric specificed data"""
 
     def __init__(self, name_space: str, instance_id: str):
         self.file_name = name_space

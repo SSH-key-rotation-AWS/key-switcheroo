@@ -1,12 +1,13 @@
 from abc import ABC
 
+
 class Metric(ABC):
     """Abstract class used to publish metrics"""
 
     def __init__(self, metric_name: str, unit: str):
         self._metric_name = metric_name
         self._unit = unit
-        self._value = None  
+        self._value = None
 
     def get_name(self) -> str:
         """Returns metric name"""
