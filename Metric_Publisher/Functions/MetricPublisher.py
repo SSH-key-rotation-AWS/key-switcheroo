@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from Metric_Publisher.Functions.Metric import Metric
+from Functions.Metric import Metric
 
 
 class MetricPublisher(ABC):

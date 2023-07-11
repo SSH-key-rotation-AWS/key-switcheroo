@@ -1,8 +1,9 @@
 """AWS metric publisher"""
+import datetime
+from Functions.Metric import Metric
+from Functions.MetricPublisher import MetricPublisher
 import boto3
-from Metric import Metric
-from Metric_Publisher.Functions.MetricPublisher import MetricPublisher
-
+import time
 
 class AWSMetricPublisher(MetricPublisher):
     """Publishes Metric-specific data"""
@@ -42,3 +43,13 @@ class AWSMetricPublisher(MetricPublisher):
                 },
             ],
         )
+    def retrieve_metric_data(self,metric:Metric,start_time:datetime.datetime,period:int):
+        response = self.cloud_watch.get_metric_statistics(
+    Namespace=self._name_space,
+    MetricName=metric.get_name,
+    StartTime=start_time,
+    EndTime=datetime.datetime.now(),
+    Period=period,
+    )
+        return response
+    
