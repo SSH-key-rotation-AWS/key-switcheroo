@@ -10,7 +10,7 @@ def runShellBuildStage(){
 def runTests(){
     sh """
         poetry env use $python
-        poetry run $python -m unittest
+        poetry run pytest tests
     """   
 }
 
