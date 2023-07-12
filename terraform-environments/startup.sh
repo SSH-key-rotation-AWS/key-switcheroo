@@ -1,27 +1,47 @@
-#!/usr/bin/bash
+#!/bin/bash
+  #set up bash settings
   set -eux
   set -o pipefail
+
+  #set variables
   sudo_path=/bin/sudo
   apt_path=/bin/apt
-  $sudo_path /bin/sed -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
-  $sudo_path /bin/sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
-  $sudo_path $apt_path update && sudo apt -y upgrade
-  $sudo_path $apt_path install python3.11 -y
-  $sudo_path apt install python3-pip -y
-  # $sudo_path apt install python3.11-venv -y
   curl_path=/bin/curl
-  $curl_path -sSL https://install.python-poetry.org | python3.11 -
-  poetry self add poetry-git-version-plugin
-  $sudo_path $apt_path -y install openjdk-11-jdk
-  pip install octokitpy
-  $curl_path -OL http://mirrors.jenkins-ci.org/war/latest/jenkins.war
-  /bin/nohup java -jar -Djenkins.install.runSetupWizard=false jenkins.war &
-  url="http://localhost:8080"
-  #indent loop
-  while [ "$(curl -s -o /dev/null -w "%{http_code}" $url)" != "200" ]; do sleep 1; done
-  /bin/wget $url/jnlpJars/jenkins-cli.jar
   touch_path=/bin/touch
   echo_path=/bin/echo
+  java_path=/bin/java
+  sed_path=/bin/sed
+  wget_path=/bin/wget
+  url="http://localhost:8080"
+
+  #disable prompts that make the script hang
+  $sudo_path $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
+  $sudo_path $sed_path -i "s/#\$nrconf{restart} = 'i';/\$nrconf{restart} = 'a';/g" /etc/needrestart/needrestart.conf
+
+  # download neccesary programs
+  $sudo_path $apt_path update && sudo apt -y upgrade
+  $sudo_path $apt_path install python3.11 -y
+  $sudo_path $apt_path install python3-pip -y
+  # $sudo_path $apt_path install python3.11-venv -y
+  $curl_path -sSL https://install.python-poetry.org | /bin/python3.11 -
+  ~/.local/bin/poetry self add poetry-git-version-plugin
+  $sudo_path $apt_path -y install openjdk-11-jdk
+  /bin/pip install octokitpy
+  $curl_path -OL http://mirrors.jenkins-ci.org/war/latest/jenkins.war
+
+  # run jenkins in background and send output to file
+  /bin/nohup $java_path -jar -Djenkins.install.runSetupWizard=false jenkins.war &
+
+  # wait for jenkins page to be up
+  while [ "$($curl_path -s -o /dev/null -w "%{http_code}" $url)" != "200" ];
+  do
+    /bin/sleep 1;
+  done
+
+  # download cli client
+  $wget_path $url/jnlpJars/jenkins-cli.jar
+
+  # make jenkins sign in script, configure login settings, and send script to jenkins
   $touch_path setup.groovy
   $echo_path "import jenkins.model.*
   import hudson.security.*
@@ -36,12 +56,17 @@
   def strategy = new hudson.security.FullControlOnceLoggedInAuthorizationStrategy()
   strategy.setAllowAnonymousRead(false)
   instance.setAuthorizationStrategy(strategy)" >> setup.groovy
-  java_path=/bin/java
   $java_path -jar jenkins-cli.jar -s $url groovy = < setup.groovy
-  #something goes wrong here
-  $curl_path  -L https://updates.jenkins.io/update-center.json | sed '1d;$d' | curl -X POST -H 'Accept: application/json' -d @- $url/updateCenter/byId/default/postBack
+
+  # set up plugin update center, put it in correct location, download necessary plugins, and restart to apply changes
+  $wget_path -O default.js http://updates.jenkins-ci.org/update-center.json
+  $sed_path "1d;\$d" default.js > default.json
+  /bin/mkdir /root/.jenkins/updates
+  /bin/mv default.json /root/.jenkins/updates
   $java_path -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" install-plugin github-branch-source workflow-multibranch multibranch-action-triggers config-file-provider \
     branch-api cloudbees-folder credentials -restart
+  
+  # make github login xml
   $touch_path github_credentials.xml
   $echo_path "<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl plugin=\"credentials@1254.vb_96f366e7b_a_d\">
   <scope>SYSTEM</scope>
@@ -53,7 +78,17 @@
   </password>
   <usernameSecret>true</usernameSecret>
 </com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>" >> github_credentials.xml
+
+  # wait for jenkins to be running after restart
+  while [ "$($curl_path -s -o /dev/null -w "%{http_code}" $url/login\?from=%2F)" != "200" ];
+  do 
+    /bin/sleep 1;
+  done
+
+  # send github login xml to jenkins and make credentials
   $java_path -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" create-credentials-by-xml  system::system::jenkins _ < github_credentials.xml
+
+  #set up pipeline in xml and send to jenkins
   $touch_path config.xml
   $echo_path "<?xml version='1.1' encoding='UTF-8'?>
 <org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin=\"workflow-multibranch@756.v891d88f2cd46\">

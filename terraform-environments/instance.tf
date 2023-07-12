@@ -39,7 +39,6 @@ resource "aws_security_group" "security" {
 
 resource "aws_instance" "app_server" {
   # creates ec2 instance
-  # amazon linux 2 ami ami-090e0fc566929d98b
   ami = "ami-053b0d53c279acc90"
   instance_type = "t2.micro"
   vpc_security_group_ids  =[aws_security_group.security.id]
