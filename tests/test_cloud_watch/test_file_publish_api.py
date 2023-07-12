@@ -1,7 +1,6 @@
 """
 Module Docstring: Test File Publishing API
 """
-
 import json
 import unittest
 import random
@@ -9,11 +8,11 @@ import time
 import math
 import os
 from hamcrest import assert_that, equal_to
-from tests.test_cloud_watch.FileMetricPublisher import FileMetricPublisher
-from Metric_Publisher.Functions.Metrics import CounterMetric, TimingMetric
+from tests.test_cloud_watch.file_metric_publisher import FileMetricPublisher
+from metric_system.functions.metrics import TimingMetric, CounterMetric
 
 
-class publisher_metric_api_test(unittest.TestCase):
+class PublisherAPITest(unittest.TestCase):
     """
     Test to verify Publisher and metric API
     """
@@ -71,7 +70,7 @@ class publisher_metric_api_test(unittest.TestCase):
         """
         Retrieve JSON data from file
         """
-        with open(file_location, "r") as file:
+        with open(file_location, "r") as file:  # pylint: disable=unspecified-encoding
             return json.load(file)
 
 

@@ -1,6 +1,6 @@
-from Functions.Metric import Metric
 from contextlib import contextmanager
 import time
+from metric_system.functions.metric import Metric
 
 
 class TimingMetric(Metric):
@@ -27,5 +27,3 @@ class CounterMetric(Metric):
     def inc_count_metric(self):
         """Increments the count metric by 1."""
         self._value += 1
-    def set_count(self,val:int):
-        self._value = val

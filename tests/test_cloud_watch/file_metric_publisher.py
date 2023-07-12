@@ -5,9 +5,9 @@ file_metric_publisher.py
 import os
 import json
 from datetime import datetime
-from Metric_Publisher.Functions.Metric import Metric
-from Metric_Publisher.Functions.Metrics import TimingMetric, CounterMetric
-from Metric_Publisher.Functions.MetricPublisher import MetricPublisher
+from metric_system.functions.metrics import TimingMetric, CounterMetric
+from metric_system.functions.metric import Metric
+from metric_system.functions.metric_publisher import MetricPublisher
 
 
 class FileMetricPublisher(MetricPublisher):
@@ -22,9 +22,9 @@ class FileMetricPublisher(MetricPublisher):
 
     def publish_metric(self, metric: Metric):
         """Publish metrics to a file"""
-        metric_name = metric.get_name()
-        metric_value = metric.get_value()
-        metric_unit = metric.get_unit()
+        metric_name = metric.name
+        metric_value = metric.value
+        metric_unit = metric.unit
         time = str(datetime.now().time())
 
         data = {
@@ -43,6 +43,6 @@ class FileMetricPublisher(MetricPublisher):
 
     def write_to_file(self, file_path, content):
         """Write to file"""
-        with open(file_path, "w") as file:
+        with open(file_path, "w") as file: # pylint: disable=unspecified-encoding
             # Write the JSON data to the file
             json.dump(content, file)

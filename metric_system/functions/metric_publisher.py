@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from Functions.Metric import Metric
+from metric_system.functions.metric import Metric
 
 
 class MetricPublisher(ABC):
