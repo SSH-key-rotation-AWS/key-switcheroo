@@ -13,18 +13,13 @@ def runTests(){
         poetry run pytest tests
     """   
 }
+def updatePackageVersion(){
+    
+}
 
 pipeline {
     agent any 
     stages {
-        stage("Trigger Github Versioning action"){
-            steps{
-                sh 'curl -X POST https://api.github.com/repos/SSH-key-rotation-AWS/team-henrique/actions/workflows/.github/workflows/main.yml/dispatches \
-                    -H "Accept: application/vnd.github.v3+json" \
-                    -H "Authorization: Bearer Team_Henrique" \
-                    -d \'{"ref": "main", "inputs": {"api_token": "Team_Henrique"}}\''
-            }
-        }
         stage("Build") { 
             steps {
                 runShellBuildStage()
