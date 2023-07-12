@@ -1,7 +1,7 @@
 resource "aws_security_group" "security" {
   name        = "ec2_security2"
   description = "Give correct security for ec2"
-  #tanis vpc = vpc-0bfb64215145a3e13
+  #tanis vpc 
   # vpc_id      = "vpc-0bfb64215145a3e13"
   vpc_id      = "vpc-0698eb109e6e2afd5"
 

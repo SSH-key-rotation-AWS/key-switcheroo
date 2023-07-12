@@ -1,7 +1,7 @@
 resource "aws_security_group" "allow_ingress" {
   name        = "allow_ingress"
   description = "Give correct security for baremetal hosts"
-  #tanis vpc = vpc-0bfb64215145a3e13
+  #tanis vpc 
   # vpc_id      = "vpc-0bfb64215145a3e13"
   vpc_id      = "vpc-0698eb109e6e2afd5"
 
@@ -40,6 +40,8 @@ resource "local_file" "ssh_key" {
   filename = "keys/${aws_key_pair.demo_key_pair.key_name}.pem"
   content  = tls_private_key.key_pair.private_key_pem
 }
+
+
 # Set permissions on the private key file
 resource "null_resource" "set_permissions" {
   triggers = {
@@ -50,24 +52,63 @@ resource "null_resource" "set_permissions" {
   }
 }
 
+#variables to pass into user_data
+# resource "template_file" "userdata_template" {
+#   template = file("hosts-user-data.sh")
+
+#   vars = {
+#     username   = var.username
+#     public_key = tls_private_key.key_pair.public_key_openssh
+#   }
+# }
+
+locals {
+    username   = var.username
+    USERNAME = var.username
+    public_key = tls_private_key.key_pair.public_key_openssh 
+}
+
+
+
 resource "aws_instance" "baremetal-host-1" {
   ami = "ami-053b0d53c279acc90"
-  instance_type = "t2.micro"      # Update with your desired instance type
-  user_data = file("hosts-user-data.sh")
+  instance_type = "t2.micro"     
   key_name      = aws_key_pair.demo_key_pair.key_name
   vpc_security_group_ids  =[aws_security_group.allow_ingress.id]
   tags = {
     Name = "host-1"
   }
+     user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
+      USERNAME=local.USERNAME
+      PUBLIC_KEY=local.public_key
+     }))
+
+      # user_data = "${template_file.userdata_template.rendered}"
+
+  # user_data = templatefile(template_file.userdata_template.template, {
+  #   username   = var.username
+  #   public_key = tls_private_key.key_pair.public_key_openssh
+  # })
+
 }
 
 resource "aws_instance" "baremetal-host-2" {
   ami = "ami-053b0d53c279acc90"
-  instance_type = "t2.micro"      # Update with your desired instance type
+  instance_type = "t2.micro"      
   key_name      = aws_key_pair.demo_key_pair.key_name
   vpc_security_group_ids  =[aws_security_group.allow_ingress.id]
   tags = {
     Name = "host-2"
   }
-      user_data = file("hosts-user-data.sh")
+      #  user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", local.vars))
+user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
+      USERNAME=local.USERNAME
+      PUBLIC_KEY=local.public_key
+     }))
+      # user_data = "${template_file.userdata_template.rendered}"
+
+  # user_data = templatefile(template_file.userdata_template.template, {
+  #   username   = var.username
+  #   public_key = var.public_key
+  # })
 }
