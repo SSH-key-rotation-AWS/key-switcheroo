@@ -1,61 +1,5 @@
-#!/usr/bin/bash
-  set -eux
-  set -o pipefail
-  sudo_path=/bin/sudo
-  apt_path=/bin/apt
-  $sudo_path /bin/sed -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
-  $sudo_path /bin/sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
-  $sudo_path $apt_path update && sudo apt -y upgrade
-  $sudo_path $apt_path install python3.11 -y
-  $sudo_path apt install python3-pip -y
-  # $sudo_path apt install python3.11-venv -y
-  curl_path=/bin/curl
-  $curl_path -sSL https://install.python-poetry.org | python3.11 -
-  poetry self add poetry-git-version-plugin
-  $sudo_path $apt_path -y install openjdk-11-jdk
-  $curl_path -OL http://mirrors.jenkins-ci.org/war/latest/jenkins.war
-  /bin/nohup java -jar -Djenkins.install.runSetupWizard=false jenkins.war &
-  url="http://localhost:8080"
-  #indent loop
-  while [ "$(curl -s -o /dev/null -w "%{http_code}" $url)" != "200" ]; do sleep 1; done
-  /bin/wget $url/jnlpJars/jenkins-cli.jar
-  touch_path=/bin/touch
-  echo_path=/bin/echo
-  $touch_path setup.groovy
-  $echo_path "import jenkins.model.*
-  import hudson.security.*
-
-  def instance = Jenkins.getInstance()
-
-  def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-  hudsonRealm.createAccount(\"TeamHenrique\", \"AWS_SSH\")
-  instance.setSecurityRealm(hudsonRealm)
-  instance.save()
-
-  def strategy = new hudson.security.FullControlOnceLoggedInAuthorizationStrategy()
-  strategy.setAllowAnonymousRead(false)
-  instance.setAuthorizationStrategy(strategy)" >> setup.groovy
-  java_path=/bin/java
-  $java_path -jar jenkins-cli.jar -s $url groovy = < setup.groovy
-  #something goes wrong here
-  $curl_path  -L https://updates.jenkins.io/update-center.json | sed '1d;$d' | curl -X POST -H 'Accept: application/json' -d @- $url/updateCenter/byId/default/postBack
-  $java_path -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" install-plugin github-branch-source workflow-multibranch multibranch-action-triggers config-file-provider \
-    branch-api cloudbees-folder credentials -restart
-  $touch_path github_credentials.xml
-  $echo_path "<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl plugin=\"credentials@1254.vb_96f366e7b_a_d\">
-  <scope>SYSTEM</scope>
-  <id>github_login</id>
-  <description></description>
-  <username>akrakauer</username>
-  <password>
-   AQAAABAAAAAQ8zpk4NIt5/Y65bEzbfp2UO9YUMI+zNNPJ6TM/OX6rMM=
-  </password>
-  <usernameSecret>true</usernameSecret>
-</com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>" >> github_credentials.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" create-credentials-by-xml  system::system::jenkins _ < github_credentials.xml
-  $touch_path config.xml
-  $echo_path "<?xml version='1.1' encoding='UTF-8'?>
-<org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin=\"workflow-multibranch@756.v891d88f2cd46\">
+<?xml version='1.1' encoding='UTF-8'?>
+<org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin="workflow-multibranch@756.v891d88f2cd46\">
   <actions/>
   <description></description>
   <displayName>MultiBranch</displayName>
@@ -118,5 +62,4 @@
     <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"../..\"/>
     <scriptPath>Jenkinsfile</scriptPath>
   </factory>
-</org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>" >> config.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" create-job MultiBranch < config.xml
+</org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>
