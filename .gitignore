@@ -85,3 +85,7 @@ test
 
 .vscode/
 pyrightconfig.json
+*.tfstate
+*.backup
+
+dist/

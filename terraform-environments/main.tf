@@ -9,16 +9,40 @@ terraform {
   required_version = ">= 1.2.0"
 }
 
+# resource "random_id" "suffix" {
+#   byte_length = 8
+# }
+
+
 provider "aws" {
-    access_key = "${var.aws_access_key}"
-    secret_key = "${var.aws_secret_key}"
     region = "${var.region}"
 }
 
-resource "aws_s3_bucket" "example" {
-  bucket = "${var.bucket_name}"
-    acl = "${var.acl_value}"   
+resource "aws_s3_bucket" "production" {
+    # bucket = "production-bucket-${random_id.suffix.hex}"
+  bucket = "production-bucket-team-henriqu2e"
+    # acl = "${var.acl_value}"   
+    acl = "private"
  }
 
+ resource "aws_s3_bucket" "testing" {
+  bucket = "testing-bucket-team-henrique2"
+  # bucket = "testing-bucket-${random_id.2suffix.hex}"
+    # acl = "${var.acl_value}"   
+    acl = "private"
+ }
+
+# resource "aws_s3_bucket_versioning" "test-bucket-versioning" {
+#   bucket = "testing-bucket-team-henrique"
+#   versioning_configuration {
+#   status = var.versioning
+#   }
+# }
 
 
+# resource "aws_s3_bucket_versioning" "production-bucket-versioning" {
+#   bucket = "production-bucket-team-henrique"
+#   versioning_configuration {
+#   status = var.versioning
+#   }
+# }
