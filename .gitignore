@@ -88,3 +88,5 @@ pyrightconfig.json
 *.tfstate
 *.backup
 keys/
+dist/
+
