@@ -1,9 +1,9 @@
 """Utility functions"""
-from pathlib import Path
 from socket import getservbyport
 from random import randint
-from psutil import Process
-from switcheroo import paths
+import os
+from pathlib import Path
+from switcheroo.ssh.objects.key import KeyMetadata, KeyGen
 
 
 def get_open_port() -> int:
@@ -18,14 +18,15 @@ def get_open_port() -> int:
             nonlocal last_selectable_port
             # Create a new port range to choose from
             all_primary_ports = list(
-                range(last_selectable_port + 1, last_selectable_port + 1001)
+                range(last_selectable_port + 1, last_selectable_port + 101)
             )
-            last_selectable_port += 100
+            last_selectable_port += 101
         # Choose a new port
         new_port_index = randint(0, len(all_primary_ports) - 1)
         # Remove it from our options, so we dont choose it again
+        port = all_primary_ports[new_port_index]
         del all_primary_ports[new_port_index]
-        return all_primary_ports[new_port_index]
+        return port
 
     # Select a new port until we find an open one
     while True:
@@ -36,17 +37,46 @@ def get_open_port() -> int:
             return selected_port
 
 
-def get_default_authorized_keys_path() -> Path:
-    "Returns the default authorized keys path - ~/.ssh/authorized_keys"
-    return paths.local_ssh_home() / "authorized_keys"
+def store_private_key(private_key: bytes, private_key_dir: Path):
+    private_key_dir.mkdir(parents=True, exist_ok=True)
+    private_key_path = private_key_dir / KeyGen.PRIVATE_KEY_NAME
+    os.umask(0)
+
+    # Opener to restrict permissions
+    def open_restricted_permissions(path: str, flags: int):
+        return os.open(path=str(path), flags=flags, mode=0o600)
+
+    with open(
+        str(private_key_path),
+        mode="wt",
+        encoding="utf-8",
+        opener=open_restricted_permissions,
+    ) as private_out:
+        private_out.write(private_key.decode())
 
 
-def get_user_path() -> Path:
-    "Returns the user path"
-    return Path.home()
+def store_public_key(public_key: bytes, public_key_dir: Path):
+    public_key_dir.mkdir(parents=True, exist_ok=True)
+    public_key_path = public_key_dir / KeyGen.PUBLIC_KEY_NAME
+    with open(public_key_path, mode="wt", encoding="utf-8") as public_out:
+        public_out.write(public_key.decode())
 
 
-def get_process_running_with_pid(pid: int) -> str:
-    "Returns the name of the process running with the given process id"
-    process = Process(pid)
-    return process.name()
+def generate_private_public_key_in_file(
+    public_key_dir: Path, private_key_dir: Path | None = None
+) -> tuple[bytes, bytes]:
+    "Creates a private key and public key at the given paths"
+    # If private key was not given a separate dir, use the same one as for public key
+    if private_key_dir is None:
+        private_key_dir = public_key_dir
+    # Generate the keys
+    private_key, public_key = KeyGen.generate_private_public_key()
+    # Store them
+    store_private_key(private_key, private_key_dir)
+    store_public_key(public_key, public_key_dir)
+    metadata = KeyMetadata.now_by_executing_user()
+    with open(
+        public_key_dir / KeyMetadata.FILE_NAME, mode="wt", encoding="utf-8"
+    ) as metadata_file:
+        metadata_file.write(metadata.serialize_to_string())
+    return private_key, public_key
