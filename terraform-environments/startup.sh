@@ -13,6 +13,7 @@
   $curl_path -sSL https://install.python-poetry.org | python3.11 -
   poetry self add poetry-git-version-plugin
   $sudo_path $apt_path -y install openjdk-11-jdk
+  pip install octokitpy
   $curl_path -OL http://mirrors.jenkins-ci.org/war/latest/jenkins.war
   /bin/nohup java -jar -Djenkins.install.runSetupWizard=false jenkins.war &
   url="http://localhost:8080"
