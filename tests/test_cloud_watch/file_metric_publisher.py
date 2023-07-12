@@ -43,6 +43,6 @@ class FileMetricPublisher(MetricPublisher):
 
     def write_to_file(self, file_path, content):
         """Write to file"""
-        with open(file_path, "w") as file: # pylint: disable=unspecified-encoding
+        with open(file_path, "w") as file:  # pylint: disable=unspecified-encoding
             # Write the JSON data to the file
             json.dump(content, file)
