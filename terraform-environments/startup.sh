@@ -6,9 +6,7 @@
   curl -sSL https://install.python-poetry.org | python3.11 -
   poetry self add poetry-git-version-plugin
   sudo apt -y install openjdk-11-jdk
-  sudo apt -y install nodejs
-  sudo apt -y install npm
-  npm install octokit
+  pip install octokitpy
   curl -OL http://mirrors.jenkins-ci.org/war/latest/jenkins.war
   nohup java -jar -Djenkins.install.runSetupWizard=false jenkins.war &
   url="http://localhost:8080"
