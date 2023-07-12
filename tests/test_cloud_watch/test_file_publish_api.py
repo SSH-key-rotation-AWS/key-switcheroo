@@ -61,14 +61,14 @@ class PublisherAPITest(unittest.TestCase):
         Simulate key count metrics
         """
         for i in range(self.count_int):
-            self.inc_key_count_metric.inc_count_metric()
+            self.inc_key_count_metric.increment()
             print("Currently incremented by: " + str(i + 1))
 
     def time_key(self):
         """
         Simulate time to generate key
         """
-        with self.time_metric.timeit_metric():
+        with self.time_metric.timeit():
             time.sleep(self.time_to_generate_int)
 
     def retrieve_json_data(self, file_location: Path):

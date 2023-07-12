@@ -1,6 +1,7 @@
 """AWS metric publisher"""
 from datetime import datetime
 import boto3
+from mypy_boto3_cloudwatch import Client
 from metric_system.functions.metric_publisher import MetricPublisher
 from metric_system.functions.metric import Metric
 
@@ -16,10 +17,10 @@ class AwsMetricPublisher(MetricPublisher):
             instance_id (str): The ID of the instance associated with the metric.
             aws_region (str): The AWS region to use for CloudWatch.
         """
-        self._name_space = name_space
-        self.cloud_watch = boto3.client("cloudwatch", region_name=aws_region)
-        self._instance_id = instance_id
-        self.time_of_init = datetime.now()
+        self._name_space: str = name_space
+        self.cloud_watch: Client = boto3.client("cloudwatch", region_name=aws_region)  # type: ignore #pylint: disable = line-too-long
+        self._instance_id: str = instance_id
+        self.time_of_init: datetime = datetime.now()
 
     def publish_metric(self, metric: Metric):
         """Publishes a metric to CloudWatch.

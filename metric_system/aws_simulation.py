@@ -33,9 +33,9 @@ class AWSDemo:
 
     def _increment_count_metric(self):
         for _ in range(5):
-            self.count_metric_server_a.inc_count_metric()
-            self.count_metric_server_b.inc_count_metric()
-            self.count_metric_server_c.inc_count_metric()
+            self.count_metric_server_a.increment()
+            self.count_metric_server_b.increment()
+            self.count_metric_server_c.increment()
 
 
 demo = AWSDemo()
