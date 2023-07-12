@@ -7,7 +7,7 @@ import pytest
 from hamcrest import assert_that, has_item, contains_string
 from paramiko.client import SSHClient, AutoAddPolicy
 from paramiko import RSAKey
-from switcheroo.ssh.server import Server
+from tests.switcheroo_ssh.server import Server
 from switcheroo.ssh.data_org.retriever import FileKeyRetriever
 from switcheroo import paths
 from switcheroo import util

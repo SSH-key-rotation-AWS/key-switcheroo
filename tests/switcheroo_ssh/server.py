@@ -1,6 +1,5 @@
 "SSH Server"
 from typing import Callable
-import os
 import asyncio
 import pathlib
 from pathlib import Path
@@ -35,9 +34,12 @@ class Server:
         user_path = Path.home()
         self.log_file.parent.mkdir(parents=True, exist_ok=True)
         self.log_file.touch(exist_ok=True)
-        python_executable = f"{os.getcwd()}/.venv/bin/python"
-        target_script = "/private/ssh_key_switcheroo/retrieve.py"
-        ky_cmnd = f"{python_executable} {target_script} %u {self.key_retriever.command}"
+        repo_dir = pathlib.Path(__file__).parent.parent.parent.resolve()
+        venv = repo_dir / ".venv"
+        python_executable = venv / "bin" / "python"
+        scripts_dir = repo_dir / "switcheroo" / "ssh" / "scripts"
+        target_script = scripts_dir / "retrieve.py"
+        ky_cmnd = f"{str(python_executable)} {str(target_script)} %u {self.key_retriever.command}"
         config: list[str] = [
             "LogLevel DEBUG3",
             f"Port {self.port}",
@@ -104,32 +106,9 @@ class Server:
         run_dir = user_path / "var" / "run"
         run_dir.mkdir(exist_ok=True, parents=True)
 
-    def __setup_authorized_keys_script(self):
-        scripts_dir = pathlib.Path(__file__).parent.parent.resolve() / "scripts"
-        private_dir = Path("/private")
-        app_data_dir = private_dir / "ssh_key_switcheroo"
-        python_retrieval_script_path = f"{scripts_dir}/retrieve.py"
-        target_path = f"{app_data_dir}/retrieve.py"
-        if not app_data_dir.exists():
-            subprocess.run(f"sudo mkdir {private_dir}", check=True, shell=True)
-            subprocess.run(f"sudo mkdir {app_data_dir}", check=True, shell=True)
-        # Will change to rsync
-        subprocess.run(
-            f"sudo cp {python_retrieval_script_path} {target_path}",
-            shell=True,
-            check=True,
-        )
-        subprocess.run(
-            f"sudo chgrp 0 {python_retrieval_script_path}", check=True, shell=True
-        )
-        subprocess.run(
-            f"sudo chmod 755 {python_retrieval_script_path}", check=True, shell=True
-        )
-
     async def __aenter__(self):
         self.__setup_host_keys()
         self.__setup_pid_file()
-        self.__setup_authorized_keys_script()
         await self.start()
         return self
 
