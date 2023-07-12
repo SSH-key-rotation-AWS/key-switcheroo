@@ -3,7 +3,7 @@ from getpass import getuser
 from pathlib import Path
 from paramiko import SSHClient, AutoAddPolicy, RSAKey
 import pytest
-from switcheroo.ssh.server.server import Server
+from tests.switcheroo_ssh.server import Server
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
 from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
 from switcheroo import paths
