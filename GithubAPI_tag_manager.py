@@ -54,3 +54,4 @@ def create_tag(tag_name, commit_sha):
         print(f"Tag '{tag_name}' created successfully.")
     else:
         print(f"Error: {response.status_code} - {response.text}")
+        
