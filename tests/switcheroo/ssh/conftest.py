@@ -1,10 +1,7 @@
 from tempfile import TemporaryDirectory
 from typing import Generator
 from pathlib import Path
-import os
 import pytest
-import boto3
-from mypy_boto3_s3 import Client
 from switcheroo.ssh.data_org.publisher import FileKeyPublisher
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
 from switcheroo.ssh.data_org.retriever import FileKeyRetriever
@@ -14,15 +11,6 @@ from switcheroo import paths
 
 def ssh_temp_dir():
     return TemporaryDirectory(dir=paths.local_ssh_home(), prefix="switcheroo-test-")
-
-
-def _empty_bucket(s3_client: Client, bucket: str):
-    objects = s3_client.list_objects_v2(Bucket=bucket)["Contents"]
-    delete_objects = [{"Key": bucket_obj["Key"]} for bucket_obj in objects]  # type: ignore
-    s3_client.delete_objects(
-        Bucket=bucket,
-        Delete={"Objects": delete_objects},  # type: ignore
-    )
 
 
 @pytest.fixture(name="ssh_temp_path")
@@ -35,18 +23,6 @@ def fixture_ssh_temp_path() -> Generator[Path, None, None]:
 @pytest.fixture
 def file_pub(ssh_temp_path: Path) -> Generator[FileKeyPublisher, None, None]:
     yield FileKeyPublisher(ssh_home=ssh_temp_path)
-
-
-@pytest.fixture(name="s3_client", scope="session")
-def fixture_s3_client() -> Generator[Client, None, None]:
-    yield boto3.client("s3")  # type: ignore
-
-
-@pytest.fixture(name="s3_bucket")
-def fixture_s3_dev_bucket(s3_client: Client) -> Generator[str, None, None]:
-    bucket = os.environ["SSH_KEY_DEV_BUCKET_NAME"]
-    yield bucket
-    _empty_bucket(s3_client, bucket)
 
 
 @pytest.fixture

@@ -34,7 +34,7 @@ class Server:
         user_path = Path.home()
         self.log_file.parent.mkdir(parents=True, exist_ok=True)
         self.log_file.touch(exist_ok=True)
-        repo_dir = pathlib.Path(__file__).parent.parent.parent.resolve()
+        repo_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
         venv = repo_dir / ".venv"
         python_executable = venv / "bin" / "python"
         scripts_dir = repo_dir / "switcheroo" / "ssh" / "scripts"
