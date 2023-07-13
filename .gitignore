@@ -90,3 +90,9 @@ pyrightconfig.json
 keys/
 dist/
 
+dist/
+
+.pytest_cache/
+
+*.json
+
