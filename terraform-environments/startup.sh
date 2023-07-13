@@ -13,6 +13,7 @@
   sed_path=/bin/sed
   wget_path=/bin/wget
   url="http://localhost:8080"
+  public_ip=$($curl_path ifconfig.me)
 
   #disable prompts that make the script hang
   $sudo_path $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
@@ -21,12 +22,11 @@
   # download neccesary programs
   $sudo_path $apt_path update && $sudo_path $apt_path -y upgrade
   $sudo_path $apt_path install python3.11 -y
-  $sudo_path $apt_path install python3-pip -y
+  # $sudo_path $apt_path install python3-pip -y
   # $sudo_path $apt_path install python3.11-venv -y
   $curl_path -sSL https://install.python-poetry.org | /bin/python3.11 -
   ~/.local/bin/poetry self add poetry-git-version-plugin
   $sudo_path $apt_path -y install openjdk-11-jdk
-  /bin/pip install octokitpy
   $curl_path -OL http://mirrors.jenkins-ci.org/war/latest/jenkins.war
 
   # run jenkins in background and send output to file
@@ -63,8 +63,8 @@
   $sed_path "1d;\$d" default.js > default.json
   /bin/mkdir /root/.jenkins/updates
   /bin/mv default.json /root/.jenkins/updates
-  $java_path -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" install-plugin github-branch-source workflow-multibranch multibranch-action-triggers config-file-provider \
-    branch-api cloudbees-folder credentials -restart
+  $java_path -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" install-plugin github-branch-source workflow-multibranch \
+    multibranch-action-triggers config-file-provider branch-api cloudbees-folder credentials -restart
   
   # make github login xml
   $touch_path github_credentials.xml
@@ -95,7 +95,7 @@
   -H "Authorization: Bearer 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"\
   -H "X-GitHub-Api-Version: 2022-11-28" \
   https://api.github.com/repos/SSH-key-rotation-AWS/team-henrique/hooks \
-  -d '{"name":"Jenkins","active":true,"events":["push","pull_request"],"config":{"url":"https://example.com/webhook","content_type":"json","insecure_ssl":"0"}}'
+  -d "{\"name\":\"Jenkins\",\"active\":true,\"events\":[\"push\",\"pull_request\"],\"config\":{\"url\":\"http://$public_ip:8080/github-webhook/\",\"content_type\":\"json\",\"insecure_ssl\":\"0\"}}"
 
   #set up pipeline in xml and send to jenkins
   $touch_path config.xml
