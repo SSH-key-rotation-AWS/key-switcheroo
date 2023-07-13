@@ -13,7 +13,6 @@ class AwsMetricPublisher(MetricPublisher):
 
         Args:
             name_space (str): The namespace of the metric.
-            aws_region (str): The AWS region to use for CloudWatch.
         """
         self._name_space: str = name_space
         self.cloud_watch: Client = boto3.client("cloudwatch")  # type: ignore #pylint: disable = line-too-long
