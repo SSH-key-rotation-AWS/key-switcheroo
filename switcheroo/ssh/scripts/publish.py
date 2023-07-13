@@ -6,6 +6,7 @@ from switcheroo import paths
 from switcheroo.ssh.constants import NAME_SPACE
 from metric_system.functions.metric_publisher import MetricPublisher
 from metric_system.functions.aws_metric_publisher import AwsMetricPublisher
+from metric_system.functions.file_metric_publisher import FileMetricPublisher
 
 
 def create_argument_parser() -> ArgumentParser:
@@ -46,7 +47,6 @@ def create_argument_parser() -> ArgumentParser:
         action="store_true",
         choices=["file", "cloud"],
         required=False,
-        defualt="cloud",
         help="opt to have metrics published,\
               either to AWS cloudwatch or to the local file system (default is cloud)",
     )
@@ -73,9 +73,11 @@ def main():
         key_publisher = S3KeyPublisher(args.bucket, root_ssh_dir=Path(args.sshdir))
     if args.metric: # If the user chose to publish metrics
         if args.metric == "file": #publish to file system
-            pass #change to file publisher and add metric path
-        else: #publish to cloudwatch
-            metric_publisher = AwsMetricPublisher(NAME_SPACE, "s", "s")
+            metric_publisher = FileMetricPublisher(args.metricpath)
+        elif args.metric == "cloud": #publish to cloudwatch
+            metric_publisher = AwsMetricPublisher(NAME_SPACE, "", "")
+        else:
+            raise ValueError('Please specify either "file" or "cloud" after the -m/--metric option.')
     assert key_publisher is not None
     key_publisher.publish_key(args.hostname, args.user, metric_publisher=metric_publisher)
 
