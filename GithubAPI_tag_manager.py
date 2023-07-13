@@ -1,5 +1,17 @@
 import requests
 
+def get_latest_tag():#Gets the latest tag from github so it can increment by one
+    url = f"{BASE_URL}/repos/{OWNER}/{REPO}/tags"
+    headers = {"Authorization": f"Bearer {TOKEN}"}#Uses github PAT token for access
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        tags = response.json()
+        latest_tag = tags[0]["name"]  # Get the latest tag name
+        return latest_tag
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+        return None
+    
 # Constants
 BASE_URL = "https://api.github.com"
 OWNER = "SSH-key-rotation-AWS"
@@ -17,19 +29,6 @@ def bump_tag():
     new_tag_name = f"v{major}.{minor}.{patch + 1}"
     # Create the new tag
     create_tag(new_tag_name, commit_sha)
-
-
-def get_latest_tag():#Gets the latest tag from github so it can increment by one
-    url = f"{BASE_URL}/repos/{OWNER}/{REPO}/tags"
-    headers = {"Authorization": f"Bearer {TOKEN}"}#Uses github PAT token for access
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        tags = response.json()
-        latest_tag = tags[0]["name"]  # Get the latest tag name
-        return latest_tag
-    else:
-        print(f"Error: {response.status_code} - {response.text}")
-        return None
 
 def get_latest_commit_sha():#Retrieves the latest commit sha which is needed for the Github API to get the latest tag
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/commits"
