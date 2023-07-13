@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from switcheroo.ssh.data_org.publisher import KeyPublisher, FileKeyPublisher
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
 from switcheroo import paths
-from switcheroo.ssh.constants import NAME_SPACE
+from switcheroo.ssh.metric_constants import Constants
 from metric_system.functions.metric_publisher import MetricPublisher
 from metric_system.functions.aws_metric_publisher import AwsMetricPublisher
 from metric_system.functions.file_metric_publisher import FileMetricPublisher
@@ -75,7 +75,7 @@ def main():
         if args.metric == "file": #publish to file system
             metric_publisher = FileMetricPublisher(args.metricpath)
         elif args.metric == "cloud": #publish to cloudwatch
-            metric_publisher = AwsMetricPublisher(NAME_SPACE)
+            metric_publisher = AwsMetricPublisher(Constants.NAME_SPACE)
         else:
             raise ValueError('Please specify either "file" or "cloud" after the -m/--metric option.')
     assert key_publisher is not None

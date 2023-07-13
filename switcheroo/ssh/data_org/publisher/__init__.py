@@ -3,7 +3,7 @@ from pathlib import Path
 from switcheroo.ssh.objects import Key, KeyMetadata
 from switcheroo.ssh.data_stores import ssh_home_file_ds
 from switcheroo import paths
-from switcheroo.ssh.constants import TIMING_METRIC_NAME, COUNTER_METRIC_NAME
+from switcheroo.ssh.metric_constants import Constants
 from metric_system.functions.metric_publisher import MetricPublisher
 from metric_system.functions.metrics import CounterMetric, TimingMetric
 
@@ -22,8 +22,8 @@ class KeyPublisher(ABC):
         pass
 
     def _publish_metrics(self, metric_publisher: MetricPublisher):
-        time_metric = TimingMetric(TIMING_METRIC_NAME, "None")
-        counter_metric = CounterMetric(COUNTER_METRIC_NAME, "Count")
+        time_metric = TimingMetric(Constants.TIMING_METRIC_NAME, "None")
+        counter_metric = CounterMetric(Constants.COUNTER_METRIC_NAME, "Count")
         metric_publisher.publish_metric(time_metric)
         metric_publisher.publish_metric(counter_metric)
 
