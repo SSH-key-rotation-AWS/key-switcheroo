@@ -3,6 +3,9 @@ from argparse import ArgumentParser
 from switcheroo.ssh.data_org.publisher import KeyPublisher, FileKeyPublisher
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
 from switcheroo import paths
+from switcheroo.ssh.constants import NAME_SPACE
+from metric_system.functions.metric_publisher import MetricPublisher
+from metric_system.functions.aws_metric_publisher import AwsMetricPublisher
 
 
 def create_argument_parser() -> ArgumentParser:
@@ -37,6 +40,22 @@ def create_argument_parser() -> ArgumentParser:
             the directory that stores local keys (ie /home/you/.ssh)",
         default=paths.local_ssh_home(),
     )
+    argument_parser.add_argument(
+        "-m",
+        "--metric",
+        action="store_true",
+        choices=["file", "cloud"],
+        required=False,
+        defualt="cloud",
+        help="opt to have metrics published,\
+              either to AWS cloudwatch or to the local file system (default is cloud)",
+    )
+    argument_parser.add_argument(
+        "--metricpath",
+        required=False,
+        help="The absolute path to the directory that stores the metrics",
+        default=paths.local_metrics_dir(),
+    )
 
     return argument_parser
 
@@ -44,15 +63,21 @@ def create_argument_parser() -> ArgumentParser:
 def main():
     parser = create_argument_parser()
     args = parser.parse_args()
-    publisher: KeyPublisher | None = None
+    key_publisher: KeyPublisher | None = None
+    metric_publisher: MetricPublisher | None = None
     if args.datastore == "local":  # If the user chose to store the public key locally
-        publisher = FileKeyPublisher(Path(args.sshdir))
+        key_publisher = FileKeyPublisher(Path(args.sshdir))
     else:  # If the user chose to store the public key on S3 or chose to default to S3
         if args.bucket is None:
             parser.error("The s3 option requires a bucket name!")
-        publisher = S3KeyPublisher(args.bucket, root_ssh_dir=Path(args.sshdir))
-    assert publisher is not None
-    publisher.publish_key(args.hostname, args.user)
+        key_publisher = S3KeyPublisher(args.bucket, root_ssh_dir=Path(args.sshdir))
+    if args.metric: # If the user chose to publish metrics
+        if args.metric == "file": #publish to file system
+            pass #change to file publisher and add metric path
+        else: #publish to cloudwatch
+            metric_publisher = AwsMetricPublisher(NAME_SPACE, "s", "s")
+    assert key_publisher is not None
+    key_publisher.publish_key(args.hostname, args.user, metric_publisher=metric_publisher)
 
 
 if __name__ == "__main__":

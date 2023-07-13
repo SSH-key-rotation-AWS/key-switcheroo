@@ -51,3 +51,8 @@ def cloud_public_key_loc(host: str, user: str) -> Path:
 
 def cloud_metadata_loc(host: str, user: str) -> Path:
     return cloud_key_dir(host, user) / KeyMetadata.FILE_NAME
+
+def local_metrics_dir() -> Path:
+    metrics_dir = Path.home() / "metrics"
+    metrics_dir.mkdir(exist_ok=True)
+    return metrics_dir
