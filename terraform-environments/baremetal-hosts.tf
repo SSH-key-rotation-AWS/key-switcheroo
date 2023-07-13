@@ -52,20 +52,11 @@ resource "null_resource" "set_permissions" {
   }
 }
 
-#variables to pass into user_data
-# resource "template_file" "userdata_template" {
-#   template = file("hosts-user-data.sh")
-
-#   vars = {
-#     username   = var.username
-#     public_key = tls_private_key.key_pair.public_key_openssh
-#   }
-# }
 
 locals {
     username   = var.username
     USERNAME = var.username
-    public_key = tls_private_key.key_pair.public_key_openssh 
+    # public_key = tls_private_key.key_pair.public_key_openssh 
 }
 
 
@@ -80,7 +71,8 @@ resource "aws_instance" "baremetal-host-1" {
   }
      user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
       USERNAME=local.USERNAME
-      PUBLIC_KEY=local.public_key
+      username=local.username
+      # PUBLIC_KEY=local.public_key
      }))
 
       # user_data = "${template_file.userdata_template.rendered}"
@@ -103,7 +95,9 @@ resource "aws_instance" "baremetal-host-2" {
       #  user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", local.vars))
 user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
       USERNAME=local.USERNAME
-      PUBLIC_KEY=local.public_key
+            username=local.username
+
+      # PUBLIC_KEY=local.public_key
      }))
       # user_data = "${template_file.userdata_template.rendered}"
 
