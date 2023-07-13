@@ -8,19 +8,20 @@ TOKEN = "Team_Henrique"
 CURRENT_TAG = get_latest_tag() 
 
 
-# Get the latest commit SHA
-commit_sha = get_latest_commit_sha()
-# Create the new tag
-create_tag(new_tag_name, commit_sha)
-# Increment the tag version
-version_parts = CURRENT_TAG.split(".")
-major, minor, patch = int(version_parts[0][1:]), int(version_parts[1]), int(version_parts[2])
-new_tag_name = f"v{major}.{minor}.{patch + 1}"
+def bump_tag():
+    # Get the latest commit SHA
+    commit_sha = get_latest_commit_sha()
+    # Increment the tag version
+    version_parts = CURRENT_TAG.split(".")
+    major, minor, patch = int(version_parts[0][1:]), int(version_parts[1]), int(version_parts[2])
+    new_tag_name = f"v{major}.{minor}.{patch + 1}"
+    # Create the new tag
+    create_tag(new_tag_name, commit_sha)
 
 
-def get_latest_tag():
+def get_latest_tag():#Gets the latest tag from github so it can increment by one
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/tags"
-    headers = {"Authorization": f"Bearer {TOKEN}"}
+    headers = {"Authorization": f"Bearer {TOKEN}"}#Uses github PAT token for access
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         tags = response.json()
@@ -30,7 +31,7 @@ def get_latest_tag():
         print(f"Error: {response.status_code} - {response.text}")
         return None
 
-def get_latest_commit_sha():
+def get_latest_commit_sha():#Retrieves the latest commit sha which is needed for the Github API to get the latest tag
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/commits"
     headers = {"Authorization": f"Bearer {TOKEN}"}
     response = requests.get(url, headers=headers)
