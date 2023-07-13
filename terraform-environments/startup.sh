@@ -19,7 +19,7 @@
   $sudo_path $sed_path -i "s/#\$nrconf{restart} = 'i';/\$nrconf{restart} = 'a';/g" /etc/needrestart/needrestart.conf
 
   # download neccesary programs
-  $sudo_path $apt_path update && sudo apt -y upgrade
+  $sudo_path $apt_path update && $sudo_path $apt_path -y upgrade
   $sudo_path $apt_path install python3.11 -y
   $sudo_path $apt_path install python3-pip -y
   # $sudo_path $apt_path install python3.11-venv -y
@@ -87,6 +87,15 @@
 
   # send github login xml to jenkins and make credentials
   $java_path -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" create-credentials-by-xml  system::system::jenkins _ < github_credentials.xml
+
+  # make webhook in github
+  $curl_path -L \
+  -X POST \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer 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"\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/repos/SSH-key-rotation-AWS/team-henrique/hooks \
+  -d '{"name":"Jenkins","active":true,"events":["push","pull_request"],"config":{"url":"https://example.com/webhook","content_type":"json","insecure_ssl":"0"}}'
 
   #set up pipeline in xml and send to jenkins
   $touch_path config.xml
