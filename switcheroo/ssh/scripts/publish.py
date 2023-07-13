@@ -75,7 +75,7 @@ def main():
         if args.metric == "file": #publish to file system
             metric_publisher = FileMetricPublisher(args.metricpath)
         elif args.metric == "cloud": #publish to cloudwatch
-            metric_publisher = AwsMetricPublisher(NAME_SPACE, "", "")
+            metric_publisher = AwsMetricPublisher(NAME_SPACE)
         else:
             raise ValueError('Please specify either "file" or "cloud" after the -m/--metric option.')
     assert key_publisher is not None
