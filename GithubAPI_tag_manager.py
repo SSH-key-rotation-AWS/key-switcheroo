@@ -7,6 +7,17 @@ REPO = "team-henrique"
 TOKEN = "Team_Henrique"
 CURRENT_TAG = get_latest_tag() 
 
+
+# Get the latest commit SHA
+commit_sha = get_latest_commit_sha()
+# Create the new tag
+create_tag(new_tag_name, commit_sha)
+# Increment the tag version
+version_parts = CURRENT_TAG.split(".")
+major, minor, patch = int(version_parts[0][1:]), int(version_parts[1]), int(version_parts[2])
+new_tag_name = f"v{major}.{minor}.{patch + 1}"
+
+
 def get_latest_tag():
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/tags"
     headers = {"Authorization": f"Bearer {TOKEN}"}
@@ -43,14 +54,3 @@ def create_tag(tag_name, commit_sha):
         print(f"Tag '{tag_name}' created successfully.")
     else:
         print(f"Error: {response.status_code} - {response.text}")
-
-# Increment the tag version
-version_parts = CURRENT_TAG.split(".")
-major, minor, patch = int(version_parts[0][1:]), int(version_parts[1]), int(version_parts[2])
-new_tag_name = f"v{major}.{minor}.{patch + 1}"
-
-# Get the latest commit SHA
-commit_sha = get_latest_commit_sha()
-
-# Create the new tag
-create_tag(new_tag_name, commit_sha)
