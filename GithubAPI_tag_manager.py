@@ -1,23 +1,26 @@
 import requests
 
-def get_latest_tag():#Gets the latest tag from github so it can increment by one
+def get_latest_tag() -> str:
+    '''Gets the latest tag from github so it can increment by one'''
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/tags"
-    headers = {"Authorization": f"Bearer {TOKEN}"}#Uses github PAT token for access
+    # Uses github PAT token for access
+    headers = {"Authorization": f"Bearer {TOKEN}"}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         tags = response.json()
-        latest_tag = tags[0]["name"]  # Get the latest tag name
+        # Get the latest tag name
+        latest_tag = tags[0]["name"]
         return latest_tag
     else:
         print(f"Error: {response.status_code} - {response.text}")
-        return None
-    
+        return ""
+
 # Constants
 BASE_URL = "https://api.github.com"
 OWNER = "SSH-key-rotation-AWS"
 REPO = "team-henrique"
 TOKEN = "Team_Henrique"
-CURRENT_TAG = get_latest_tag() 
+CURRENT_TAG = get_latest_tag()
 
 
 def bump_tag():
@@ -30,16 +33,17 @@ def bump_tag():
     # Create the new tag
     create_tag(new_tag_name, commit_sha)
 
-def get_latest_commit_sha():#Retrieves the latest commit sha which is needed for the Github API to get the latest tag
+def get_latest_commit_sha():
+    '''Retrieves the latest commit sha which is needed for the Github API to get the latest tag'''
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/commits"
     headers = {"Authorization": f"Bearer {TOKEN}"}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         commits = response.json()
-        return commits[0]["sha"]  # Get the latest commit SHA
-    else:
-        print(f"Error: {response.status_code} - {response.text}")
-        return None
+        # Get the latest commit SHA
+        return commits[0]["sha"]
+    print(f"Error: {response.status_code} - {response.text}")
+    return None
 
 def create_tag(tag_name, commit_sha):
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/git/refs"
