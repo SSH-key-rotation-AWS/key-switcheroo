@@ -8,10 +8,8 @@ import math
 from tempfile import TemporaryDirectory
 from pathlib import Path
 from hamcrest import assert_that, equal_to, has_length
-from metric_system.functions.file_metric_publisher import (
-    FileMetricPublisher,
-    MetricJsonData,
-)
+from metric_system.functions.file_metric_publisher import FileMetricPublisher
+from metric_system.functions.metric import MetricJsonData
 from metric_system.functions.metrics import TimingMetric, CounterMetric
 
 
