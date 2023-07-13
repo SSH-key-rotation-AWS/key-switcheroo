@@ -43,16 +43,17 @@ def fixture_s3_client() -> Generator[Client, None, None]:
 
 
 @pytest.fixture(name="s3_bucket")
-def fixture_s3_dev_bucket() -> Generator[str, None, None]:
-    yield os.environ["SSH_KEY_DEV_BUCKET_NAME"]
+def fixture_s3_dev_bucket(s3_client: Client) -> Generator[str, None, None]:
+    bucket = os.environ["SSH_KEY_DEV_BUCKET_NAME"]
+    yield bucket
+    _empty_bucket(s3_client, bucket)
 
 
 @pytest.fixture
 def s3_pub(
-    ssh_temp_path: Path, s3_bucket: str, s3_client: Client
+    ssh_temp_path: Path, s3_bucket: str
 ) -> Generator[S3KeyPublisher, None, None]:
     yield S3KeyPublisher(s3_bucket, ssh_temp_path)
-    _empty_bucket(s3_client, s3_bucket)
 
 
 @pytest.fixture
@@ -62,10 +63,9 @@ def file_retriever(ssh_temp_path: Path) -> Generator[FileKeyRetriever, None, Non
 
 @pytest.fixture
 def s3_retriever(
-    ssh_temp_path: Path, s3_bucket: str, s3_client: Client
+    ssh_temp_path: Path, s3_bucket: str
 ) -> Generator[S3KeyRetriever, None, None]:
     yield S3KeyRetriever(ssh_temp_path, s3_bucket)
-    _empty_bucket(s3_client, s3_bucket)
 
 
 @pytest.fixture
