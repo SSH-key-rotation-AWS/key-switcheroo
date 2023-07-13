@@ -72,6 +72,8 @@ class FileMetricPublisher(MetricPublisher):
 
     def __init__(self, metric_dir: Path):
         self._metric_dir = metric_dir
+        if not metric_dir.exists():
+            metric_dir.mkdir(parents=True, exist_ok=True)
 
     def _metric_file_path(self, metric_name: str):
         return self._metric_dir / f"{metric_name}.json"
