@@ -55,7 +55,7 @@ class DataPoint:
 
 
 @dataclass
-class MetricJsonData:
+class MetricData:
     metric_name: str
     data_points: list[DataPoint]
 
@@ -83,7 +83,7 @@ class MetricJsonData:
 
         # Call the mapping function
         data_points = list(map(map_data_points, data_points_json))
-        return MetricJsonData(metric_name, data_points)
+        return MetricData(metric_name, data_points)
 
     def to_json(self) -> Any:
         "Makes this object JSON-serializable by treating the data points as dicts"

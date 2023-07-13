@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from metric_system.functions.metric import Metric
 from metric_system.functions.metric_publisher import MetricPublisher
-from metric_system.functions.metric import MetricJsonData, DataPoint
+from metric_system.functions.metric import MetricData, DataPoint
 
 
 class FileMetricPublisher(MetricPublisher):
@@ -32,7 +32,7 @@ class FileMetricPublisher(MetricPublisher):
         # Check if we already have data published to the file
         retrieved_data = self.retrieve_metric_data(metric.name)
         if retrieved_data is None:
-            retrieved_data = MetricJsonData(metric_name=metric.name, data_points=[])
+            retrieved_data = MetricData(metric_name=metric.name, data_points=[])
         retrieved_data.data_points.append(new_datapoint)
         # Write to file
         with open(
@@ -41,11 +41,11 @@ class FileMetricPublisher(MetricPublisher):
             # Write the JSON data to the file
             json.dump(retrieved_data.to_json(), file)
 
-    def retrieve_metric_data(self, metric_name: str) -> MetricJsonData | None:
+    def retrieve_metric_data(self, metric_name: str) -> MetricData | None:
         try:
             with open(
                 self._metric_file_path(metric_name), encoding="utf-8", mode="rt"
             ) as data_file:
-                return MetricJsonData.from_json(json.load(data_file))
+                return MetricData.from_json(json.load(data_file))
         except FileNotFoundError:
             return None

@@ -9,7 +9,7 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 from hamcrest import assert_that, equal_to, has_length
 from metric_system.functions.file_metric_publisher import FileMetricPublisher
-from metric_system.functions.metric import MetricJsonData
+from metric_system.functions.metric import MetricData
 from metric_system.functions.metrics import TimingMetric, CounterMetric
 
 
@@ -38,7 +38,7 @@ class PublisherAPITest(unittest.TestCase):
         """
         self.increment_count_metric()
         self.publisher.publish_metric(self.inc_key_count_metric)
-        data: MetricJsonData | None = self.publisher.retrieve_metric_data(
+        data: MetricData | None = self.publisher.retrieve_metric_data(
             self.inc_key_count_metric.name
         )
         assert data is not None
