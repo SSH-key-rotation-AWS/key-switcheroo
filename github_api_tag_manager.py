@@ -11,9 +11,8 @@ def get_latest_tag() -> str:
         # Get the latest tag name
         latest_tag = tags[0]["name"]
         return latest_tag
-    else:
-        print(f"Error: {response.status_code} - {response.text}")
-        return ""
+    print(f"Error: {response.status_code} - {response.text}")
+    return ""
 
 # Constants
 BASE_URL = "https://api.github.com"
