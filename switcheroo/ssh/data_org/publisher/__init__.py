@@ -39,6 +39,7 @@ class KeyPublisher(ABC):
         key: Key | None = None,
         metadata: KeyMetadata | None = None,
     ) -> tuple[Key, KeyMetadata]:
+        "Helper function for publishing keys and metadata"
         # Lazy evaluation of default values
         if key is None:
             key = Key()
@@ -57,6 +58,20 @@ class KeyPublisher(ABC):
         metadata: KeyMetadata | None = None,
         metric_publisher: MetricPublisher | None = None,
     ) -> tuple[Key, KeyMetadata]:
+        """
+        Public method for publishing keys and key metadata,
+        as well as metrics if selected by the user.
+
+        Args:
+            host (str, required): the hostname of the server
+            user (str, required): the username of the connecting client
+            key (Key, optional): Key object. Defaults to None
+            metadata(KeyMetadata, optional): KeyMetadata object. Defaults to None
+            metric_publisher (MetricPublisher, optional): MetricPublisher object. Defaults to None
+
+        Returns:
+            A tuple with the Key and KeyMetadata
+        """
         if metric_publisher is not None:  # the user decided to publish metrics
             timing_metric = TimingMetric(MetricConstants.TIMING_METRIC_NAME, "None")
             key_and_metadata: tuple[Key, KeyMetadata] | None = None

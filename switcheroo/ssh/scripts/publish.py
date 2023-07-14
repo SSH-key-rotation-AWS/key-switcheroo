@@ -18,18 +18,25 @@ def create_argument_parser() -> ArgumentParser:
         epilog="Thanks for using key_publisher! :)",
     )
 
-    argument_parser.add_argument("hostname")
-    argument_parser.add_argument("user")
-
+    argument_parser.add_argument(
+        "hostname",
+        required=True,
+        help="the hostname of the server",
+    )
+    argument_parser.add_argument(
+        "user",
+        required=True,
+        help="the username of the connecting client",
+    )
     argument_parser.add_argument(
         "-ds",
         "--datastore",
-        choices=["s3", "local"],
         default="s3",
+        choices=["s3", "local"],
+        required=False,
         help="choose where to store the public key,\
             on S3 or on the local system (default is S3)",
     )
-
     argument_parser.add_argument(
         "--bucket",
         required=False,
@@ -37,10 +44,10 @@ def create_argument_parser() -> ArgumentParser:
     )
     argument_parser.add_argument(
         "--sshdir",
+        default=paths.local_ssh_home(),
         required=False,
         help="The absolute path to\
             the directory that stores local keys (ie /home/you/.ssh)",
-        default=paths.local_ssh_home(),
     )
     argument_parser.add_argument(
         "-m",
@@ -53,10 +60,10 @@ def create_argument_parser() -> ArgumentParser:
     )
     argument_parser.add_argument(
         "--metricpath",
+        default=paths.local_metrics_dir(),
         required=False,
         help="The absolute path to the directory\
             that stores the metrics (if metrics are stored locally)",
-        default=paths.local_metrics_dir(),
     )
 
     return argument_parser
