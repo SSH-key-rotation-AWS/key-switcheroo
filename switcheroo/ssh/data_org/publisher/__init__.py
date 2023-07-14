@@ -3,7 +3,7 @@ from pathlib import Path
 from switcheroo.ssh.objects import Key, KeyMetadata
 from switcheroo.ssh.data_stores import ssh_home_file_ds
 from switcheroo import paths
-from switcheroo.ssh.metric_constants import Constants
+from switcheroo.ssh import MetricConstants
 from metric_system.functions.metric_publisher import MetricPublisher
 from metric_system.functions.metrics import CounterMetric, TimingMetric
 
@@ -21,23 +21,23 @@ class KeyPublisher(ABC):
     def _publish_key_metadata(self, metadata: KeyMetadata, host: str, user: str):
         pass
 
-    def _publish_metrics(self, metric_publisher: MetricPublisher):
-        time_metric = TimingMetric(Constants.TIMING_METRIC_NAME, "None")
-        time_metric.timeit()
-        # TO DO: check if there is an existing key count.
-        # If yes, just increment. If no, instantiate and increment
-        counter_metric = CounterMetric(Constants.COUNTER_METRIC_NAME, "Count")
+    def _publish_metrics(
+        self, metric_publisher: MetricPublisher, timing_metric: TimingMetric
+    ):
+        """Creates counter metric and publishes it with the metric_publisher passed in.
+        Takes in the timing metric, whose value is the time it took to publish the keys,
+        and publishes the metric"""
+        counter_metric = CounterMetric(MetricConstants.COUNTER_METRIC_NAME, "Count")
         counter_metric.increment()
-        metric_publisher.publish_metric(time_metric)
+        metric_publisher.publish_metric(timing_metric)
         metric_publisher.publish_metric(counter_metric)
 
-    def publish_key(
+    def _publish_keys_and_metadata(
         self,
         host: str,
         user: str,
         key: Key | None = None,
         metadata: KeyMetadata | None = None,
-        metric_publisher: MetricPublisher | None = None,
     ) -> tuple[Key, KeyMetadata]:
         # Lazy evaluation of default values
         if key is None:
@@ -47,9 +47,30 @@ class KeyPublisher(ABC):
         self._publish_public_key(key.public_key, host, user)
         self._publish_private_key(key.private_key, host, user)
         self._publish_key_metadata(metadata, host, user)
-        if metric_publisher is not None:
-            self._publish_metrics(metric_publisher)
         return (key, metadata)
+
+    def publish_key(
+        self,
+        host: str,
+        user: str,
+        key: Key | None = None,
+        metadata: KeyMetadata | None = None,
+        metric_publisher: MetricPublisher | None = None,
+    ) -> tuple[Key, KeyMetadata]:
+        if metric_publisher is not None:  # the user decided to publish metrics
+            timing_metric = TimingMetric(MetricConstants.TIMING_METRIC_NAME, "None")
+            key_and_metadata: tuple[Key, KeyMetadata] | None = None
+            # use the timeit() context manager to time how long it takes to publish new keys
+            with timing_metric.timeit():
+                key_and_metadata = self._publish_keys_and_metadata(
+                    host, user, key, metadata
+                )
+            self._publish_metrics(
+                metric_publisher, timing_metric
+            )  # publish the metrics
+            return key_and_metadata
+        # if the user decided not to publish metrics just publish the keys and their metadata
+        return self._publish_keys_and_metadata(host, user, key, metadata)
 
 
 class FileKeyPublisher(KeyPublisher):
