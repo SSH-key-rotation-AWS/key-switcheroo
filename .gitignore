@@ -88,3 +88,5 @@ pyrightconfig.json
 *.tfstate
 *.backup
 .terraform*
+package-lock.json
+poetry.lock
