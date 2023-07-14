@@ -72,9 +72,9 @@
   <scope>GLOBAL</scope>
   <id>github_login</id>
   <description></description>
-  <username>akrakauer</username>
+  <username>key-switcheroo</username>
   <password>
-   AQAAABAAAAAQ8zpk4NIt5/Y65bEzbfp2UO9YUMI+zNNPJ6TM/OX6rMM=
+   KeyRotationInAWS4
   </password>
   <usernameSecret>true</usernameSecret>
 </com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>" >> github_credentials.xml
@@ -92,7 +92,7 @@
   $curl_path -L \
   -X POST \
   -H "Accept: application/vnd.github+json" \
-  -H "Authorization: Bearer <github pat>"\
+  -H "Authorization: Bearer <pat token placeholder>"\
   -H "X-GitHub-Api-Version: 2022-11-28" \
   https://api.github.com/repos/SSH-key-rotation-AWS/team-henrique/hooks \
   -d "{\"name\":\"web\",\"active\":true,\"events\":[\"push\",\"pull_request\"],\"config\":{\"url\":\"http://$public_ip:8080/github-webhook/\",\"content_type\":\"json\",\"insecure_ssl\":\"0\"}}"
