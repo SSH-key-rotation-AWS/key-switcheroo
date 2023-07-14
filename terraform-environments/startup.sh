@@ -99,7 +99,7 @@
 
   # set up pipeline in xml and send to jenkins
   $touch_path config.xml
-  $echo_path "<?xml version=\"1.1\" encoding=\"UTF-8\"?>
+  $echo_path "<?xml version='1.1' encoding='UTF-8'?>
 <org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin=\"workflow-multibranch@756.v891d88f2cd46\">
   <actions/>
   <description></description>
@@ -154,9 +154,15 @@
             </org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
           </traits>
         </source>
-        <strategy class=\"jenkins.branch.NamedExceptionsBranchPropertyStrategy\">
-          <defaultProperties class=\"empty-list\"/>
-          <namedExceptions class=\"empty-list\"/>
+        <strategy class=\"jenkins.branch.DefaultBranchPropertyStrategy\">
+          <properties class=\"java.util.Arrays\$ArrayList\">
+            <a class=\"jenkins.branch.BranchProperty-array\">
+              <jenkins.branch.NoTriggerBranchProperty>
+                <triggeredBranchesRegex>^\$main</triggeredBranchesRegex>
+                <strategy>NONE</strategy>
+              </jenkins.branch.NoTriggerBranchProperty>
+            </a>
+          </properties>
         </strategy>
       </jenkins.branch.BranchSource>
     </data>
