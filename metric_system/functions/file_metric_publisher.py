@@ -3,10 +3,8 @@ file_metric_publisher.py
 """
 import json
 from pathlib import Path
-from datetime import datetime
-from metric_system.functions.metric import Metric
+from metric_system.functions.metric import Metric, DataPoint, MetricData
 from metric_system.functions.metric_publisher import MetricPublisher
-from metric_system.functions.metric import MetricData, DataPoint
 
 
 class FileMetricPublisher(MetricPublisher):
@@ -39,26 +37,6 @@ class FileMetricPublisher(MetricPublisher):
         ) as file:
             # Write the JSON data to the file
             json.dump(retrieved_data.to_json(), file)
-
-    def retrieve_metric_data(
-        self, metric_name: str, start_time: datetime, end_time: datetime
-    ) -> MetricData:
-        all_data = self._retrieve_all_data(metric_name)
-        datapoints_in_timeframe: list[DataPoint] = []
-        found_beginning = False
-        for datapoint in all_data.data_points:
-            if not found_beginning:
-                if datapoint.timestamp >= start_time:
-                    datapoints_in_timeframe.append(
-                        datapoint
-                    )  # First datapoint in range
-            else:  # Keep appending as long as we havent hit the end
-                if datapoint.timestamp > end_time:
-                    break
-                datapoints_in_timeframe.append(
-                    datapoint
-                )  # Have not hit the end just yet
-        return MetricData(metric_name, datapoints_in_timeframe)
 
     def _retrieve_all_data(self, metric_name: str) -> MetricData:
         try:

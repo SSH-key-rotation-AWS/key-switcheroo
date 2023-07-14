@@ -50,6 +50,10 @@ class DataPoint:
     value: float
 
     @classmethod
+    def parse_timestamp(cls, str_timestamp: str) -> datetime:
+        return datetime.strptime(str_timestamp, "%Y-%m-%d %H:%M:%S.%f")
+
+    @classmethod
     def create_from(cls, metric: Metric):
         return DataPoint(datetime.now(), metric.unit, metric.value)
 
@@ -74,9 +78,7 @@ class MetricData:
                 ["timestamp" in data_point, "unit" in data_point, "value" in data_point]
             ):
                 raise TypeError("Error deserializing metric data!")
-            timestamp = datetime.strptime(
-                data_point["timestamp"], "%Y-%m-%d %H:%M:%S.%f"
-            )
+            timestamp = DataPoint.parse_timestamp(data_point["timestamp"])
             unit = data_point["unit"]
             value = float(data_point["value"])
             return DataPoint(timestamp, unit, value)
