@@ -69,7 +69,7 @@
   # make github login xml
   $touch_path github_credentials.xml
   $echo_path "<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl plugin=\"credentials@1254.vb_96f366e7b_a_d\">
-  <scope>SYSTEM</scope>
+  <scope>GLOBAL</scope>
   <id>github_login</id>
   <description></description>
   <username>akrakauer</username>
@@ -92,19 +92,24 @@
   $curl_path -L \
   -X POST \
   -H "Accept: application/vnd.github+json" \
-  -H "Authorization: Bearer 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"\
+  -H "Authorization: Bearer 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"\
   -H "X-GitHub-Api-Version: 2022-11-28" \
   https://api.github.com/repos/SSH-key-rotation-AWS/team-henrique/hooks \
-  -d "{\"name\":\"Jenkins\",\"active\":true,\"events\":[\"push\",\"pull_request\"],\"config\":{\"url\":\"http://$public_ip:8080/github-webhook/\",\"content_type\":\"json\",\"insecure_ssl\":\"0\"}}"
+  -d "{\"name\":\"web\",\"active\":true,\"events\":[\"push\",\"pull_request\"],\"config\":{\"url\":\"http://$public_ip:8080/github-webhook/\",\"content_type\":\"json\",\"insecure_ssl\":\"0\"}}"
 
   #set up pipeline in xml and send to jenkins
   $touch_path config.xml
-  $echo_path "<?xml version='1.1' encoding='UTF-8'?>
+  $echo_path "<?xml version=\"1.1\" encoding=\"UTF-8\"?>
 <org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin=\"workflow-multibranch@756.v891d88f2cd46\">
   <actions/>
   <description></description>
   <displayName>MultiBranch</displayName>
   <properties>
+    <org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty plugin=\"config-file-provider@951.v0461b_87b_721b_\">
+      <configs class=\"sorted-set\">
+        <comparator class=\"org.jenkinsci.plugins.configfiles.ConfigByIdComparator\"/>
+      </configs>
+    </org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty>
     <org.jenkinsci.plugins.workflow.multibranch.PipelineTriggerProperty plugin=\"multibranch-action-triggers@1.8.6\">
       <createActionJobsToTrigger></createActionJobsToTrigger>
       <deleteActionJobsToTrigger></deleteActionJobsToTrigger>
@@ -114,17 +119,12 @@
       <branchExcludeFilter></branchExcludeFilter>
       <additionalParameters/>
     </org.jenkinsci.plugins.workflow.multibranch.PipelineTriggerProperty>
-    <org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty plugin=\"config-file-provider@938.ve2b_8a_591c596\">
-      <configs class=\"sorted-set\">
-        <comparator class=\"org.jenkinsci.plugins.configfiles.ConfigByIdComparator\"/>
-      </configs>
-    </org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty>
   </properties>
-  <folderViews class=\"jenkins.branch.MultiBranchProjectViewHolder\" plugin=\"branch-api@2.1109.vdf225489a_16d\">
+  <folderViews class=\"jenkins.branch.MultiBranchProjectViewHolder\" plugin=\"branch-api@2.1122.v09cb_8ea_8a_724\">
     <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"../..\"/>
   </folderViews>
   <healthMetrics/>
-  <icon class=\"jenkins.branch.MetadataActionFolderIcon" plugin="branch-api@2.1109.vdf225489a_16d\">
+  <icon class=\"jenkins.branch.MetadataActionFolderIcon\" plugin=\"branch-api@2.1122.v09cb_8ea_8a_724\">
     <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"../..\"/>
   </icon>
   <orphanedItemStrategy class=\"com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy\" plugin=\"cloudbees-folder@6.815.v0dd5a_cb_40e0e\">
@@ -135,7 +135,7 @@
   </orphanedItemStrategy>
   <triggers/>
   <disabled>false</disabled>
-  <sources class=\"jenkins.branch.MultiBranchProject\$BranchSourceList\" plugin=\"branch-api@2.1109.vdf225489a_16d\">
+  <sources class=\"jenkins.branch.MultiBranchProject\$BranchSourceList\" plugin=\"branch-api@2.1122.v09cb_8ea_8a_724\">
     <data>
       <jenkins.branch.BranchSource>
         <source class=\"org.jenkinsci.plugins.github_branch_source.GitHubSCMSource\" plugin=\"github-branch-source@1728.v859147241f49\">
@@ -149,6 +149,9 @@
             <org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
               <strategyId>3</strategyId>
             </org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
+            <org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
+              <strategyId>3</strategyId>
+            </org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
           </traits>
         </source>
         <strategy class=\"jenkins.branch.NamedExceptionsBranchPropertyStrategy\">
