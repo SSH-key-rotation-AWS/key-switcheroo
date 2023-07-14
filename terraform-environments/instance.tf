@@ -43,7 +43,7 @@ resource "aws_instance" "app_server" {
   instance_type = "t2.micro"
   vpc_security_group_ids  =[aws_security_group.security.id]
   tags = {
-    Name = "TeamHenrique"
+    Name = "KeySwitcheroo"
   }
   user_data = file("startup.sh")
 } 

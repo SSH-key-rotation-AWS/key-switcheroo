@@ -1,9 +1,9 @@
 #!/bin/bash
-  #set up bash settings
+  # set up bash settings
   set -eux
   set -o pipefail
 
-  #set variables
+  # set variables
   sudo_path=/bin/sudo
   apt_path=/bin/apt
   curl_path=/bin/curl
@@ -15,7 +15,7 @@
   url="http://localhost:8080"
   public_ip=$($curl_path ifconfig.me)
 
-  #disable prompts that make the script hang
+  # disable prompts that make the script hang
   $sudo_path $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
   $sudo_path $sed_path -i "s/#\$nrconf{restart} = 'i';/\$nrconf{restart} = 'a';/g" /etc/needrestart/needrestart.conf
 
@@ -49,7 +49,7 @@
   def instance = Jenkins.getInstance()
 
   def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-  hudsonRealm.createAccount(\"TeamHenrique\", \"AWS_SSH\")
+  hudsonRealm.createAccount(\"KeySwitcheroo\", \"AWS_SSH\")
   instance.setSecurityRealm(hudsonRealm)
   instance.save()
 
@@ -63,7 +63,7 @@
   $sed_path "1d;\$d" default.js > default.json
   /bin/mkdir /root/.jenkins/updates
   /bin/mv default.json /root/.jenkins/updates
-  $java_path -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" install-plugin github-branch-source workflow-multibranch \
+  $java_path -jar jenkins-cli.jar -s $url -auth "KeySwitcheroo":"AWS_SSH" install-plugin github-branch-source workflow-multibranch \
     multibranch-action-triggers config-file-provider branch-api cloudbees-folder credentials -restart
   
   # make github login xml
@@ -86,18 +86,18 @@
   done
 
   # send github login xml to jenkins and make credentials
-  $java_path -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" create-credentials-by-xml  system::system::jenkins _ < github_credentials.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "KeySwitcheroo":"AWS_SSH" create-credentials-by-xml  system::system::jenkins _ < github_credentials.xml
 
   # make webhook in github
   $curl_path -L \
   -X POST \
   -H "Accept: application/vnd.github+json" \
-  -H "Authorization: Bearer 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"\
+  -H "Authorization: Bearer <github pat>"\
   -H "X-GitHub-Api-Version: 2022-11-28" \
   https://api.github.com/repos/SSH-key-rotation-AWS/team-henrique/hooks \
   -d "{\"name\":\"web\",\"active\":true,\"events\":[\"push\",\"pull_request\"],\"config\":{\"url\":\"http://$public_ip:8080/github-webhook/\",\"content_type\":\"json\",\"insecure_ssl\":\"0\"}}"
 
-  #set up pipeline in xml and send to jenkins
+  # set up pipeline in xml and send to jenkins
   $touch_path config.xml
   $echo_path "<?xml version=\"1.1\" encoding=\"UTF-8\"?>
 <org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin=\"workflow-multibranch@756.v891d88f2cd46\">
@@ -167,4 +167,4 @@
     <scriptPath>Jenkinsfile</scriptPath>
   </factory>
 </org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>" >> config.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "TeamHenrique":"AWS_SSH" create-job MultiBranch < config.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "KeySwitcheroo":"AWS_SSH" create-job MultiBranch < config.xml
