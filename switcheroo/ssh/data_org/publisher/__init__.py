@@ -23,7 +23,11 @@ class KeyPublisher(ABC):
 
     def _publish_metrics(self, metric_publisher: MetricPublisher):
         time_metric = TimingMetric(Constants.TIMING_METRIC_NAME, "None")
+        time_metric.timeit()
+        # TO DO: check if there is an existing key count.
+        # If yes, just increment. If no, instantiate and increment
         counter_metric = CounterMetric(Constants.COUNTER_METRIC_NAME, "Count")
+        counter_metric.increment()
         metric_publisher.publish_metric(time_metric)
         metric_publisher.publish_metric(counter_metric)
 
@@ -33,7 +37,7 @@ class KeyPublisher(ABC):
         user: str,
         key: Key | None = None,
         metadata: KeyMetadata | None = None,
-        metric_publisher: MetricPublisher | None = None
+        metric_publisher: MetricPublisher | None = None,
     ) -> tuple[Key, KeyMetadata]:
         # Lazy evaluation of default values
         if key is None:

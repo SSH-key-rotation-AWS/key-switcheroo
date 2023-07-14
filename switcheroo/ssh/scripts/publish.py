@@ -26,7 +26,8 @@ def create_argument_parser() -> ArgumentParser:
         "--datastore",
         choices=["s3", "local"],
         default="s3",
-        help="choose where to store the public key, on S3 or on the local system (default is S3)",
+        help="choose where to store the public key,\
+            on S3 or on the local system (default is S3)",
     )
 
     argument_parser.add_argument(
@@ -47,13 +48,14 @@ def create_argument_parser() -> ArgumentParser:
         action="store_true",
         choices=["file", "cloud"],
         required=False,
-        help="opt to have metrics published,\
-              either to AWS cloudwatch or to the local file system (default is cloud)",
+        help="opt to have metrics published, either to AWS cloudwatch\
+            or to the local file system (default is cloud)",
     )
     argument_parser.add_argument(
         "--metricpath",
         required=False,
-        help="The absolute path to the directory that stores the metrics",
+        help="The absolute path to the directory\
+            that stores the metrics (if metrics are stored locally)",
         default=paths.local_metrics_dir(),
     )
 
@@ -71,15 +73,19 @@ def main():
         if args.bucket is None:
             parser.error("The s3 option requires a bucket name!")
         key_publisher = S3KeyPublisher(args.bucket, root_ssh_dir=Path(args.sshdir))
-    if args.metric: # If the user chose to publish metrics
-        if args.metric == "file": #publish to file system
+    if args.metric:  # If the user chose to publish metrics
+        if args.metric == "file":  # publish to file system
             metric_publisher = FileMetricPublisher(args.metricpath)
-        elif args.metric == "cloud": #publish to cloudwatch
+        elif args.metric == "cloud":  # publish to cloudwatch
             metric_publisher = AwsMetricPublisher(Constants.NAME_SPACE)
         else:
-            raise ValueError('Please specify either "file" or "cloud" after the -m/--metric option.')
+            raise ValueError(
+                'Please specify either "file" or "cloud" after the -m/--metric option.'
+            )
     assert key_publisher is not None
-    key_publisher.publish_key(args.hostname, args.user, metric_publisher=metric_publisher)
+    key_publisher.publish_key(
+        args.hostname, args.user, metric_publisher=metric_publisher
+    )
 
 
 if __name__ == "__main__":
