@@ -1,5 +1,13 @@
 import requests
 
+
+# Constants
+BASE_URL = "https://api.github.com"
+OWNER = "SSH-key-rotation-AWS"
+REPO = "team-henrique"
+TOKEN = "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"
+CURRENT_TAG = ""
+
 def get_latest_tag() -> str:
     '''Gets the latest tag from github so it can increment by one'''
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/tags"
@@ -14,21 +22,13 @@ def get_latest_tag() -> str:
     print(f"Error: {response.status_code} - {response.text}")
     return ""
 
-# Constants
-BASE_URL = "https://api.github.com"
-OWNER = "SSH-key-rotation-AWS"
-REPO = "team-henrique"
-TOKEN = "Team_Henrique"
-CURRENT_TAG = get_latest_tag()
-
-
 def bump_tag():
     # Get the latest commit SHA
     commit_sha = get_latest_commit_sha()
-    # Increment the tag version
+    # Increment the tag version 
     version_parts = CURRENT_TAG.split(".")
-    major, minor, patch = int(version_parts[0][1:]), int(version_parts[1]), int(version_parts[2])
-    new_tag_name = f"v{major}.{minor}.{patch + 1}"
+    major, minor, patch = int(version_parts[0]), int(version_parts[1]), int(version_parts[2])
+    new_tag_name = f"{major}.{minor}.{patch + 1}"
     # Create the new tag
     create_tag(new_tag_name, commit_sha)
 
@@ -58,3 +58,6 @@ def create_tag(tag_name, commit_sha):
     else:
         print(f"Error: {response.status_code} - {response.text}")
         
+        
+CURRENT_TAG = get_latest_tag()
+bump_tag()
