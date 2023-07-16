@@ -1,4 +1,3 @@
-
 """Pre Commit File"""
 import asyncio
 import sys
@@ -14,18 +13,18 @@ class Error(Enum):
 
 async def get_files():
     """Gets all py files staged for commit"""
-    #Command that retrieves all staged to commit python files. 
+    #Command that retrieves all staged to commit python files.
     command = "git diff --name-only --cached --diff-filter=ACMRTUXB | grep '\.py$'"
-    # Async function that runs command line argument. 
+    # Async function that runs command line argument.
     process = await asyncio.create_subprocess_shell(
         command,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )
-    # Run async function and retrieves the files.. 
+    # Run async function and retrieves the files.
     stdout,_ = await process.communicate()
     files = stdout.decode()
-    #if there are no Python files staged,return exit code 0 and procceed commit. 
+    #if there are no Python files staged,return exit code 0 and procceed commit.
     if len(files) < 1:
         print("no python file staged commits")
         sys.exit(0)
@@ -63,14 +62,14 @@ async def run_pylint():
     """Async function, runs pylint on all staged py files, 
     and returns an error if pylint finds errors."""
     print("Running PyLint...")
-    #async function that runs pylint linter on alled staged to commit py files. 
+    #async function that runs pylint linter on alled staged to commit py files.
     task = await asyncio.create_subprocess_shell(
         "pylint " + STAGED_FILES,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
     return_value_out,_ = await task.communicate()
-    #if pylint finds error with the staged files. Abort commit, and spit out lines and files where error occured. 
+    #if pylint finds error with the staged files. Abort commit, and spit out lines and files where error occured.
     if task.returncode != 0:
         print("PyLint found errors, commit aborted")
         print("\n" + return_value_out.decode("utf-8"))
@@ -88,7 +87,7 @@ async def run_pyright():
         stderr=asyncio.subprocess.PIPE,
     )
     return_value_out,_ = await task.communicate()
-    #if pyright finds error with the staged files. Abort commit 
+    #if pyright finds error with the staged files. Abort commit
     if task.returncode != 0:
         print("PyRight found errors, commit aborted")
         print("\n" + return_value_out.decode("utf-8"))
@@ -100,7 +99,7 @@ async def main():
     pyright_task = asyncio.create_task(run_pyright())
     pylint_task = asyncio.create_task(run_pylint())
     results = await asyncio.gather(pyright_task, pylint_task)
-    #Runs pyright and pylint task asyncrionsly, and if any of them return al error code, abort commit. 
+    #Runs pyright and pylint task asyncrionsly, and if any of them return al error code, abort commit.
     if Error.PYRIGHT_ERROR in results or Error.PYLINT_ERROR in results:
         sys.exit(1)
     else:

@@ -87,6 +87,10 @@ test
 pyrightconfig.json
 *.tfstate
 *.backup
+
+dist/
+
+.pytest_cache/
+
+*.json
 .terraform*
-package-lock.json
-poetry.lock
