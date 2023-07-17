@@ -1,45 +1,6 @@
 from pathlib import Path
-from dataclasses import dataclass, field
-import uuid
-import json
 from hamcrest.core.base_matcher import BaseMatcher
 from hamcrest.core.description import Description
-from switcheroo.base.data_store import Serializer
-
-
-def _str_uuid_factory():
-    return str(uuid.uuid4())
-
-@dataclass
-class Person:
-    """Dataclass representing a person to be used for testing
-    """
-    name: str
-    age: int
-    bio: str
-    #Storing uuid as a string for easy json serialization
-    unique_id: str = field(default_factory=_str_uuid_factory)
-
-    @property
-    def relative_loc(self)->Path:
-        """Relative location of a person in a storage system
-
-
-        Returns:
-            Path: Relative location of this person in a storage system as a pathlib.Path obj
-        """
-        return Path(self.unique_id)
-
-class PersonSerializer(Serializer[Person]):
-    """Serializer for the Person class - just to/from json
-    """
-
-    def serialize(self, storable: Person) -> str:
-        return json.dumps(storable.__dict__)
-
-    def deserialize(self, data_str: str) -> Person:
-        data_obj =  json.loads(data_str)
-        return Person(data_obj["name"], data_obj["age"], data_obj["bio"], data_obj["unique_id"])
 
 class HasFileMode(BaseMatcher[Path]):
     """Hamcrest matcher to check the file mode of a given pathlib.Path
