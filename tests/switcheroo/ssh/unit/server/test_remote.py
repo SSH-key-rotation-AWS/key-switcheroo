@@ -6,7 +6,7 @@ from hamcrest import assert_that, has_item, contains_string
 from paramiko import SSHClient, RSAKey, AutoAddPolicy
 import pytest
 from mypy_boto3_s3 import Client
-from tests.switcheroo_ssh.server import Server
+from tests.switcheroo.ssh.server import Server
 from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
 from switcheroo.ssh.objects.key import KeyGen
 from switcheroo import paths
