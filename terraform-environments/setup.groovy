@@ -4,7 +4,7 @@ import hudson.security.*
 def instance = Jenkins.getInstance()
 
 def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-hudsonRealm.createAccount("TeamHenrique", "AWS_SSH")
+hudsonRealm.createAccount("KeySwitcheroo", "AWS_SSH")
 instance.setSecurityRealm(hudsonRealm)
 instance.save()
 

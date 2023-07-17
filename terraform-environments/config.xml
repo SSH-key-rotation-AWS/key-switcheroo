@@ -1,74 +1,74 @@
 <?xml version='1.1' encoding='UTF-8'?>
-<org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin=\"workflow-multibranch@756.v891d88f2cd46\">
-  <actions>
-  <description><description>
-  <displayName>MultiBranch<displayName>
+<org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin="workflow-multibranch@756.v891d88f2cd46">
+  <actions/>
+  <description></description>
+  <displayName>MultiBranch</displayName>
   <properties>
-    <org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty plugin=\"config-file-provider@951.v0461b_87b_721b_\">
-      <configs class=\"sorted-set\">
-        <comparator class=\"org.jenkinsci.plugins.configfiles.ConfigByIdComparator\">
-      <configs>
-    <org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty>
-    <org.jenkinsci.plugins.workflow.multibranch.PipelineTriggerProperty plugin=\"multibranch-action-triggers@1.8.6\">
-      <createActionJobsToTrigger><createActionJobsToTrigger>
-      <deleteActionJobsToTrigger><deleteActionJobsToTrigger>
-      <actionJobsToTriggerOnRunDelete><actionJobsToTriggerOnRunDelete>
-      <quitePeriod>0<quitePeriod>
-      <branchIncludeFilter>*<branchIncludeFilter>
-      <branchExcludeFilter><branchExcludeFilter>
-      <additionalParameters>
-    <org.jenkinsci.plugins.workflow.multibranch.PipelineTriggerProperty>
-  <properties>
-  <folderViews class=\"jenkins.branch.MultiBranchProjectViewHolder\" plugin=\"branch-api@2.1122.v09cb_8ea_8a_724\">
-    <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"....\">
-  <folderViews>
-  <healthMetrics>
-  <icon class=\"jenkins.branch.MetadataActionFolderIcon\" plugin=\"branch-api@2.1122.v09cb_8ea_8a_724\">
-    <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"....\">
-  <icon>
-  <orphanedItemStrategy class=\"com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy\" plugin=\"cloudbees-folder@6.815.v0dd5a_cb_40e0e\">
-    <pruneDeadBranches>false<pruneDeadBranches>
-    <daysToKeep>-1<daysToKeep>
-    <numToKeep>-1<numToKeep>
-    <abortBuilds>false<abortBuilds>
-  <orphanedItemStrategy>
-  <triggers>
-  <disabled>false<disabled>
-  <sources class=\"jenkins.branch.MultiBranchProject$BranchSourceList\" plugin=\"branch-api@2.1122.v09cb_8ea_8a_724\">
+    <org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty plugin="config-file-provider@951.v0461b_87b_721b_">
+      <configs class="sorted-set">
+        <comparator class="org.jenkinsci.plugins.configfiles.ConfigByIdComparator"/>
+      </configs>
+    </org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty>
+    <org.jenkinsci.plugins.workflow.multibranch.PipelineTriggerProperty plugin="multibranch-action-triggers@1.8.6">
+      <createActionJobsToTrigger></createActionJobsToTrigger>
+      <deleteActionJobsToTrigger></deleteActionJobsToTrigger>
+      <actionJobsToTriggerOnRunDelete></actionJobsToTriggerOnRunDelete>
+      <quitePeriod>0</quitePeriod>
+      <branchIncludeFilter>*</branchIncludeFilter>
+      <branchExcludeFilter></branchExcludeFilter>
+      <additionalParameters/>
+    </org.jenkinsci.plugins.workflow.multibranch.PipelineTriggerProperty>
+  </properties>
+  <folderViews class="jenkins.branch.MultiBranchProjectViewHolder" plugin="branch-api@2.1122.v09cb_8ea_8a_724">
+    <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+  </folderViews>
+  <healthMetrics/>
+  <icon class="jenkins.branch.MetadataActionFolderIcon" plugin="branch-api@2.1122.v09cb_8ea_8a_724">
+    <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+  </icon>
+  <orphanedItemStrategy class="com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy" plugin="cloudbees-folder@6.815.v0dd5a_cb_40e0e">
+    <pruneDeadBranches>false</pruneDeadBranches>
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>-1</numToKeep>
+    <abortBuilds>false</abortBuilds>
+  </orphanedItemStrategy>
+  <triggers/>
+  <disabled>false</disabled>
+  <sources class="jenkins.branch.MultiBranchProject$BranchSourceList" plugin="branch-api@2.1122.v09cb_8ea_8a_724">
     <data>
       <jenkins.branch.BranchSource>
-        <source class=\"org.jenkinsci.plugins.github_branch_source.GitHubSCMSource\" plugin=\"github-branch-source@1728.v859147241f49\">
-          <id>d6f1f5bc-bbf7-4241-ada7-a8aa7a8877e9<id>
-          <apiUri>https:api.github.com<apiUri>
-          <credentialsId>github_login<credentialsId>
-          <repoOwner>SSH-key-rotation-AWS<repoOwner>
-          <repository>team-henrique<repository>
-          <repositoryUrl>https:github.comSSH-key-rotation-AWSteam-henrique<repositoryUrl>
+        <source class="org.jenkinsci.plugins.github_branch_source.GitHubSCMSource" plugin="github-branch-source@1728.v859147241f49">
+          <id>d6f1f5bc-bbf7-4241-ada7-a8aa7a8877e9</id>
+          <apiUri>https://api.github.com</apiUri>
+          <credentialsId>github_login</credentialsId>
+          <repoOwner>SSH-key-rotation-AWS</repoOwner>
+          <repository>key-switcheroo</repository>
+          <repositoryUrl>https://github.com/SSH-key-rotation-AWS/key-switcheroo</repositoryUrl>
           <traits>
             <org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
-              <strategyId>3<strategyId>
-            <org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
+              <strategyId>3</strategyId>
+            </org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
             <org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
-              <strategyId>3<strategyId>
-            <org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
-          <traits>
-        <source>
-        <strategy class=\"jenkins.branch.DefaultBranchPropertyStrategy\">
-          <properties class=\"java.util.Arrays$ArrayList\">
-            <a class=\"jenkins.branch.BranchProperty-array\">
+              <strategyId>3</strategyId>
+            </org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
+          </traits>
+        </source>
+        <strategy class="jenkins.branch.DefaultBranchPropertyStrategy">
+          <properties class="java.util.Arrays$ArrayList">
+            <a class="jenkins.branch.BranchProperty-array">
               <jenkins.branch.NoTriggerBranchProperty>
-                <triggeredBranchesRegex>^$main<triggeredBranchesRegex>
-                <strategy>NONE<strategy>
-              <jenkins.branch.NoTriggerBranchProperty>
-            <a>
-          <properties>
-        <strategy>
-      <jenkins.branch.BranchSource>
-    <data>
-    <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"....\">
-  <sources>
-  <factory class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory\">
-    <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"....\">
-    <scriptPath>Jenkinsfile<scriptPath>
-  <factory>
-<org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>
+                <triggeredBranchesRegex>main|PR-\d+.*</triggeredBranchesRegex>
+                <strategy>NONE</strategy>
+              </jenkins.branch.NoTriggerBranchProperty>
+            </a>
+          </properties>
+        </strategy>
+      </jenkins.branch.BranchSource>
+    </data>
+    <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+  </sources>
+  <factory class="org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory">
+    <owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+    <scriptPath>Jenkinsfile</scriptPath>
+  </factory>
+</org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>

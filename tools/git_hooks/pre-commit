@@ -54,7 +54,6 @@ reformatted_content)
         if user_input == "y":
             with open(element,"w") as file:
                 file.write(reformatted_content)
-                
 run_black()
 
 
