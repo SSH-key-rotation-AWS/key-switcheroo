@@ -51,7 +51,7 @@ def test_publish_time(
     # AWS timestamps do not have microseconds, so we'll floor the time to the nearest second
     # We cant get the time exactly, but a leeway of 3 seconds should do, even if floored
     current_time = datetime.now(timezone.utc).replace(microsecond=0)
-    expected_max_time = (datetime.now(timezone.utc) + timedelta(seconds=2)).replace(
+    expected_max_time = (datetime.now(timezone.utc) + timedelta(seconds=3)).replace(
         microsecond=0
     )
     # Publish the metric
