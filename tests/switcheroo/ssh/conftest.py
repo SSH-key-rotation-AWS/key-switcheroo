@@ -7,10 +7,23 @@ from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
 from switcheroo.ssh.data_org.retriever import FileKeyRetriever
 from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
 from switcheroo import paths
+from metric_system.functions.file_metric_publisher import FileMetricPublisher
+from metric_system.functions.aws_metric_publisher import AwsMetricPublisher
 
 
 def ssh_temp_dir():
     return TemporaryDirectory(dir=paths.local_ssh_home(), prefix="switcheroo-test-")
+
+
+def metrics_temp_dir():
+    return TemporaryDirectory(dir=paths.local_metrics_dir(), prefix="switcheroo-test-")
+
+
+@pytest.fixture(name="metrics_temp_path")
+def fixture_metrics_temp_path() -> Generator[Path, None, None]:
+    temp_dir = metrics_temp_dir()
+    with temp_dir:
+        yield Path(temp_dir.name)
 
 
 @pytest.fixture(name="ssh_temp_path")
@@ -21,27 +34,39 @@ def fixture_ssh_temp_path() -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def file_pub(ssh_temp_path: Path) -> Generator[FileKeyPublisher, None, None]:
+def file_key_publisher(ssh_temp_path: Path) -> Generator[FileKeyPublisher, None, None]:
     yield FileKeyPublisher(ssh_home=ssh_temp_path)
 
 
 @pytest.fixture
-def s3_pub(
+def s3_key_publisher(
     ssh_temp_path: Path, s3_bucket: str
 ) -> Generator[S3KeyPublisher, None, None]:
     yield S3KeyPublisher(s3_bucket, ssh_temp_path)
 
 
 @pytest.fixture
-def file_retriever(ssh_temp_path: Path) -> Generator[FileKeyRetriever, None, None]:
+def file_key_retriever(ssh_temp_path: Path) -> Generator[FileKeyRetriever, None, None]:
     yield FileKeyRetriever(ssh_temp_path)
 
 
 @pytest.fixture
-def s3_retriever(
+def s3_key_retriever(
     ssh_temp_path: Path, s3_bucket: str
 ) -> Generator[S3KeyRetriever, None, None]:
     yield S3KeyRetriever(ssh_temp_path, s3_bucket)
+
+
+@pytest.fixture
+def file_metric_publisher(
+    metrics_temp_path: Path
+) -> Generator[FileMetricPublisher, None, None]:
+    yield FileMetricPublisher(metrics_temp_path)
+
+
+@pytest.fixture
+def aws_metric_publisher() -> Generator[AwsMetricPublisher, None, None]:
+    yield AwsMetricPublisher("Test-Metric-Publisher")
 
 
 @pytest.fixture

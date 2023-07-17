@@ -4,11 +4,11 @@ from switcheroo.ssh.data_org.publisher import FileKeyPublisher
 from switcheroo import paths
 
 
-def test_local_publish(ssh_temp_path: Path, file_pub: FileKeyPublisher):
+def test_local_publish(ssh_temp_path: Path, file_key_publisher: FileKeyPublisher):
     """Test for local publisher"""
     host = "ExampleServer"
     user_id = "1234567"
-    key, _ = file_pub.publish_key(host, user_id)
+    key, _ = file_key_publisher.publish_key(host, user_id)
     public_key_path = paths.local_public_key_loc(host, user_id, ssh_temp_path)
     with open(public_key_path, encoding="utf-8") as public_key_file:
         file_contents = public_key_file.read()

@@ -40,7 +40,6 @@ class KeyPublisher(ABC):
         metadata: KeyMetadata | None = None,
     ) -> tuple[Key, KeyMetadata]:
         "Helper function for publishing keys and metadata"
-        # Lazy evaluation of default values
         if key is None:
             key = Key()
         if metadata is None:
@@ -80,9 +79,10 @@ class KeyPublisher(ABC):
                 key_and_metadata = self._publish_keys_and_metadata(
                     host, user, key, metadata
                 )
+            # publish the metrics
             self._publish_metrics(
                 metric_publisher, timing_metric
-            )  # publish the metrics
+            )
             return key_and_metadata
         # if the user decided not to publish metrics just publish the keys and their metadata
         return self._publish_keys_and_metadata(host, user, key, metadata)
