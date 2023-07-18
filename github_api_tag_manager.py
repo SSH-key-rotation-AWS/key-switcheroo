@@ -2,7 +2,12 @@ import requests
 import boto3 
 from botocore.exceptions import ClientError
 
-TOKEN = ""
+# Constants
+BASE_URL = "https://api.github.com"
+OWNER = "SSH-key-rotation-AWS"
+REPO = "team-henrique"
+CURRENT_TAG = ""
+
 
 def get_secret():
 
@@ -26,14 +31,10 @@ def get_secret():
         raise failed_secrets_api_call
 
     # Decrypts secret using the associated KMS key.
-    TOKEN = get_secret_value_response['SecretString']
+    RETURNTOKEN = get_secret_value_response['SecretString']
+    return RETURNTOKEN
 
-
-# Constants
-BASE_URL = "https://api.github.com"
-OWNER = "SSH-key-rotation-AWS"
-REPO = "team-henrique"
-CURRENT_TAG = ""
+TOKEN = get_secret()
 
 def get_latest_tag() -> str:
     '''Gets the latest tag from github so it can increment by one'''
@@ -84,7 +85,7 @@ def create_tag(tag_name, commit_sha):
         print(f"Tag '{tag_name}' created successfully.")
     else:
         print(f"Error: {response.status_code} - {response.text}")
-        
+            
 get_secret()
 CURRENT_TAG = get_latest_tag()
 bump_tag()
