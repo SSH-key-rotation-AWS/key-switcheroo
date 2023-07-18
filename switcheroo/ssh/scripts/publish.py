@@ -12,10 +12,10 @@ from metric_system.functions.file_metric_publisher import FileMetricPublisher
 def create_argument_parser() -> ArgumentParser:
     # pylint: disable=R0801
     argument_parser = ArgumentParser(
-        prog="key_publisher",
+        prog="switcheroo_publish",
         description="Creates public/private SSH keys and publishes "
         + "the public key either locally or to S3 (default is S3)",
-        epilog="Thanks for using key_publisher! :)",
+        epilog="Thanks for using switcheroo_publish! :)",
     )
 
     argument_parser.add_argument(

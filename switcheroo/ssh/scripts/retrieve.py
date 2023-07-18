@@ -10,9 +10,9 @@ from switcheroo import paths
 def create_argument_parser() -> ArgumentParser:
     # pylint: disable=R0801
     argument_parser = ArgumentParser(
-        prog="key_retriever",
+        prog="switcheroo_retrieve",
         description="Fetches the public SSH keys from S3 or the local machine",
-        epilog="Thanks for using key_retriever! :)",
+        epilog="Thanks for using switcheroo_retrieve! :)",
     )
     argument_parser.add_argument("user")
     argument_parser.add_argument(
