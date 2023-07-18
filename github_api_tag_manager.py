@@ -34,8 +34,6 @@ def get_secret():
     RETURNTOKEN = get_secret_value_response['SecretString']
     return RETURNTOKEN
 
-TOKEN = get_secret()
-
 def get_latest_tag() -> str:
     '''Gets the latest tag from github so it can increment by one'''
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/tags"
@@ -85,7 +83,7 @@ def create_tag(tag_name, commit_sha):
         print(f"Tag '{tag_name}' created successfully.")
     else:
         print(f"Error: {response.status_code} - {response.text}")
-            
-get_secret()
+
+TOKEN = get_secret()
 CURRENT_TAG = get_latest_tag()
 bump_tag()
