@@ -30,7 +30,7 @@ resource "tls_private_key" "key_pair" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
-# Create the Key Pair
+# Create the Key Pair 
 resource "aws_key_pair" "demo_key_pair" {
   key_name   = "linux-key-pair"  
   public_key = tls_private_key.key_pair.public_key_openssh
@@ -68,14 +68,14 @@ resource "aws_instance" "baremetal-host-1" {
   tags = {
     Name = "host-1"
   }
-  user_data = <<-EOF
-  #!/bin/bash
-  bash $(pwd)/hosts-user-data.sh isaac
-  EOF
-    #  user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
-    #   USERNAME=local.USERNAME
-    #   username=local.username
-    #  }))
+  # user_data = <<-EOF
+  # #!/bin/bash
+  # bash ./hosts-user-data.sh ${local.username}
+  # EOF
+     user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
+      USERNAME=local.USERNAME
+      # username=local.username
+     }))
 
 }
 
@@ -89,7 +89,7 @@ resource "aws_instance" "baremetal-host-2" {
   }
   user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
       USERNAME=local.USERNAME
-      username=local.username
+      # username=local.username
 
      }))
 }

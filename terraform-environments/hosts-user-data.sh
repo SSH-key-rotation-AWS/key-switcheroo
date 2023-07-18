@@ -2,11 +2,12 @@
 
 
 # set variables
-  sudo_path=/bin/sudo_path
+  sudo_path=/bin/sudo
   apt_path=/bin/apt
   curl_path=/bin/curl
   sed_path=/bin/sed
 
+# USERNAME=$username
 set -u
 set -e
 set +x
@@ -34,7 +35,6 @@ $sudo_path $apt_path install python3.11-dev python3.11-distutils -y
 $sudo_path $curl_path -O https://bootstrap.pypa.io/get-pip.py
 $sudo_path python3.11 get-pip.py
 
-$sudo_path $curl_path -sS https://bootstrap.pypa.io/get-pip.py | $sudo_path python3.11
 
 
 # test installation of pylint to ensure pip is installed 
@@ -45,32 +45,32 @@ $sudo_path pip3.11 install awscli
 # check if it is downloaded, if yes: pip works
 # python3.11 -m pylint --version
 
-deactivate
+# deactivate
 cd /
 cd home
 # $sudo_path mkdir startoff
-$sudo_path useradd -m "$USERNAME"
+$sudo_path useradd -m ${USERNAME}
 # $sudo_path mkdir atleasthere
 # Set the ownership and permissions for the user's home directory
-$sudo_path chown "$USERNAME":"$USERNAME" /home/"$USERNAME"
-$sudo_path chmod 755 /home/"$USERNAME"
+$sudo_path chown ${USERNAME}:${USERNAME} /home/${USERNAME}
+$sudo_path chmod 755 /home/${USERNAME}
 
 cd /
-# $sudo_path mkdir iamhere1
+$sudo_path mkdir iamhere1
 # copy the existing .ssh directory to the new user 
-$sudo_path cp -r /home/ubuntu/.ssh /home/"$USERNAME"
-$sudo_path chmod 705 /home/"$USERNAME"/.ssh
+$sudo_path cp -r /home/ubuntu/.ssh /home/${USERNAME}
+$sudo_path chmod 705 /home/${USERNAME}/.ssh
 
-# $sudo_path mkdir iamhere2
+$sudo_path mkdir iamhere2
 
 # Set the ownership and permissions for the authorized_keys file (in case it was overwritten)
-$sudo_path chown "$USERNAME":"$USERNAME" /home/"$USERNAME"/.ssh/authorized_keys
-$sudo_path chmod 600 /home/"$USERNAME"/.ssh/authorized_keys
+$sudo_path chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.ssh/authorized_keys
+$sudo_path chmod 600 /home/${USERNAME}/.ssh/authorized_keys
 
 # Update the SSH server configuration
 $sudo_path systemctl reload sshd
 
-# $sudo_path mkdir iamhere3
+$sudo_path mkdir iamhere3
 
 #create aws user
 $sudo_path useradd -m aws_user 
