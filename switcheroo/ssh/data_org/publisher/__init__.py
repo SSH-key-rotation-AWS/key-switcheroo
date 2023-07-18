@@ -80,9 +80,7 @@ class KeyPublisher(ABC):
                     host, user, key, metadata
                 )
             # publish the metrics
-            self._publish_metrics(
-                metric_publisher, timing_metric
-            )
+            self._publish_metrics(metric_publisher, timing_metric)
             return key_and_metadata
         # if the user decided not to publish metrics just publish the keys and their metadata
         return self._publish_keys_and_metadata(host, user, key, metadata)
