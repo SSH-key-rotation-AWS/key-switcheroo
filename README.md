@@ -37,7 +37,7 @@ To enhance security, **key-switcheroo** supports a key rotation feature. The use
 
 ## Where to get it
 
-The source code is currently hosted on GitHub at: https://github.com/SSH-key-rotation-AWS/team-henrique
+The source code is currently hosted on GitHub at: https://github.com/SSH-key-rotation-AWS/key-switcheroo
 
 Binary installer for the latest released version is available at the [Python Package Index (PyPI)](https://pypi.org/project/key-switcheroo/).
 
@@ -71,12 +71,19 @@ When using the *publisher* for creating and publishing new SSH keys, the user ha
     - Stores the public key in an S3 bucket
     - If `s3` is selected, the user MUST also input `--bucket`, followed by a name for their S3 bucket
     - If no `--datastore` is selected, the program will default to `s3`
+- `--sshdir path/to/key/dir`
+    - Input the absolute path to the directory that stores the local keys (default is the user's .ssh home directory)
+- `--metric aws` or `-m aws`
+    - Opt to have metrics published to AWS cloudwatch (time to generate keys and key count)
+- `--metric file` or `-m file`
+    - Opt to have metrics published to the local file system (time to generate keys and key count)
+    - If `file` is selected, the user CAN follow with `--metricpath` and a path to the directory to store the metrics in
 
 **Example**
 
-`publisher 127.0.0.1 johndoe --datastore s3 --bucket mybucket`
+- `publisher 127.0.0.1 johndoe -datastore s3 --bucket mybucket --metric aws`
 
-`publisher 127.0.0.1 johndoe -ds local`
+- `publisher 127.0.0.1 johndoe -ds local --sshdir home/johndoe/.ssh/keys -m file --metricpath home/switcheroo/metrics`
 
 
 ### Retriever
@@ -94,12 +101,14 @@ When using the *retriever* for fetching the public SSH keys, the user has a coup
     - Retrieves the public key from the S3 bucket
     - If `s3` is selected, the user MUST also input `--bucket`, followed by their S3 bucket name
     - If no `--datastore` is selected, the program will default to `s3`
+- `--sshdir path/to/key/dir`
+    - The absolute path to the directory that stores the local keys (default is the user's .ssh home directory)
 
 **Example**
 
 `retriever johndoe --datastore s3 --bucket mybucket`
 
-`retriever johndoe -ds local --sshdir /home/johndoe/.ssh`
+`retriever johndoe -ds local --sshdir /home/johndoe/.ssh/keys`
 
 
 ## Dependencies
@@ -110,4 +119,4 @@ When using the *retriever* for fetching the public SSH keys, the user has a coup
 
 ## Contributing to key-switcheroo
 
-Contributions to **key-switcheroo** are welcome! If you encounter any issues, have suggestions, or would like to add new features, please feel free to open an issue or submit a pull request on the [GitHub repository](https://github.com/SSH-key-rotation-AWS/team-henrique).
+Contributions to **key-switcheroo** are welcome! If you encounter any issues, have suggestions, or would like to add new features, please feel free to open an issue or submit a pull request on the [GitHub repository](https://github.com/SSH-key-rotation-AWS/key-switcheroo).

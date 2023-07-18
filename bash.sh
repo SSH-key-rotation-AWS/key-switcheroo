@@ -25,13 +25,13 @@ if [ -d "$venv" ]; then
        poetry install
        # save the newly used requirements in the venv, 
        # to test if they are missing anything next time the script is called
-       cp requirements.txt "$git_base_dir/.venv/bin/"
+       cp "$git_base_dir/pyproject.toml" "$git_base_dir/.venv/bin/"
     fi
 else # i.e there is no venv
     # create the venv, activate it, install requirements.txt, and save a copy of them (see above why)
     poetry env use python3.11
     poetry install
-    cp pyproject.toml "$git_base_dir/.venv/bin/"
+    cp "$git_base_dir/pyproject.toml" "$git_base_dir/.venv/bin/"
 fi
 
 #find the directory of the git hook in the repo

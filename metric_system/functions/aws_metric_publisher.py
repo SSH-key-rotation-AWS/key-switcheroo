@@ -1,4 +1,5 @@
 """AWS metric publisher"""
+from datetime import datetime, timezone
 import boto3
 from mypy_boto3_cloudwatch import Client
 from metric_system.functions.metric_publisher import MetricPublisher
@@ -31,6 +32,12 @@ class AwsMetricPublisher(MetricPublisher):
         self.cloud_watch.put_metric_data(
             Namespace=self._name_space,
             MetricData=[
-                {"MetricName": metric_name, "Unit": metric_unit, "Value": metric_value},
+                {
+                    "MetricName": metric_name,
+                    "Timestamp": datetime.now(timezone.utc),
+                    "Unit": metric_unit,
+                    "Value": metric_value,
+                    "StorageResolution": 1,
+                },
             ],
         )
