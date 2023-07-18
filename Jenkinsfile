@@ -1,3 +1,4 @@
+
 python="/bin/python3.11"
 poetry="~/.local/bin/poetry"
 
