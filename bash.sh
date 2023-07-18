@@ -14,24 +14,24 @@ venv="$git_base_dir/.venv"
 venv_py="$git_base_dir/.venv/bin/python3.11"
 
 # if there exists a venv
-if [ -d $venv ]; then
+if [ -d "$venv" ]; then
     # activate the venv
     source "$git_base_dir/.venv/bin/activate"
     
     # if the requirements have not changed since the last install
-    if cmp -s pyproject.toml $git_base_dir/.venv/bin/pyproject.toml; then
+    if cmp -s pyproject.toml "$git_base_dir/.venv/bin/pyproject.toml"; then
         echo "venv is up to date"
     else # i.e. the requiremnts may have changed
        poetry install
        # save the newly used requirements in the venv, 
        # to test if they are missing anything next time the script is called
-       cp requirements.txt $git_base_dir/.venv/bin/
+       cp "$git_base_dir/pyproject.toml" "$git_base_dir/.venv/bin/"
     fi
 else # i.e there is no venv
     # create the venv, activate it, install requirements.txt, and save a copy of them (see above why)
     poetry env use python3.11
     poetry install
-    cp pyproject.toml $git_base_dir/.venv/bin/
+    cp "$git_base_dir/pyproject.toml" "$git_base_dir/.venv/bin/"
 fi
 
 #find the directory of the git hook in the repo
