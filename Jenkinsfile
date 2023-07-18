@@ -1,4 +1,3 @@
-
 python="/bin/python3.11"
 poetry="~/.local/bin/poetry"
 
@@ -18,16 +17,30 @@ def runTests(){
         $poetry run pytest tests
     """   
 }
-def updatePackageVersion(){
 
+//updates the github tag so the PYPI package version's tag is bumped
+def updatePackageVersion(){
+    sh """
+        $python github_api_tag_manager.py
+    """
 }
+
+//fetch pypi API token from AWS secrets manager
+def fetchPYPI(){
+     
+}
+
 
 //The pipeline that Jenkins will look to on how to complete the build/test
 pipeline {
     agent any 
     stages {
         stage("Build") { 
+            environment{
+                POETRY_PYPI_TOKEN_PYPI = fetchPYPI()
+            }
             steps {
+                updatePackageVersion()
                 runShellBuildStage()
             }
         }
