@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 from hamcrest import (
     assert_that,
     equal_to,
@@ -21,10 +21,14 @@ def test_aws_metrics_publish_with_file_key_publisher(
     some_name: str,
 ):
     # publish the SSH keys and metrics
-    start_time = datetime.now(timezone.utc)
-    current_time = datetime.now(timezone.utc).replace(microsecond=0)
-    file_key_publisher.publish_key(some_host, some_name, aws_metric_publisher)
-    end_time = datetime.now(timezone.utc)
+    start_time = datetime.now()
+    current_time = datetime.now().replace(microsecond=0)
+    file_key_publisher.publish_key(
+        host=some_host,
+        user=some_name,
+        metric_publisher=aws_metric_publisher,
+    )
+    end_time = datetime.now()
     # check if counter metric published
     counter_metric_data = aws_metric_retriever.retrieve_metric_data(
         metric_name=MetricConstants.COUNTER_METRIC_NAME,
@@ -43,11 +47,15 @@ def test_aws_metrics_publish_with_file_key_publisher(
         unit="Seconds",
     )
     assert_that(timing_metric_data.data_points, has_length(1))
-    expected_max_time = (datetime.now(timezone.utc) + timedelta(seconds=2)).replace(
-        microsecond=0
+    expected_max_time = (datetime.now() + timedelta(seconds=2)).replace(microsecond=0)
+    assert_that(
+        timing_metric_data.data_points[0].timestamp,
+        greater_than_or_equal_to(current_time),
     )
-    assert_that(timing_metric_data.timestamp, greater_than_or_equal_to(current_time))
-    assert_that(timing_metric_data.timestamp, less_than_or_equal_to(expected_max_time))
+    assert_that(
+        timing_metric_data.data_points[0].timestamp,
+        less_than_or_equal_to(expected_max_time),
+    )
 
 
 def test_aws_metrics_publish_with_s3_key_publisher(
@@ -58,10 +66,14 @@ def test_aws_metrics_publish_with_s3_key_publisher(
     some_name: str,
 ):
     # publish the SSH keys and metrics
-    start_time = datetime.now(timezone.utc)
-    current_time = datetime.now(timezone.utc).replace(microsecond=0)
-    s3_key_publisher.publish_key(some_host, some_name, aws_metric_publisher)
-    end_time = datetime.now(timezone.utc)
+    start_time = datetime.now()
+    current_time = datetime.now().replace(microsecond=0)
+    s3_key_publisher.publish_key(
+        host=some_host,
+        user=some_name,
+        metric_publisher=aws_metric_publisher,
+    )
+    end_time = datetime.now()
     # check if counter metric published
     counter_metric_data = aws_metric_retriever.retrieve_metric_data(
         metric_name=MetricConstants.COUNTER_METRIC_NAME,
@@ -80,8 +92,12 @@ def test_aws_metrics_publish_with_s3_key_publisher(
         unit="Seconds",
     )
     assert_that(timing_metric_data.data_points, has_length(1))
-    expected_max_time = (datetime.now(timezone.utc) + timedelta(seconds=2)).replace(
-        microsecond=0
+    expected_max_time = (datetime.now() + timedelta(seconds=2)).replace(microsecond=0)
+    assert_that(
+        timing_metric_data.data_points[0].timestamp,
+        greater_than_or_equal_to(current_time),
     )
-    assert_that(timing_metric_data.timestamp, greater_than_or_equal_to(current_time))
-    assert_that(timing_metric_data.timestamp, less_than_or_equal_to(expected_max_time))
+    assert_that(
+        timing_metric_data.data_points[0].timestamp,
+        less_than_or_equal_to(expected_max_time),
+    )
