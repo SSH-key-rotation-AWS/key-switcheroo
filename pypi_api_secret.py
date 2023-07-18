@@ -18,10 +18,10 @@ def get_pypi_api_token():
         get_secret_value_response = client.get_secret_value(
             SecretId=secret_name
         )
-    except ClientError as e:
+    except ClientError as error:
         # For a list of exceptions thrown, see
         # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-        raise e
+        raise error
 
     # Decrypts secret using the associated KMS key.
     return get_secret_value_response['SecretString']
