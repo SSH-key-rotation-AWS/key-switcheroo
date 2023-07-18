@@ -77,7 +77,7 @@ class KeyPublisher(ABC):
             # use the timeit() context manager to time how long it takes to publish new keys
             with timing_metric.timeit():
                 key_and_metadata = self._publish_keys_and_metadata(
-                    host, user, key, metadata
+                    host=host, user=user, key=key, metadata=metadata
                 )
             # publish the metrics
             self._publish_metrics(metric_publisher, timing_metric)
