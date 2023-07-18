@@ -29,7 +29,7 @@ def file_metric_publisher(
 
 @pytest.fixture
 def aws_metric_publisher() -> Generator[AwsMetricPublisher, None, None]:
-    yield AwsMetricPublisher("Test Metric Publisher")
+    yield AwsMetricPublisher("Metric Tests")
 
 
 @pytest.fixture
@@ -42,4 +42,4 @@ def file_metric_retriever(
 @pytest.fixture
 def aws_metric_retriever(
 ) -> Generator[AWSMetricRetriever, None, None]:
-    yield AWSMetricRetriever("Test Metric Retriever")
+    yield AWSMetricRetriever("Metric Tests")
