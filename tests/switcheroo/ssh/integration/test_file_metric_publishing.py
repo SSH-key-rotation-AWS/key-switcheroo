@@ -1,12 +1,12 @@
 from switcheroo.ssh.data_org.publisher import FileKeyPublisher
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
 from metric_system.functions.file_metric_publisher import FileMetricPublisher
-#from tests.test_cloud_watch.retrievers import FileMetricRetriever
-#from tests.test_cloud_watch.retrievers.cloudwatch import AWSMetricRetriever
+from tests.test_cloud_watch.retrievers import FileMetricRetriever
 
 def test_file_metrics_publish_with_file_key_publisher(
         file_key_publisher: FileKeyPublisher,
         file_metric_publisher: FileMetricPublisher,
+        file_metric_retriever: FileMetricRetriever,
         some_host: str,
         some_name: str,
 ):
@@ -18,6 +18,7 @@ def test_file_metrics_publish_with_file_key_publisher(
 def test_file_metrics_publish_with_s3_key_publisher(
         s3_key_publisher: S3KeyPublisher,
         file_metric_publisher: FileMetricPublisher,
+        file_metric_retriever: FileMetricRetriever,
         some_host: str,
         some_name: str,
 ):
