@@ -64,15 +64,15 @@ class KeyPublisher(ABC):
         Args:
             host (str, required): the hostname of the server
             user (str, required): the username of the connecting client
-            key (Key, optional): Key object. Defaults to None
-            metadata(KeyMetadata, optional): KeyMetadata object. Defaults to None
-            metric_publisher (MetricPublisher, optional): MetricPublisher object. Defaults to None
+            key (Key, optional): Key object. Defaults to None.
+            metadata(KeyMetadata, optional): KeyMetadata object. Defaults to None.
+            metric_publisher (MetricPublisher, optional): MetricPublisher object. Defaults to None.
 
         Returns:
             A tuple with the Key and KeyMetadata
         """
         if metric_publisher is not None:  # the user decided to publish metrics
-            timing_metric = TimingMetric(MetricConstants.TIMING_METRIC_NAME, "None")
+            timing_metric = TimingMetric(MetricConstants.TIMING_METRIC_NAME, "Seconds")
             key_and_metadata: tuple[Key, KeyMetadata] | None = None
             # use the timeit() context manager to time how long it takes to publish new keys
             with timing_metric.timeit():

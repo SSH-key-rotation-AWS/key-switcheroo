@@ -1,6 +1,8 @@
 from switcheroo.ssh.data_org.publisher import FileKeyPublisher
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
 from metric_system.functions.aws_metric_publisher import AwsMetricPublisher
+#from tests.test_cloud_watch.retrievers import FileMetricRetriever
+#from tests.test_cloud_watch.retrievers.cloudwatch import AWSMetricRetriever
 
 def test_aws_metrics_publish_with_file_key_publisher(
         file_key_publisher: FileKeyPublisher,
@@ -8,6 +10,7 @@ def test_aws_metrics_publish_with_file_key_publisher(
         some_host: str,
         some_name: str,
 ):
+    #publish the SSH keys and metrics
     file_key_publisher.publish_key(some_host, some_name, aws_metric_publisher)
     #check if metrics published
 
