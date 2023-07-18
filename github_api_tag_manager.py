@@ -1,11 +1,38 @@
 import requests
+import boto3 
+from botocore.exceptions import ClientError
+
+TOKEN = ""
+
+def get_secret():
+
+    secret_name = "key-switcheroo_github_pat"
+    region_name = "us-east-1"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as failed_secrets_api_call:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        raise failed_secrets_api_call
+
+    # Decrypts secret using the associated KMS key.
+    TOKEN = get_secret_value_response['SecretString']
 
 
 # Constants
 BASE_URL = "https://api.github.com"
 OWNER = "SSH-key-rotation-AWS"
 REPO = "team-henrique"
-TOKEN = "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"
 CURRENT_TAG = ""
 
 def get_latest_tag() -> str:
@@ -58,6 +85,6 @@ def create_tag(tag_name, commit_sha):
     else:
         print(f"Error: {response.status_code} - {response.text}")
         
-        
+get_secret()
 CURRENT_TAG = get_latest_tag()
 bump_tag()
