@@ -1,11 +1,11 @@
 import requests
-import boto3 
+import boto3
 from botocore.exceptions import ClientError
 
 # Constants
 BASE_URL = "https://api.github.com"
 OWNER = "SSH-key-rotation-AWS"
-REPO = "team-henrique"
+REPO = "key-switcheroo"
 CURRENT_TAG = ""
 
 
@@ -41,8 +41,9 @@ def get_latest_tag(timeout=10) -> str:
     headers = {"Authorization": f"Bearer {TOKEN}"}
     try:
         response = requests.get(url, headers=headers, timeout=timeout)
-    except requests.Timeout:
+    except requests.Timeout as exc:
         print(f"The API call to {url} timed out after {timeout} seconds.")
+        raise requests.Timeout from exc
     if response.status_code == 200:
         tags = response.json()
         # Get the latest tag name
@@ -67,8 +68,9 @@ def get_latest_commit_sha(timeout=10):
     headers = {"Authorization": f"Bearer {TOKEN}"}
     try:
         response = requests.get(url, headers=headers, timeout=timeout)
-    except requests.Timeout:
+    except requests.Timeout as exc:
         print(f"The API call to {url} timed out after {timeout} seconds.")
+        raise requests.Timeout from exc
     if response.status_code == 200:
         commits = response.json()
         # Get the latest commit SHA
@@ -85,8 +87,9 @@ def create_tag(tag_name, commit_sha, timeout=10):
     }
     try:
         response = requests.get(url, headers=headers, json=payload, timeout=timeout)
-    except requests.Timeout:
+    except requests.Timeout as exc:
         print(f"The API call to {url} timed out after {timeout} seconds.")
+        raise requests.Timeout from exc
     if response.status_code == 201:
         print(f"Tag '{tag_name}' created successfully.")
     else:
