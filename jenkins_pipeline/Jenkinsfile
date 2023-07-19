@@ -19,9 +19,10 @@ def runTests(){
 }
 
 //updates the github tag so the PYPI package version's tag is bumped
-def updatePackageVersion(){
+def publishToPYPI(){
     sh """
-        $python github_api_tag_manager.py
+        $python jenkins_pipeline/github_api_tag_manager.py
+        $poetry publish
     """
 }
 
@@ -36,11 +37,7 @@ pipeline {
     agent any 
     stages {
         stage("Build") { 
-            environment{
-                POETRY_PYPI_TOKEN_PYPI = fetchPYPI()
-            }
             steps {
-                updatePackageVersion()
                 runShellBuildStage()
             }
         }
@@ -51,6 +48,14 @@ pipeline {
             }
             steps {
                 runTests()
+            }
+        }
+        stage("Publish"){
+            environment{
+                POETRY_PYPI_TOKEN_PYPI = fetchPYPI()
+            }
+            steps {
+                publishToPYPI()
             }
         }
     }
