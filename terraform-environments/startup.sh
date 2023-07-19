@@ -4,7 +4,7 @@
   set -o pipefail
 
   # set variables
-  sudo_path=/bin/sudo
+  #sudo_path=/bin/sudo
   apt_path=/bin/apt
   curl_path=/bin/curl
   touch_path=/bin/touch
@@ -12,21 +12,26 @@
   java_path=/bin/java
   sed_path=/bin/sed
   wget_path=/bin/wget
+  poetry_path=~/.local/bin/poetry
   url="http://localhost:8080"
   public_ip=$($curl_path ifconfig.me)
+  export JENKINS_LOGIN="KeySwitcheroo":"AWS_SSH"
+  export GITHUB_PAT=Aqk99uIw9c2QOLOe9usLhx9eI1gclAmIk7u/Xbm1
+  export GITHUB_LOGIN="key-switcheroo":"KeyRotationInAWS4"
 
   # disable prompts that make the script hang
-  $sudo_path $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
-  $sudo_path $sed_path -i "s/#\$nrconf{restart} = 'i';/\$nrconf{restart} = 'a';/g" /etc/needrestart/needrestart.conf
+  $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
+  $sed_path -i "s/#\$nrconf{restart} = 'i';/\$nrconf{restart} = 'a';/g" /etc/needrestart/needrestart.conf
 
   # download neccesary programs
-  $sudo_path $apt_path update && $sudo_path $apt_path -y upgrade
-  $sudo_path $apt_path install python3.11 -y
-  # $sudo_path $apt_path install python3-pip -y
-  # $sudo_path $apt_path install python3.11-venv -y
+  $apt_path update && $apt_path -y upgrade
+  $apt_path install python3.11 -y
+  # $apt_path install python3-pip -y
+  # $apt_path install python3.11-venv -y
   $curl_path -sSL https://install.python-poetry.org | /bin/python3.11 -
-  ~/.local/bin/poetry self add poetry-git-version-plugin
-  $sudo_path $apt_path install openjdk-11-jdk -y
+  $poetry_path self add poetry-git-version-plugin
+  $poetry_path add boto3
+  $apt_path install openjdk-11-jdk -y
   $curl_path $apt_path install awscli -y
   $curl_path -OL http://mirrors.jenkins-ci.org/war/latest/jenkins.war
 
@@ -78,7 +83,7 @@
   <description></description>
   <username>key-switcheroo</username>
   <password>
-   KeyRotationInAWS4
+   {AQAAABAAAAAgkZpIJdnwC38ZyqUNNA9N+RV4GddEu4uAn48BfMp8TELoTvw4km1dR/Qpv4ulQ7HB}
   </password>
   <usernameSecret>true</usernameSecret>
 </com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>" >> ~/github_credentials.xml
