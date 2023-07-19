@@ -1,7 +1,11 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentError
 from pathlib import Path
 import socket
 import traceback
+from switcheroo.ssh.scripts.custom_argument_exceptions import (
+    InvalidArgumentError,
+    MissingArgumentError,
+)
 from switcheroo.ssh.data_org.retriever import KeyRetriever, FileKeyRetriever
 from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
 from switcheroo import paths
@@ -37,19 +41,31 @@ def create_argument_parser() -> ArgumentParser:
     return argument_parser
 
 
+def _local_store(sshdir: str, bucket: str | None = None) -> FileKeyRetriever:
+    if bucket is not None:
+        raise InvalidArgumentError(
+            'Invalid argument "--bucket" when retrieving the keys locally'
+        )
+    return FileKeyRetriever(Path(sshdir))
+
+
+def _s3_store(sshdir: str, bucket: str | None = None) -> S3KeyRetriever:
+    if bucket is None:
+        raise MissingArgumentError("The s3 option requires a specified bucket name!")
+    return S3KeyRetriever(sshdir, bucket)
+
+
 def main():
     parser = create_argument_parser()
-    args = parser.parse_args()
+    try:
+        args = parser.parse_args()
+    except ArgumentError as error:
+        raise InvalidArgumentError(f"Invalid argument: {error}") from error
     retriever: KeyRetriever | None = None
-
     if args.datastore == "local":
-        if args.bucket is not None:
-            parser.error('Invalid argument "--bucket" when retrieving the keys locally')
-        retriever = FileKeyRetriever(Path(args.sshdir))
+        retriever = _local_store(args.sshdir, args.bucket)
     elif args.datastore == "s3":
-        if args.bucket is None:
-            parser.error("The s3 option requires a specified bucket name!")
-        retriever = S3KeyRetriever(args.sshdir, args.bucket)
+        retriever = _s3_store(args.sshdir, args.bucket)
     try:
         assert retriever is not None
         public_key = retriever.retrieve_public_key(socket.getfqdn(), args.user)

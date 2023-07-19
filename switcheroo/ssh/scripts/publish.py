@@ -1,5 +1,9 @@
 from pathlib import Path
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentError
+from switcheroo.ssh.scripts.custom_argument_exceptions import (
+    InvalidArgumentError,
+    MissingArgumentError,
+)
 from switcheroo.ssh.data_org.publisher import KeyPublisher, FileKeyPublisher
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
 from switcheroo import paths
@@ -65,32 +69,50 @@ def create_argument_parser() -> ArgumentParser:
     return argument_parser
 
 
+def _local_store(sshdir: str, bucket: str | None = None) -> FileKeyPublisher:
+    if bucket is not None:
+        raise InvalidArgumentError(
+            'Invalid argument "--bucket" when storing the keys locally'
+        )
+    return FileKeyPublisher(Path(sshdir))
+
+
+def _s3_store(sshdir: str, bucket: str | None = None) -> S3KeyPublisher:
+    if bucket is None:
+        raise MissingArgumentError("The s3 option requires a bucket name!")
+    return S3KeyPublisher(bucket, root_ssh_dir=Path(sshdir))
+
+
+def _metrics(
+    metricpath: str | None = None, metric: str | None = None
+) -> MetricPublisher:
+    if metric == "file":  # publish to file system
+        return FileMetricPublisher(Path(metricpath))
+    if metric == "aws":  # publish to cloudwatch
+        if metricpath is not None:
+            raise InvalidArgumentError(
+                'Invalid argument "--metricpath" when storing the metrics on AWS'
+            )
+        return AwsMetricPublisher(MetricConstants.NAME_SPACE)
+    raise MissingArgumentError(
+        'Please specify either "file" or "aws" after the -m/--metric option.'
+    )
+
+
 def main():
     parser = create_argument_parser()
-    args = parser.parse_args()
+    try:
+        args = parser.parse_args()
+    except ArgumentError as error:
+        raise InvalidArgumentError(f"Invalid argument: {error}") from error
     key_publisher: KeyPublisher | None = None
     metric_publisher: MetricPublisher | None = None
     if args.datastore == "local":  # If the user chose to store the public key locally
-        if args.bucket is not None:
-            parser.error('Invalid argument "--bucket" when storing the keys locally')
-        key_publisher = FileKeyPublisher(Path(args.sshdir))
+        key_publisher = _local_store(args.sshdir, args.bucket)
     else:  # If the user chose to store the public key on S3 or chose to default to S3
-        if args.bucket is None:
-            parser.error("The s3 option requires a bucket name!")
-        key_publisher = S3KeyPublisher(args.bucket, root_ssh_dir=Path(args.sshdir))
+        key_publisher = _s3_store(args.sshdir, args.bucket)
     if args.metric:  # If the user chose to publish metrics
-        if args.metric == "file":  # publish to file system
-            metric_publisher = FileMetricPublisher(Path(args.metricpath))
-        elif args.metric == "aws":  # publish to cloudwatch
-            if args.metricpath is not None:
-                parser.error(
-                    'Invalid argument "--metricpath" when storing the metrics on AWS'
-                )
-            metric_publisher = AwsMetricPublisher(MetricConstants.NAME_SPACE)
-        else:
-            parser.error(
-                'Please specify either "file" or "aws" after the -m/--metric option.'
-            )
+        metric_publisher = _metrics(args.metricpath, args.metric)
     assert key_publisher is not None
     key_publisher.publish_key(
         args.hostname, args.user, metric_publisher=metric_publisher
