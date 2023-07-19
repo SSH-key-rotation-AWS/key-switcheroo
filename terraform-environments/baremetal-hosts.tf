@@ -54,7 +54,6 @@ resource "null_resource" "set_permissions" {
 
 
 locals {
-    username   = var.username
     USERNAME = var.username
 }
 
@@ -74,7 +73,6 @@ resource "aws_instance" "baremetal-host-1" {
   # EOF
      user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
       USERNAME=local.USERNAME
-      # username=local.username
      }))
 
 }
@@ -89,7 +87,5 @@ resource "aws_instance" "baremetal-host-2" {
   }
   user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
       USERNAME=local.USERNAME
-      # username=local.username
-
      }))
 }
