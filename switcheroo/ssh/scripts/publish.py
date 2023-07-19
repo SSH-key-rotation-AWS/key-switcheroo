@@ -12,12 +12,11 @@ from metric_system.functions.file_metric_publisher import FileMetricPublisher
 def create_argument_parser() -> ArgumentParser:
     # pylint: disable=R0801
     argument_parser = ArgumentParser(
-        prog="key_publisher",
+        prog="switcheroo_publish",
         description="Creates public/private SSH keys and publishes "
         + "the public key either locally or to S3 (default is S3)",
-        epilog="Thanks for using key_publisher! :)",
+        epilog="Thanks for using switcheroo! :)",
     )
-
     argument_parser.add_argument(
         "hostname",
         help="the hostname of the server",
@@ -72,6 +71,8 @@ def main():
     key_publisher: KeyPublisher | None = None
     metric_publisher: MetricPublisher | None = None
     if args.datastore == "local":  # If the user chose to store the public key locally
+        if args.bucket is not None:
+            parser.error('Invalid argument "--bucket" when storing the keys locally')
         key_publisher = FileKeyPublisher(Path(args.sshdir))
     else:  # If the user chose to store the public key on S3 or chose to default to S3
         if args.bucket is None:
@@ -81,6 +82,10 @@ def main():
         if args.metric == "file":  # publish to file system
             metric_publisher = FileMetricPublisher(Path(args.metricpath))
         elif args.metric == "aws":  # publish to cloudwatch
+            if args.metricpath is not None:
+                parser.error(
+                    'Invalid argument "--metricpath" when storing the metrics on AWS'
+                )
             metric_publisher = AwsMetricPublisher(MetricConstants.NAME_SPACE)
         else:
             parser.error(

@@ -10,11 +10,11 @@ from switcheroo import paths
 def create_argument_parser() -> ArgumentParser:
     # pylint: disable=R0801
     argument_parser = ArgumentParser(
-        prog="key_retriever",
+        prog="switcheroo_retrieve",
         description="Fetches the public SSH keys from S3 or the local machine",
-        epilog="Thanks for using key_retriever! :)",
+        epilog="Thanks for using switcheroo! :)",
     )
-    argument_parser.add_argument("user")
+    argument_parser.add_argument("user", help="the username of the connecting client")
     argument_parser.add_argument(
         "-ds",
         "--datastore",
@@ -43,6 +43,8 @@ def main():
     retriever: KeyRetriever | None = None
 
     if args.datastore == "local":
+        if args.bucket is not None:
+            parser.error('Invalid argument "--bucket" when retrieving the keys locally')
         retriever = FileKeyRetriever(Path(args.sshdir))
     elif args.datastore == "s3":
         if args.bucket is None:
