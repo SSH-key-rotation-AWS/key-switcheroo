@@ -15,9 +15,6 @@
   poetry_path=~/.local/bin/poetry
   url="http://localhost:8080"
   public_ip=$($curl_path ifconfig.me)
-  export JENKINS_LOGIN="KeySwitcheroo":"AWS_SSH"
-  export GITHUB_PAT=Aqk99uIw9c2QOLOe9usLhx9eI1gclAmIk7u/Xbm1
-  export GITHUB_LOGIN="key-switcheroo":"KeyRotationInAWS4"
 
   # disable prompts that make the script hang
   $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
