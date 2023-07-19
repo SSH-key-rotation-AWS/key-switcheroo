@@ -95,17 +95,17 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.28.2"
+version = "1.28.5"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "boto3-1.28.2-py3-none-any.whl", hash = "sha256:9933e40dc9ac72deac45cecce2df020e3bf8d0d537538d2b361c17d1cee807cc"},
-    {file = "boto3-1.28.2.tar.gz", hash = "sha256:0d53fe604dc30edded21906bc56b30a7684f0715f4f6897307d53f8184997368"},
+    {file = "boto3-1.28.5-py3-none-any.whl", hash = "sha256:a5c815ab81219a606f20362c9d9c190f5c224bf33c5dc4c20501036cc4a9034f"},
+    {file = "boto3-1.28.5.tar.gz", hash = "sha256:2c76db4a1208b8d09814261fc5e530fc36b3b952ef807312495e6869fa6eaad5"},
 ]
 
 [package.dependencies]
-botocore = ">=1.31.2,<1.32.0"
+botocore = ">=1.31.5,<1.32.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.6.0,<0.7.0"
 
@@ -487,13 +487,13 @@ xray = ["mypy-boto3-xray (>=1.28.0,<1.29.0)"]
 
 [[package]]
 name = "botocore"
-version = "1.31.2"
+version = "1.31.5"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "botocore-1.31.2-py3-none-any.whl", hash = "sha256:d368ac0b58e2b9025b9c397e4a4f86d71788913ee619263506885a866a4f6811"},
-    {file = "botocore-1.31.2.tar.gz", hash = "sha256:67a475bec9e52d495a358b34e219ef7f62907e83b87e5bc712528f998bd46dab"},
+    {file = "botocore-1.31.5-py3-none-any.whl", hash = "sha256:8aec97512587a5475036a982785e406c52efd260457b809846985f849c3d7cf3"},
+    {file = "botocore-1.31.5.tar.gz", hash = "sha256:b35114dae9c451895a11fef13d76881e2bb5428e5de8a702cc8589a28fb34c7a"},
 ]
 
 [package.dependencies]
@@ -506,13 +506,13 @@ crt = ["awscrt (==0.16.9)"]
 
 [[package]]
 name = "botocore-stubs"
-version = "1.29.165"
+version = "1.31.5"
 description = "Type annotations and code completion for botocore"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "botocore_stubs-1.29.165-py3-none-any.whl", hash = "sha256:020de306ca1e18263e5a73b9142ec9901080f36d7c302ca53850483955e894ad"},
-    {file = "botocore_stubs-1.29.165.tar.gz", hash = "sha256:e9b23f54137bffbe7dcc08d9ca072172368cf92723aee34ec1de6e665f767c60"},
+    {file = "botocore_stubs-1.31.5-py3-none-any.whl", hash = "sha256:b4fe787071667bcb8db29f970b6b5e2d90a77461d6625cf33939cf3c737e49bc"},
+    {file = "botocore_stubs-1.31.5.tar.gz", hash = "sha256:6c0973574c9f6a6f500a5fdf9da4400a76c05af1e3323d562ca12f486a9ff001"},
 ]
 
 [package.dependencies]
@@ -691,13 +691,13 @@ files = [
 
 [[package]]
 name = "click"
-version = "8.1.4"
+version = "8.1.6"
 description = "Composable command line interface toolkit"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "click-8.1.4-py3-none-any.whl", hash = "sha256:2739815aaa5d2c986a88f1e9230c55e17f0caad3d958a5e13ad0797c166db9e3"},
-    {file = "click-8.1.4.tar.gz", hash = "sha256:b97d0c74955da062a7d4ef92fadb583806a585b2ea81958a81bd72726cbb8e37"},
+    {file = "click-8.1.6-py3-none-any.whl", hash = "sha256:fa244bb30b3b5ee2cae3da8f55c9e5e0c0e86093306301fb418eb9dc40fbded5"},
+    {file = "click-8.1.6.tar.gz", hash = "sha256:48ee849951919527a045bfe3bf7baa8a959c423134e1a5b98c05c20ba75a1cbd"},
 ]
 
 [package.dependencies]
@@ -892,13 +892,13 @@ files = [
 
 [[package]]
 name = "mypy-boto3-s3"
-version = "1.28.0"
-description = "Type annotations for boto3.S3 1.28.0 service generated with mypy-boto3-builder 7.14.5"
+version = "1.28.3.post2"
+description = "Type annotations for boto3.S3 1.28.3 service generated with mypy-boto3-builder 7.15.0"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mypy-boto3-s3-1.28.0.tar.gz", hash = "sha256:27867ca325a845700a008f3fca995006b32f2e0d18afe676352b49453f477d69"},
-    {file = "mypy_boto3_s3-1.28.0-py3-none-any.whl", hash = "sha256:789a32560ec1882e3a2c5bbb7aa97952b05e54507e2174eab6535ceaffb04cee"},
+    {file = "mypy-boto3-s3-1.28.3.post2.tar.gz", hash = "sha256:c23b7802b80a0388a146d7e8025552f21d44e349026a18fb751d9c698ed714b1"},
+    {file = "mypy_boto3_s3-1.28.3.post2-py3-none-any.whl", hash = "sha256:02dc6b9edf799afa160be1e3a9b38a383af6fcd80a97abd75d09410b26621e70"},
 ]
 
 [[package]]
@@ -982,13 +982,13 @@ files = [
 
 [[package]]
 name = "platformdirs"
-version = "3.8.1"
+version = "3.9.1"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "platformdirs-3.8.1-py3-none-any.whl", hash = "sha256:cec7b889196b9144d088e4c57d9ceef7374f6c39694ad1577a0aab50d27ea28c"},
-    {file = "platformdirs-3.8.1.tar.gz", hash = "sha256:f87ca4fcff7d2b0f81c6a748a77973d7af0f4d526f98f308477c3c436c74d528"},
+    {file = "platformdirs-3.9.1-py3-none-any.whl", hash = "sha256:ad8291ae0ae5072f66c16945166cb11c63394c7a3ad1b1bc9828ca3162da8c2f"},
+    {file = "platformdirs-3.9.1.tar.gz", hash = "sha256:1b42b450ad933e981d56e59f1b97495428c9bd60698baab9f3eb3d00d5822421"},
 ]
 
 [package.extras]
@@ -1157,13 +1157,13 @@ tests = ["hypothesis (>=3.27.0)", "pytest (>=3.2.1,!=3.3.0)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.316"
+version = "1.1.317"
 description = "Command line wrapper for pyright"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.316-py3-none-any.whl", hash = "sha256:7259d73287c882f933d8cd88c238ef02336e172171ae95117a963a962a1fed4a"},
-    {file = "pyright-1.1.316.tar.gz", hash = "sha256:bac1baf8567b90f2082ec95b61fc1cb50a68917119212c5608a72210870c6a9a"},
+    {file = "pyright-1.1.317-py3-none-any.whl", hash = "sha256:9cf24f83fe8f2cf00773068e06ce771f03331590c7d5e771546f81d7f60efaba"},
+    {file = "pyright-1.1.317.tar.gz", hash = "sha256:74da4d3e2dcfe66a2d1d1001e16431ec17aac0ad35b03c0410f7379c2cb5c7f0"},
 ]
 
 [package.dependencies]
@@ -1195,13 +1195,13 @@ testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "no
 
 [[package]]
 name = "pytest-asyncio"
-version = "0.21.0"
+version = "0.21.1"
 description = "Pytest support for asyncio"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-asyncio-0.21.0.tar.gz", hash = "sha256:2b38a496aef56f56b0e87557ec313e11e1ab9276fc3863f6a7be0f1d0e415e1b"},
-    {file = "pytest_asyncio-0.21.0-py3-none-any.whl", hash = "sha256:f2b3366b7cd501a4056858bd39349d5af19742aed2d81660b7998b6341c7eb9c"},
+    {file = "pytest-asyncio-0.21.1.tar.gz", hash = "sha256:40a7eae6dded22c7b604986855ea48400ab15b069ae38116e8c01238e9eeb64d"},
+    {file = "pytest_asyncio-0.21.1-py3-none-any.whl", hash = "sha256:8666c1c8ac02631d7c51ba282e0c69a8a452b211ffedf2599099845da5c5c37b"},
 ]
 
 [package.dependencies]
@@ -1303,13 +1303,13 @@ files = [
 
 [[package]]
 name = "types-awscrt"
-version = "0.16.23"
+version = "0.16.26"
 description = "Type annotations and code completion for awscrt"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "types_awscrt-0.16.23-py3-none-any.whl", hash = "sha256:7edec4283fec9f92574444ce45fc0be65c846056634628aee22c118712da71c4"},
-    {file = "types_awscrt-0.16.23.tar.gz", hash = "sha256:5a846b77a6d35b63ccf9d33abf386c4dfc6275f9c062bc0e234c14ea8c6013a9"},
+    {file = "types_awscrt-0.16.26-py3-none-any.whl", hash = "sha256:47bcfd741465196e000e5a29ea98516765d2e93803d3fb67f9d6be79a632ee98"},
+    {file = "types_awscrt-0.16.26.tar.gz", hash = "sha256:011b0efc054cddb542416f4a38452a3cab3f2d6cef7af0cd124c03a89634f101"},
 ]
 
 [[package]]
@@ -1429,4 +1429,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "0a7f10e1796792ad9ed1c803e6614d77e43c429bd34c0aeebd2cbc7a56c593f8"
+content-hash = "7648b823af67e3a0f6075dc4d412a3b3f3a8f58b4e0b1e1001a4ad881a11cd51"
