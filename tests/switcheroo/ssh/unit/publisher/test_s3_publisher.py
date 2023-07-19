@@ -6,14 +6,14 @@ from switcheroo import paths
 
 
 def test_s3_publish(
-    s3_pub: S3KeyPublisher,
+    s3_key_publisher: S3KeyPublisher,
     some_name: str,
     some_host: str,
     s3_client: Client,
     s3_bucket: str,
 ):
     """Test for S3 publisher"""
-    key, _ = s3_pub.publish_key(some_host, some_name)
+    key, _ = s3_key_publisher.publish_key(some_host, some_name)
     key_loc = paths.cloud_public_key_loc(some_host, some_name)
     file = s3_client.get_object(Bucket=s3_bucket, Key=str(key_loc))
     file_data = file["Body"].read()
@@ -22,14 +22,14 @@ def test_s3_publish(
 
 
 def test_public_metadata_works(
-    s3_pub: S3KeyPublisher,
+    s3_key_publisher: S3KeyPublisher,
     some_name: str,
     some_host: str,
     s3_client: Client,
     s3_bucket: str,
 ):
     """Does using the with metadata method publish the metadata correctly?"""
-    _, metadata = s3_pub.publish_key(some_host, some_name)
+    _, metadata = s3_key_publisher.publish_key(some_host, some_name)
     metadata_loc = paths.cloud_metadata_loc(some_host, some_name)
     file = s3_client.get_object(Bucket=s3_bucket, Key=str(metadata_loc))
     file_data = file["Body"].read()

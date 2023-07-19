@@ -72,18 +72,20 @@ When using the *publisher* for creating and publishing new SSH keys, the user ha
     - If `s3` is selected, the user MUST also input `--bucket`, followed by a name for their S3 bucket
     - If no `--datastore` is selected, the program will default to `s3`
 - `--sshdir path/to/key/dir`
-    - Input the absolute path to the directory that stores the local keys (default is the user's .ssh home directory)
+    - Input the absolute path to your directory that stores the local keys (private key for S3 publisher)
+    - Defaults to local .ssh home directory
 - `--metric aws` or `-m aws`
     - Opt to have metrics published to AWS cloudwatch (time to generate keys and key count)
 - `--metric file` or `-m file`
     - Opt to have metrics published to the local file system (time to generate keys and key count)
-    - If `file` is selected, the user CAN follow with `--metricpath` and a path to the directory to store the metrics in
+    - If `file` is selected, the user CAN also input `--metricpath`, followed by path to a directory to store the metrics in (default is `{user's home}/switcheroo_app_data/metrics`)
+
 
 **Example**
 
-- `publisher 127.0.0.1 johndoe -datastore s3 --bucket mybucket --metric aws`
+`publisher 127.0.0.1 johndoe -ds s3 --bucket mybucket --sshdir home/johndoe/.ssh -m aws`
 
-- `publisher 127.0.0.1 johndoe -ds local --sshdir home/johndoe/.ssh/keys -m file --metricpath home/switcheroo/metrics`
+`publisher 127.0.0.1 johndoe --datastore local --metric file --metricpath home/switcheroo/metrics`
 
 
 ### Retriever
@@ -96,13 +98,13 @@ When using the *retriever* for fetching the public SSH keys, the user has a coup
 **Optional Arguments:**
 - `--datastore local` or `-ds local`
     - Retrieves the public key from the local file system
-    - If `local` is selected, the user can input `--sshdir` followed by the absolute path to the directory that stores the keys (defaults to local .ssh home directory)
 - `--datastore s3` or `-ds s3`
     - Retrieves the public key from the S3 bucket
     - If `s3` is selected, the user MUST also input `--bucket`, followed by their S3 bucket name
     - If no `--datastore` is selected, the program will default to `s3`
 - `--sshdir path/to/key/dir`
-    - The absolute path to the directory that stores the local keys (default is the user's .ssh home directory)
+    - The absolute path to your directory that stores the local keys (private key for S3 publisher)
+    - Defaults to local .ssh home directory
 
 **Example**
 
