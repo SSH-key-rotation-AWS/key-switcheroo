@@ -71,13 +71,13 @@ When using the *publisher* for creating and publishing new SSH keys, the user ha
     - Stores the public key in an S3 bucket
     - If `s3` is selected, the user MUST also input `--bucket`, followed by a name for their S3 bucket
     - If no `--datastore` is selected, the program will default to `s3`
-- `--sshdir path/to/key/directory`
+- `--sshdir path/to/key/dir`
     - Input the absolute path to your directory that stores the local keys (private key for S3 publisher)
     - Defaults to local .ssh home directory
 - `--metric aws` or `-m aws`
-    - Opt to have metrics published to AWS cloudwatch (time to generate keys, key count)
+    - Opt to have metrics published to AWS cloudwatch (time to generate keys and key count)
 - `--metric file` or `-m file`
-    - Opt to have metrics published to the local file system (time to generate keys, key count)
+    - Opt to have metrics published to the local file system (time to generate keys and key count)
     - If `file` is selected, the user CAN also input `--metricpath`, followed by path to a directory to store the metrics in (default is `{user's home}/switcheroo_app_data/metrics`)
 
 
@@ -102,7 +102,7 @@ When using the *retriever* for fetching the public SSH keys, the user has a coup
     - Retrieves the public key from the S3 bucket
     - If `s3` is selected, the user MUST also input `--bucket`, followed by their S3 bucket name
     - If no `--datastore` is selected, the program will default to `s3`
-- `--sshdir path/to/key/directory`
+- `--sshdir path/to/key/dir`
     - The absolute path to your directory that stores the local keys (private key for S3 publisher)
     - Defaults to local .ssh home directory
 
@@ -110,7 +110,7 @@ When using the *retriever* for fetching the public SSH keys, the user has a coup
 
 `retriever johndoe --datastore s3 --bucket mybucket`
 
-`retriever johndoe -ds local --sshdir /home/johndoe/.ssh`
+`retriever johndoe -ds local --sshdir /home/johndoe/.ssh/keys`
 
 
 ## Dependencies

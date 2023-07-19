@@ -20,12 +20,10 @@ def create_argument_parser() -> ArgumentParser:
 
     argument_parser.add_argument(
         "hostname",
-        required=True,
         help="the hostname of the server",
     )
     argument_parser.add_argument(
         "user",
-        required=True,
         help="the username of the connecting client",
     )
     argument_parser.add_argument(
@@ -52,7 +50,6 @@ def create_argument_parser() -> ArgumentParser:
     argument_parser.add_argument(
         "-m",
         "--metric",
-        action="store_true",
         choices=["file", "aws"],
         required=False,
         help="opt to have metrics published, either to AWS cloudwatch\
@@ -82,7 +79,7 @@ def main():
         key_publisher = S3KeyPublisher(args.bucket, root_ssh_dir=Path(args.sshdir))
     if args.metric:  # If the user chose to publish metrics
         if args.metric == "file":  # publish to file system
-            metric_publisher = FileMetricPublisher(args.metricpath)
+            metric_publisher = FileMetricPublisher(Path(args.metricpath))
         elif args.metric == "aws":  # publish to cloudwatch
             metric_publisher = AwsMetricPublisher(MetricConstants.NAME_SPACE)
         else:
