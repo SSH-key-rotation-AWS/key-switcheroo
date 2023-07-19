@@ -57,7 +57,7 @@
           <properties class="java.util.Arrays$ArrayList">
             <a class="jenkins.branch.BranchProperty-array">
               <jenkins.branch.NoTriggerBranchProperty>
-                <triggeredBranchesRegex>main|PR-\d+head</triggeredBranchesRegex>
+                <triggeredBranchesRegex>main|PR-\d+-head</triggeredBranchesRegex>
                 <strategy>NONE</strategy>
               </jenkins.branch.NoTriggerBranchProperty>
             </a>

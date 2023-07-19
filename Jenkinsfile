@@ -47,7 +47,7 @@ pipeline {
         stage("Test"){
             //Tells Jenkins which S3 bucket we are using
             environment{
-                SSH_KEY_DEV_BUCKET_NAME = "testing-bucket-team-henrique"
+                SSH_KEY_DEV_BUCKET_NAME = "testing-bucket-key-switcheroo"
             }
             steps {
                 runTests()
