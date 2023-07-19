@@ -5,14 +5,13 @@ SSHItem: TypeAlias = Literal["public key", "private key", "metadata"]
 
 
 class SSHItemNotFoundException(Exception):
-    """Raised when a public key cannot be found for the user.
-
-    Attributes:
-        message -- explanation of the error
-    """
+    """Raised when some SSH item (public key, private key, or key metadata) was requested\
+    but could not be found."""
 
     @dataclasses.dataclass(frozen=True)
     class Data:
+        """Data about what the user was trying to request that failed."""
+
         requested_user: str
         requested_host: str
         requested_item: SSHItem
