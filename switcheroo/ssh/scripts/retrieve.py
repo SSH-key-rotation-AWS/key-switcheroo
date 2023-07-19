@@ -12,7 +12,7 @@ def create_argument_parser() -> ArgumentParser:
     argument_parser = ArgumentParser(
         prog="switcheroo_retrieve",
         description="Fetches the public SSH keys from S3 or the local machine",
-        epilog="Thanks for using switcheroo! :)",
+        epilog="Thanks for using switcheroo_retrieve! :)",
     )
     argument_parser.add_argument("user", help="the username of the connecting client")
     argument_parser.add_argument(

@@ -15,7 +15,7 @@ def create_argument_parser() -> ArgumentParser:
         prog="switcheroo_publish",
         description="Creates public/private SSH keys and publishes "
         + "the public key either locally or to S3 (default is S3)",
-        epilog="Thanks for using switcheroo! :)",
+        epilog="Thanks for using switcheroo_publish! :)",
     )
     argument_parser.add_argument(
         "hostname",
