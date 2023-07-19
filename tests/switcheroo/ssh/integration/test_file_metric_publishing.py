@@ -1,11 +1,15 @@
 from datetime import datetime, timedelta
+from pathlib import Path
 from hamcrest import (
     assert_that,
     equal_to,
     has_length,
     greater_than_or_equal_to,
     less_than_or_equal_to,
+    contains_string,
 )
+from mypy_boto3_s3 import Client
+from switcheroo import paths
 from switcheroo.ssh import MetricConstants
 from switcheroo.ssh.data_org.publisher import FileKeyPublisher
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
@@ -19,11 +23,12 @@ def test_file_metrics_publish_with_file_key_publisher(
     file_metric_retriever: FileMetricRetriever,
     some_host: str,
     some_name: str,
+    ssh_temp_path: Path,
 ):
     # publish the SSH keys and metrics
     start_time = datetime.now()
     current_time = datetime.now().replace(microsecond=0)
-    file_key_publisher.publish_key(
+    key, _ = file_key_publisher.publish_key(
         host=some_host,
         user=some_name,
         metric_publisher=file_metric_publisher,
@@ -56,6 +61,11 @@ def test_file_metrics_publish_with_file_key_publisher(
         timing_metric_data.data_points[0].timestamp,
         less_than_or_equal_to(expected_max_time),
     )
+    # check if keys published
+    public_key_path = paths.local_public_key_loc(some_host, some_name, ssh_temp_path)
+    with open(public_key_path, encoding="utf-8") as public_key_file:
+        file_contents = public_key_file.read()
+        assert_that(file_contents, contains_string(key.public_key.byte_data.decode()))
 
 
 def test_file_metrics_publish_with_s3_key_publisher(
@@ -64,11 +74,13 @@ def test_file_metrics_publish_with_s3_key_publisher(
     file_metric_retriever: FileMetricRetriever,
     some_host: str,
     some_name: str,
+    s3_client: Client,
+    s3_bucket: str,
 ):
     # publish the SSH keys and metrics
     start_time = datetime.now()
     current_time = datetime.now().replace(microsecond=0)
-    s3_key_publisher.publish_key(
+    key, _ = s3_key_publisher.publish_key(
         host=some_host,
         user=some_name,
         metric_publisher=file_metric_publisher,
@@ -101,3 +113,9 @@ def test_file_metrics_publish_with_s3_key_publisher(
         timing_metric_data.data_points[0].timestamp,
         less_than_or_equal_to(expected_max_time),
     )
+    # check if keys published
+    key_loc = paths.cloud_public_key_loc(some_host, some_name)
+    file = s3_client.get_object(Bucket=s3_bucket, Key=str(key_loc))
+    file_data = file["Body"].read()
+    contents = file_data.decode("utf-8")
+    assert_that(contents, contains_string(key.public_key.byte_data.decode()))
