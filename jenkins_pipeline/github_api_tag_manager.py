@@ -34,12 +34,15 @@ def get_secret():
     RETURNTOKEN = get_secret_value_response['SecretString']
     return RETURNTOKEN
 
-def get_latest_tag() -> str:
+def get_latest_tag(timeout=10) -> str:
     '''Gets the latest tag from github so it can increment by one'''
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/tags"
     # Uses github PAT token for access
     headers = {"Authorization": f"Bearer {TOKEN}"}
-    response = requests.get(url, headers=headers)
+    try:
+        response = requests.get(url, headers=headers, timeout=timeout)
+    except requests.Timeout:
+        print(f"The API call to {url} timed out after {timeout} seconds.")
     if response.status_code == 200:
         tags = response.json()
         # Get the latest tag name
@@ -58,11 +61,14 @@ def bump_tag():
     # Create the new tag
     create_tag(new_tag_name, commit_sha)
 
-def get_latest_commit_sha():
+def get_latest_commit_sha(timeout=10):
     '''Retrieves the latest commit sha which is needed for the Github API to get the latest tag'''
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/commits"
     headers = {"Authorization": f"Bearer {TOKEN}"}
-    response = requests.get(url, headers=headers)
+    try:
+        response = requests.get(url, headers=headers, timeout=timeout)
+    except requests.Timeout:
+        print(f"The API call to {url} timed out after {timeout} seconds.")
     if response.status_code == 200:
         commits = response.json()
         # Get the latest commit SHA
@@ -70,16 +76,18 @@ def get_latest_commit_sha():
     print(f"Error: {response.status_code} - {response.text}")
     return None
 
-def create_tag(tag_name, commit_sha):
+def create_tag(tag_name, commit_sha, timeout=10):
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/git/refs"
     headers = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
     payload = {
         "ref": f"refs/tags/{tag_name}",
         "sha": commit_sha
     }
-    response = requests.post(url, headers=headers, json=payload)
+    try:
+        response = requests.get(url, headers=headers, json=payload, timeout=timeout)
+    except requests.Timeout:
+        print(f"The API call to {url} timed out after {timeout} seconds.")
     if response.status_code == 201:
-        tag = response.json()
         print(f"Tag '{tag_name}' created successfully.")
     else:
         print(f"Error: {response.status_code} - {response.text}")
