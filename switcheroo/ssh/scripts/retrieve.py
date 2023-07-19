@@ -47,7 +47,7 @@ def main():
     elif args.datastore == "s3":
         if args.bucket is None:
             parser.error("The s3 option requires a specified bucket name!")
-        retriever = S3KeyRetriever(paths.local_ssh_home(), args.bucket)
+        retriever = S3KeyRetriever(args.sshdir, args.bucket)
     try:
         assert retriever is not None
         public_key = retriever.retrieve_public_key(socket.getfqdn(), args.user)

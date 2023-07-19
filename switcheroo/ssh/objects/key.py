@@ -1,13 +1,15 @@
 from dataclasses import dataclass, field
 import json
 from getpass import getuser
-from typing import IO, ClassVar
+from typing import IO, ClassVar, Self
 from datetime import datetime
 from Crypto.PublicKey import RSA
 from switcheroo.base import Serializer
 
 
 class Key:  # pylint: disable=too-few-public-methods
+    """Enclosing object for a public key and corresponding private key"""
+
     class PrivateComponent:
         def __init__(self, byte_data: bytes):
             self.byte_data = byte_data
@@ -17,6 +19,13 @@ class Key:  # pylint: disable=too-few-public-methods
             self.byte_data = byte_data
 
     def __init__(self, key_tuple: tuple[bytes, bytes] | None = None) -> None:
+        """Initialize the Key instance
+
+        Args:
+            key_tuple (tuple[bytes, bytes] | None, optional): The key byte data as \
+            (private key, public key). If no data is passed in, a new key is generated. \
+            Defaults to None.
+        """
         super().__init__()
         if key_tuple is None:
             key_tuple = KeyGen.generate_private_public_key()
@@ -56,29 +65,32 @@ class KeyGen:
 
 @dataclass(frozen=True)
 class KeyMetadata:
+    """Information about a key - who created it, and when it was generated"""
+
     FILE_NAME: ClassVar[str] = "metadata.json"
     created_by: str
     time_generated: datetime = field(default_factory=datetime.now)
 
     @classmethod
-    def now(cls, created_by: str | None):
-        """Returns a new metadata object
-
-        Create a new key metadata, using now as the creation time
+    def now(cls, created_by: str = "") -> Self:
+        """Create a new KeyMetadata object, using now as the current time.
 
         Args:
-            created_by (str): The user that created this key. Not required.
+            created_by (str): Who created the key. Defaults to empty.
+
+        Returns:
+            KeyMetadata: A new KeyMetadata instance with the provided information
         """
-        if created_by is None:
-            created_by = ""
         return KeyMetadata(created_by=created_by, time_generated=datetime.now())
 
     @classmethod
-    def now_by_executing_user(cls):
-        """Returns a new metadata object
-        
-        Create a new key metadata, using now as the creation time and the current\
-        executing user for the created_by field"""
+    def now_by_executing_user(cls) -> Self:
+        """Create a new KeyMetadata object, using now as the current time and the \
+        executing user (called with getpass.getuser()) as the creator.
+
+        Returns:
+            KeyMetadata: A new KeyMetadata instance
+        """
         return KeyMetadata.now(created_by=getuser())
 
     def _get_serialized_obj(self):
@@ -88,46 +100,45 @@ class KeyMetadata:
         }
 
     def serialize(self, target: IO[str]):
-        """
-        Dump the key metadata into the provided target
+        """Dumps the key metadata into the provided target in JSON format
 
         Args:
-            target (IO[str]): Where to dump the data in JSON format
+            target (IO[str]): Where to dump the information
         """
         json.dump(
             self._get_serialized_obj(),
             target,
         )
 
-    def serialize_to_string(self):
-        """
-        Serializes the key metadata to a JSON string that can later be parsed with from_io
+    def serialize_to_string(self) -> str:
+        """Serializes this object into a JSON-formatted string.
+
+        Returns:
+            str: The JSON-formatted representation of this string.
         """
         return json.dumps(self._get_serialized_obj())
 
     @classmethod
-    def from_io(cls, source: IO[str]):
-        """Returns the parsed KeyMetadata
-
-        Parse and return the KeyMetadata from the provided source
+    def from_io(cls, source: IO[str]) -> Self:
+        """Parses and return the KeyMetadata from the provided source
 
         Args:
             source (IO[str]): Where to get the JSON from
+
         Returns:
-            metadata (KeyMetadata): The key metadata
+            KeyMetadata: The key metadata
         """
         return cls.from_string(source.read())
 
     @classmethod
-    def from_string(cls, source: str):
-        """Returns the parsed KeyMetadata
-
-        Parse and return the KeyMetadata from the provided string source
+    def from_string(cls, source: str) -> Self:
+        """Parse and return the KeyMetadata from the provided string source
 
         Args:
             source (str): The JSON in a string
+
         Returns:
-            metadata (KeyMetadata): The key metadata
+            KeyMetadata: The key metadata
         """
         json_obj = json.loads(source)
         time_generated = datetime.strptime(
@@ -138,8 +149,12 @@ class KeyMetadata:
 
 
 class KeyMetadataSerializer(Serializer[KeyMetadata]):
+    """A Serializer for KeyMetadata, to be used by a DataStore."""
+
     def serialize(self, storable: KeyMetadata) -> str:
+        """See base class."""
         return storable.serialize_to_string()
 
     def deserialize(self, data_str: str) -> KeyMetadata:
+        """See base class."""
         return KeyMetadata.from_string(data_str)

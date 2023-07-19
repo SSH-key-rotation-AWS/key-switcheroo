@@ -14,10 +14,10 @@ from switcheroo import paths
 
 @pytest.mark.asyncio
 async def test_retrieve_public_keys_from_s3(
-    s3_retriever: S3KeyRetriever, s3_client: Client, s3_bucket: str
+    s3_key_retriever: S3KeyRetriever, s3_client: Client, s3_bucket: str
 ):
     "Can the server retrieve public keys from s3?"
-    async with Server(retriever=s3_retriever) as server:
+    async with Server(retriever=s3_key_retriever) as server:
         server: Server = server
         private_key, public_key = KeyGen.generate_private_public_key()
         private_key_paramiko = RSAKey.from_private_key(StringIO(private_key.decode()))
