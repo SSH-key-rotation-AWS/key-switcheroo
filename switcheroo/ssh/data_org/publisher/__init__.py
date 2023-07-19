@@ -40,7 +40,6 @@ class KeyPublisher(ABC):
         metadata: KeyMetadata | None = None,
     ) -> tuple[Key, KeyMetadata]:
         "Helper function for publishing keys and metadata"
-        # Lazy evaluation of default values
         if key is None:
             key = Key()
         if metadata is None:
@@ -65,24 +64,23 @@ class KeyPublisher(ABC):
         Args:
             host (str, required): the hostname of the server
             user (str, required): the username of the connecting client
-            key (Key, optional): Key object. Defaults to None
-            metadata(KeyMetadata, optional): KeyMetadata object. Defaults to None
-            metric_publisher (MetricPublisher, optional): MetricPublisher object. Defaults to None
+            key (Key, optional): Key object. Defaults to None.
+            metadata(KeyMetadata, optional): KeyMetadata object. Defaults to None.
+            metric_publisher (MetricPublisher, optional): MetricPublisher object. Defaults to None.
 
         Returns:
             A tuple with the Key and KeyMetadata
         """
         if metric_publisher is not None:  # the user decided to publish metrics
-            timing_metric = TimingMetric(MetricConstants.TIMING_METRIC_NAME, "None")
+            timing_metric = TimingMetric(MetricConstants.TIMING_METRIC_NAME, "Seconds")
             key_and_metadata: tuple[Key, KeyMetadata] | None = None
             # use the timeit() context manager to time how long it takes to publish new keys
             with timing_metric.timeit():
                 key_and_metadata = self._publish_keys_and_metadata(
-                    host, user, key, metadata
+                    host=host, user=user, key=key, metadata=metadata
                 )
-            self._publish_metrics(
-                metric_publisher, timing_metric
-            )  # publish the metrics
+            # publish the metrics
+            self._publish_metrics(metric_publisher, timing_metric)
             return key_and_metadata
         # if the user decided not to publish metrics just publish the keys and their metadata
         return self._publish_keys_and_metadata(host, user, key, metadata)
