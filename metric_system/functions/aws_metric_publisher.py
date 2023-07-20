@@ -18,7 +18,7 @@ class AwsMetricPublisher(MetricPublisher):
         """
         try:
             self._name_space: str = name_space
-            self.cloud_watch: Client = boto3.client("cloudwatch")  # type: ignore #pylint: disable = line-too-long
+            self.cloud_watch: Client = boto3.client("cloudwatch")
         except BotoCoreError as aws_error:
             raise RuntimeError("Something went wrong with AWS cloudWatch") from aws_error  # type: ignore #pylint: disable = line-too-long
 
@@ -46,4 +46,5 @@ class AwsMetricPublisher(MetricPublisher):
                 ],
             )
         except BotoCoreError as aws_error:
-            raise RuntimeError("Something went wrong when Publishing A metric") from aws_error  # type: ignore #pylint: disable = line-too-long
+            raise RuntimeError("Something went wrong when Publishing A metric") from aws_error  # type: ignore #pylint: disable = line-too-lon
+        
