@@ -7,6 +7,9 @@
   curl_path=/bin/curl
   sed_path=/bin/sed
 
+# store script encoded in base64 so the ec2 has access to it
+  encoded_python_script="aW1wb3J0IGJvdG8zCmZyb20gYm90b2NvcmUuZXhjZXB0aW9ucyBpbXBvcnQgQ2xpZW50RXJyb3IKaW1wb3J0IGpzb24KCgoKZGVmIGdldF9zZWNyZXQoKToKCiAgICBzZWNyZXRfbmFtZSA9ICJwcm9kL2hvc3Qva2V5cyIKICAgIHJlZ2lvbl9uYW1lID0gInVzLWVhc3QtMSIKCiAgICAjIENyZWF0ZSBhIFNlY3JldHMgTWFuYWdlciBjbGllbnQKICAgIHNlc3Npb24gPSBib3RvMy5zZXNzaW9uLlNlc3Npb24oKQogICAgY2xpZW50ID0gc2Vzc2lvbi5jbGllbnQoCiAgICAgICAgc2VydmljZV9uYW1lPSdzZWNyZXRzbWFuYWdlcicsCiAgICAgICAgcmVnaW9uX25hbWU9cmVnaW9uX25hbWUKICAgICkKCiAgICB0cnk6CiAgICAgICAgZ2V0X3NlY3JldF92YWx1ZV9yZXNwb25zZSA9IGNsaWVudC5nZXRfc2VjcmV0X3ZhbHVlKAogICAgICAgICAgICBTZWNyZXRJZD1zZWNyZXRfbmFtZQogICAgICAgICkKICAgIGV4Y2VwdCBDbGllbnRFcnJvciBhcyBlOgogICAgICAgICMgRm9yIGEgbGlzdCBvZiBleGNlcHRpb25zIHRocm93biwgc2VlCiAgICAgICAgIyBodHRwczovL2RvY3MuYXdzLmFtYXpvbi5jb20vc2VjcmV0c21hbmFnZXIvbGF0ZXN0L2FwaXJlZmVyZW5jZS9BUElfR2V0U2VjcmV0VmFsdWUuaHRtbAogICAgICAgIHJhaXNlIGUKCiAgICAjIERlY3J5cHRzIHNlY3JldCB1c2luZyB0aGUgYXNzb2NpYXRlZCBLTVMga2V5LgogICAgc2VjcmV0ID0gZ2V0X3NlY3JldF92YWx1ZV9yZXNwb25zZVsnU2VjcmV0U3RyaW5nJ10KCiAgICAjIGNyZWF0ZSBhIGpzb24gb2JqZWN0IHVzaW5mIHRoZSByZXR1cm5lZCBzZWNyZXQKICAgIGRhdGEgPSBqc29uLmxvYWRzKHNlY3JldCkKCiAgICAjIEdldCB0aGUgdmFsdWUgb2YgZWFjaCBrZXkKICAgIHB1YmxpY19rZXkgPSBkYXRhWydwdWJsaWMnXQogICAgcHJpdmF0ZV9rZXkgPSBkYXRhWydwcml2YXRlJ10KCiAgICAjIFlvdXIgY29kZSBnb2VzIGhlcmUuCiAgICBwcmludChwdWJsaWNfa2V5KQogICAgcHJpbnQocHJpdmF0ZV9rZXkpCgpnZXRfc2VjcmV0KCkKCgoK"
+
 # USERNAME=$username
 set -u
 set -e
@@ -30,15 +33,15 @@ $sudo_path $apt_path install ssh -y
 # $sudo_path python3.11 -m venv .venv
 # source .venv/bin/activate
 
-# #install pip into venv - don't need its already there
-$sudo_path $apt_path install python3.11-dev python3.11-distutils -y
-$sudo_path $curl_path -O https://bootstrap.pypa.io/get-pip.py
-$sudo_path python3.11 get-pip.py
+# # #install pip into venv - don't need its already there
+# $sudo_path $apt_path install python3.11-dev python3.11-distutils -y
+# $sudo_path $curl_path -O https://bootstrap.pypa.io/get-pip.py
+# $sudo_path python3.11 get-pip.py
 
 
 
-# test installation of pylint to ensure pip is installed 
-$sudo_path pip3.11 install pylint
+cd /
+$sudo_path mkdir pre-aws
 #for more below, but want to install it in venv
 $sudo_path $apt_path install unzip
 $curl_path "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -53,7 +56,9 @@ cd /
 cd home
 # $sudo_path mkdir startoff
 $sudo_path useradd -m ${USERNAME}
-# $sudo_path mkdir atleasthere
+cd ${USERNAME}
+
+$sudo_path mkdir atleasthere
 # Set the ownership and permissions for the user's home directory
 $sudo_path chown ${USERNAME}:${USERNAME} /home/${USERNAME}
 $sudo_path chmod 755 /home/${USERNAME}
@@ -69,6 +74,7 @@ $sudo_path mkdir iamhere2
 # Set the ownership and permissions for the authorized_keys file (in case it was overwritten)
 $sudo_path chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.ssh/authorized_keys
 $sudo_path chmod 600 /home/${USERNAME}/.ssh/authorized_keys
+
 
 # Update the SSH server configuration
 $sudo_path systemctl reload sshd
@@ -90,12 +96,39 @@ source .venv/bin/activate
 pip3 install boto3
 
 
+# Decode and save the Python script to a file
+cd /home
+$sudo_path mkdir python-script
+cd python-script
+python_script_decoded="$(echo "$encoded_python_script" | base64 -d)"
+echo "$python_script_decoded" > /home/python-script/get-creds.py
+
 # call script to get the keys, and store them in a temp file to access them
-python3.11 get-creds.py > temp_output.txt
-$sudo_path read -r access_key < temp_output.txt
-$sudo_path read -r secret_key < temp_output.txt
+cd /
+$sudo_path touch temp_output.txt
+$sudo_path chmod 777 temp_output.txt
+python3.11 /home/python-script/get-creds.py > temp_output.txt
+access_key=$($sudo_path $sed_path '1!d' temp_output.txt)
+secret_key=$($sudo_path $sed_path '2!d' temp_output.txt)
+$sudo_path touch tempAcc.txt
+$sudo_path touch tempSec.txt
+echo "access_key=$access_key" > tempAcc.txt
+echo "secret_key=$secret_key" >  tempSec.txt
 # Remove the temporary file
-$sudo_path rm temp_output.txt
+# $sudo_path rm temp_output.txt
+
+
+# uncomment removal
+# /////////////////////////////
+# ////////////////////
+# ///////////////////////////////
+# ////////////////////////////
+# ///////////////\\\
+
+
+
+
+
 
 # set variables
 export AWS_DEFAULT_REGION="us-east-1"
