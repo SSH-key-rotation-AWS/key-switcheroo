@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from abc import ABC, abstractmethod
 from switcheroo.base.serializer import Serializer
+from switcheroo.ssh.scripts.custom_argument_exceptions import InvalidPathError
 
 T = TypeVar("T")
 
@@ -111,7 +112,10 @@ class FileDataStore(DataStore):
         super().__init__()
         self._root = root.location
         # If root folder does not exist, create it
-        root.location.mkdir(exist_ok=True, mode=root.mode)
+        try:
+            root.location.mkdir(exist_ok=True, mode=root.mode)
+        except OSError as error:
+            raise InvalidPathError(root.location, error) from error
         self._file_permission_settings: dict[str, FileDataStore.FilePermissions] = {}
 
     def register_file_permissions(self, clas: type, perms: FilePermissions):

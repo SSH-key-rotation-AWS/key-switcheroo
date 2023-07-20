@@ -1,8 +1,4 @@
-class CustomExceptions(Exception):
-    """Base class for all custom argparse CLI exceptions"""
-
-
-class InvalidArgumentError(CustomExceptions):
+class InvalidArgumentError(Exception):
     """Exception thrown when the user inputs an invalid argument
 
     Attributes:
@@ -12,7 +8,7 @@ class InvalidArgumentError(CustomExceptions):
         super().__init__(message)
 
 
-class MissingArgumentError(CustomExceptions):
+class MissingArgumentError(Exception):
     """Exception thrown when the user doesn't input a required argument
 
     Attributes:
@@ -22,11 +18,11 @@ class MissingArgumentError(CustomExceptions):
         super().__init__(message)
 
 
-class InvalidPathError(CustomExceptions):
+class InvalidPathError(Exception):
     """Exception thrown when the user inputs an invalid path
 
     Attributes:
         message -- explanation of the error
     """
-    def __init__(self, path: str) -> None:
-        super().__init__(f"Invalid path: {path}")
+    def __init__(self, path: str, error: Exception) -> None:
+        super().__init__(f"Invalid path: {path}\nError: {error}")

@@ -1,4 +1,4 @@
-from argparse import ArgumentParser, ArgumentError
+from argparse import ArgumentParser
 from pathlib import Path
 import socket
 import traceback
@@ -12,6 +12,11 @@ from switcheroo import paths
 
 
 def create_argument_parser() -> ArgumentParser:
+    """Creates an argument parser to define command line arguments
+
+    Returns:
+        ArgumentParser: parses the inputted command line arguments
+    """
     # pylint: disable=R0801
     argument_parser = ArgumentParser(
         prog="switcheroo_retrieve",
@@ -55,11 +60,20 @@ def _s3_store(sshdir: str, bucket: str | None = None) -> S3KeyRetriever:
     return S3KeyRetriever(sshdir, bucket)
 
 
-def main():
+def main(arguments: list[str] | None = None):
+    """Main method to parse command line arguments and invoke key retrievers
+
+    Args:
+        arguments (list[str] | None, optional): Input command line args for testing
+
+    Raises:
+        InvalidArgumentError: Exception thrown when the user inputs an invalid argument
+        MissingArgumentError: Exception thrown when the user doesn't input a required argument
+    """
     parser = create_argument_parser()
     try:
-        args = parser.parse_args()
-    except ArgumentError as error:
+        args = parser.parse_args(arguments)
+    except SystemExit as error:
         raise InvalidArgumentError(f"Invalid argument: {error}") from error
     retriever: KeyRetriever | None = None
     if args.datastore == "local":

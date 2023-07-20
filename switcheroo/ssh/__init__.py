@@ -10,6 +10,6 @@ class AuthorizedKeysCmndProvider(ABC):
 
 # pylint: disable=too-few-public-methods
 class MetricConstants:
-    NAME_SPACE = "Key Switcheroo"
-    COUNTER_METRIC_NAME = "Key Count"
-    TIMING_METRIC_NAME = "Time to Publish Keys"
+    NAME_SPACE = "Key-Switcheroo"
+    COUNTER_METRIC_NAME = "Key-Count"
+    TIMING_METRIC_NAME = "Time-to-Publish-Keys"
