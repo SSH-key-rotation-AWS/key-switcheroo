@@ -7,11 +7,6 @@ from switcheroo.base import Constants
 
 def create_argparser() -> argparse.ArgumentParser:
     arg_parser = argparse.ArgumentParser()
-    # arg_parser.add_argument(
-    #     "command",
-    #     help="The command to perform",
-    #     choices=["add", "view", "select", "delete"],
-    # )
     sub_parsers = arg_parser.add_subparsers(dest="command", required=True)
 
     def add_add_subparser():
