@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Rotate SSH keys, stored in the cloud!"
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
-packages = [{include = "switcheroo"}, {include="metric_system"}]
+packages = [{include = "switcheroo"}, {include="metric_system"}, {include="aws_profiles"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
