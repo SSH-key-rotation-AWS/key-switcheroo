@@ -29,6 +29,11 @@ class ProfileManager:
 
     @property
     def current_profile(self) -> Profile | None:
+        """The current selected profile. If no profiles are added, this property is None.
+        When the first profile is added this property defaults to 0.
+        Returns:
+            Profile | None: The selected profile, or no profile if none have been added
+        """
         if self._selected_profile_index is None:
             return None
         return self._profiles[self._selected_profile_index]
@@ -47,6 +52,13 @@ class ProfileManager:
             raise InvalidCredentialsException(profile) from exc
 
     def add(self, access_key: str, secret_acces_key: str, region: str):
+        """Adds a profile to the profile manager
+
+        Args:
+            access_key (str): The access key
+            secret_acces_key (str): The secret access key
+            region (str): the region
+        """
         last_id = len(self.profiles) - 1
         profile = Profile(last_id + 1, access_key, secret_acces_key, region)
         self._validate_profile(profile)
@@ -59,20 +71,54 @@ class ProfileManager:
             raise KeyError(f"The profile with ID {identifier} does not exist!")
 
     def remove(self, identifier: int):
+        """Removes a profile from the profile manager. 
+        If the currently selected profile is removed, the current selected profile defaults to 0,\
+        or None if no profiles remain.
+
+        When profiles are removed, their ID's are changed to keep the collection of profiles \
+        contiguous. ie for profiles [A,B,C,D,E] with ID [0,1,2,3,4], if C is removed, \
+        we end up with [A,B,D,E] with ID [0,1,2,3]. The currently selected profile also \
+        changes to keep the selection - in the above example, if D was selected before \
+        deleting C, D remains selected after deleting C.
+
+        Args:
+            identifier (int): The ID of the profile to remove
+        """
         self._validate_identifier(identifier)
         del self._profiles[identifier]
-        if self._selected_profile_index == len(
-            self._profiles
-        ):  # Now selected index is out of bounds
-            self._selected_profile_index = 0
-        if len(self._profiles) == 0:  # No profiles left to select
-            self._selected_profile_index = None
+        assert self._selected_profile_index is not None
+        if self._selected_profile_index == identifier:
+            if identifier == 0:  # We removed the last profile
+                self._selected_profile_index = None
+            else:  # We removed the selected profile, but profiles still exist
+                self._selected_profile_index = 0
+        elif (
+            self._selected_profile_index > identifier
+        ):  # we moved the selected profile down an index
+            self._selected_profile_index -= 1
+        # All profiles higher up have their identifiers decremented as well
+        for i in range(identifier, len(self._profiles)):
+            old_profile = self._profiles[i]
+            self._profiles[i] = Profile(
+                old_profile.id_number - 1,
+                old_profile.access_key,
+                old_profile.secret_access_key,
+                old_profile.region,
+            )
 
     def select(self, identifier: int):
+        """Selects a new profile to be the currently selected one
+
+        Args:
+            identifier (int): The identifier of the profile to select
+        """
         self._validate_identifier(identifier)
         self._selected_profile_index = identifier
 
     def save(self):
+        """Saves the profile to a JSON file, located under the directory passed in when creating \
+        this manager. The JSON file is called aws_profiles.json
+        """
         if len(self.profiles) == 0:
             return
         json_profiles = list(map(lambda profile: profile.__dict__, self.profiles))
@@ -83,9 +129,16 @@ class ProfileManager:
         with open(self._profiles_path, mode="wt", encoding="utf-8") as profiles_out:
             json.dump(json_obj, profiles_out)
 
-    def _load(self) -> bool:
+    def _load(self):
+        """Loads profiles from a JSON file located under the directory passed in when creating \
+        this manager. The JSON file is called aws_profiles.json
+
+        Raises:
+            InvalidProfileFormatException: If the JSON format is corrupted
+            InvalidProfileFormatException: _description_
+        """
         if not self._profiles_path.exists():
-            return False
+            return None
         with open(self._profiles_path, mode="rt", encoding="utf-8") as profiles_in:
             json_obj = json.load(profiles_in)
 

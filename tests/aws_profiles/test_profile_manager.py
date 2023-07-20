@@ -91,6 +91,48 @@ class TestMockingCredentialTests:  # pylint: disable=too-many-public-methods
             doubly_populated_profile_manager.profiles, equal_to([sample_profile_one])
         )
 
+    def test_deleting_current_profile_sets_to_0(
+        self, manager_generator: ManagerGenerator
+    ):
+        large_profile_manager = manager_generator(10)
+        large_profile_manager.select(6)
+        large_profile_manager.remove(6)
+        assert_that(
+            large_profile_manager.current_profile,
+            equal_to(large_profile_manager.profiles[0]),
+        )
+
+    def test_deleting_only_profile_leaves_no_selection(
+        self,
+        populated_profile_manager: ProfileManager,
+    ):
+        populated_profile_manager.remove(0)
+        assert_that(populated_profile_manager.current_profile, none())
+
+    def test_deleting_lower_profile_decrements_current_profile_for_consistency(
+        self, manager_generator: ManagerGenerator
+    ):
+        large_profile_manager = manager_generator(10)
+        large_profile_manager.select(5)
+        profile_withid_4 = large_profile_manager.profiles[4]
+        assert_that(
+            large_profile_manager.current_profile, is_not(equal_to(profile_withid_4))
+        )
+        large_profile_manager.remove(3)
+        profile_withid_4 = large_profile_manager.profiles[4]
+        assert_that(large_profile_manager.current_profile, equal_to(profile_withid_4))
+
+    def test_deleting_profile_changes_id_of_higher_ones(
+        self, manager_generator: ManagerGenerator
+    ):
+        large_profile_manager = manager_generator(10)
+        large_profile_manager.remove(6)
+        expected_ids = list(range(0, 9))
+        actual_ids = list(
+            map(lambda profile: profile.id_number, large_profile_manager.profiles)
+        )
+        assert_that(actual_ids, equal_to(expected_ids))
+
     def test_deleting_last_changes_selected_profile(
         self,
         sample_profile_one: Profile,
@@ -102,13 +144,6 @@ class TestMockingCredentialTests:  # pylint: disable=too-many-public-methods
             doubly_populated_profile_manager.current_profile,
             equal_to(sample_profile_one),
         )
-
-    def test_deleting_only_profile_leaves_no_selection(
-        self,
-        populated_profile_manager: ProfileManager,
-    ):
-        populated_profile_manager.remove(0)
-        assert_that(populated_profile_manager.current_profile, none())
 
     def test_deleting_outofbounds_raises_key_error(
         self,
