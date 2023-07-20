@@ -36,7 +36,7 @@ pipeline {
                 script {
                     // Run the Python script and capture its output
                     def pythonAPIOutput
-                    pythonAPIOutput = sh(returnStdout: true, script: 'pypi_api_secret.py').trim()
+                    pythonAPIOutput = sh(returnStdout: true, script: 'jenkins_pipeline/pypi_api_secret.py').trim()
                 }
             }
         }
