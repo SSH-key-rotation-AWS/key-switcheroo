@@ -27,6 +27,7 @@ moto = {extras = ["cloudwatch", "s3", "sts"], version = "^4.1.13"}
 
 switcheroo_publish = "switcheroo.ssh.scripts.publish:main"
 switcheroo_retrieve = "switcheroo.ssh.scripts.retrieve:main"
+switcheroo_configure = "switcheroo.base.scripts.configure:run_with_cli"
 
 [build-system]
 requires = ["poetry-core"]
