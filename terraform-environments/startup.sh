@@ -12,6 +12,7 @@
   java_path=/bin/java
   sed_path=/bin/sed
   wget_path=/bin/wget
+  python_path=/bin/python3.11
   poetry_path=~/.local/bin/poetry
   url="http://localhost:8080"
   public_ip=$($curl_path ifconfig.me)
@@ -21,13 +22,17 @@
   $sed_path -i "s/#\$nrconf{restart} = 'i';/\$nrconf{restart} = 'a';/g" /etc/needrestart/needrestart.conf
 
   # download neccesary programs
-  $apt_path update && $apt_path -y upgrade
+  $apt_path update && $apt_path upgrade -y
   $apt_path install python3.11 -y
-  # $apt_path install python3-pip -y
-  # $apt_path install python3.11-venv -y
-  $curl_path -sSL https://install.python-poetry.org | /bin/python3.11 -
+  $apt_path install python3-pip -y
+  $apt_path install python3.11-venv -y
+  $curl_path -sSL https://install.python-poetry.org | $python_path -
   $poetry_path self add poetry-git-version-plugin
-  $poetry_path add boto3
+  $python_path -m venv .venv
+  /bin/source .venv/bin/activate
+  /bin/pip install boto3
+  /bin/pip install requests
+  deactivate
   $apt_path install openjdk-11-jdk -y
   $curl_path $apt_path install awscli -y
   $curl_path -OL http://mirrors.jenkins-ci.org/war/latest/jenkins.war

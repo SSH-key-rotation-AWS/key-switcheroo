@@ -88,7 +88,7 @@ resource "aws_instance" "app_server" {
 
   connection {
     type        = "ssh"
-    user        = "ec2-user"
+    user        = "ubuntu"
     private_key = tls_private_key.pk.private_key_pem
     host        = self.public_ip
   }
@@ -101,16 +101,16 @@ resource "aws_instance" "app_server" {
 
   provisioner "file" {
     source = "${path.module}/setup.groovy"
-    destination = "/var/lib/cloud/instance/setup.groovy"
+    destination = "~/setup.groovy"
   }
 
   provisioner "file" {
     source = "${path.module}/config.xml"
-    destination = "/var/lib/cloud/instance/config.xml"
+    destination = "~/config.xml"
   }
 
   provisioner "file" {
     source = "${path.module}/github_credentials.xml"
-    destination = "/var/lib/cloud/instance/github_credentials.xml"
+    destination = "~/github_credentials.xml"
   }
 }
