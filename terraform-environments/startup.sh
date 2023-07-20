@@ -4,7 +4,6 @@
   set -o pipefail
 
   # set variables
-  #sudo_path=/bin/sudo
   apt_path=/bin/apt
   curl_path=/bin/curl
   touch_path=/bin/touch
@@ -16,6 +15,10 @@
   poetry_path=~/.local/bin/poetry
   url="http://localhost:8080"
   public_ip=$($curl_path ifconfig.me)
+  JENKINS_LOGIN="KeySwitcheroo":"AWS_SSH"
+  GITHUB_PAT=
+
+  /bin/git clone https://github.com/SSH-key-rotation-AWS/key-switcheroo
 
   # disable prompts that make the script hang
   $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
@@ -24,17 +27,19 @@
   # download neccesary programs
   $apt_path update && $apt_path upgrade -y
   $apt_path install python3.11 -y
-  $apt_path install python3-pip -y
-  $apt_path install python3.11-venv -y
+  # $apt_path install python3-pip -y
+  # $apt_path install python3.11-venv -y
   $curl_path -sSL https://install.python-poetry.org | $python_path -
   $poetry_path self add poetry-git-version-plugin
-  $python_path -m venv .venv
-  /bin/source .venv/bin/activate
-  /bin/pip install boto3
-  /bin/pip install requests
-  deactivate
+  # $python_path -m venv .venv
+  # source .venv/bin/activate
+  # current_dir=$(/bin/pwd)
+  # wrong dir
+  # "$current_dir"/.venv/lib/pip install boto3
+  # "$current_dir"/.venv/lib/pip install requests
+  # deactivate
   $apt_path install openjdk-11-jdk -y
-  $curl_path $apt_path install awscli -y
+  $apt_path install awscli -y
   $curl_path -OL http://mirrors.jenkins-ci.org/war/latest/jenkins.war
 
   # run jenkins in background and send output to file
@@ -50,23 +55,23 @@
   $wget_path $url/jnlpJars/jenkins-cli.jar
 
   # make jenkins sign in script, configure login settings, and send script to jenkins
-  $sed_path -i "\"username\", \"password\";$JENKINS_LOGIN" ~/setup.groovy
-  $sed_path -i "\":\";\", \"" ~/setup.groovy
-  # $touch_path setup.groovy
-  # $echo_path "import jenkins.model.*
-  # import hudson.security.*
+  # $sed_path -i "\"username\", \"password\";$JENKINS_LOGIN" /setup.groovy
+  # $sed_path -i "\":\";\", \"" /setup.groovy
+  $touch_path setup.groovy
+  $echo_path "import jenkins.model.*
+  import hudson.security.*
 
-  # def instance = Jenkins.getInstance()
+  def instance = Jenkins.getInstance()
 
-  # def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-  # hudsonRealm.createAccount(\"KeySwitcheroo\", \"AWS_SSH\")
-  # instance.setSecurityRealm(hudsonRealm)
-  # instance.save()
+  def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+  hudsonRealm.createAccount(\"KeySwitcheroo\", \"AWS_SSH\")
+  instance.setSecurityRealm(hudsonRealm)
+  instance.save()
 
-  # def strategy = new hudson.security.FullControlOnceLoggedInAuthorizationStrategy()
-  # strategy.setAllowAnonymousRead(false)
-  # instance.setAuthorizationStrategy(strategy)" >> setup.groovy
-  $java_path -jar jenkins-cli.jar -s $url groovy = < ~/setup.groovy
+  def strategy = new hudson.security.FullControlOnceLoggedInAuthorizationStrategy()
+  strategy.setAllowAnonymousRead(false)
+  instance.setAuthorizationStrategy(strategy)" >> setup.groovy
+  $java_path -jar jenkins-cli.jar -s $url groovy = < setup.groovy
 
   # set up plugin update center, put it in correct location, download necessary plugins, and restart to apply changes
   $wget_path -O default.js http://updates.jenkins-ci.org/update-center.json
@@ -74,21 +79,19 @@
   /bin/mkdir /root/.jenkins/updates
   /bin/mv ~/default.json /root/.jenkins/updates
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" install-plugin github-branch-source workflow-multibranch \
-    multibranch-action-triggers config-file-provider branch-api cloudbees-folder credentials -restart
+    multibranch-action-triggers config-file-provider branch-api cloudbees-folder ghprb credentials -restart
   
   # make github login xml
   #$sed_path -i ";"
   $touch_path github_credentials.xml
-  $echo_path "<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl plugin=\"credentials@1254.vb_96f366e7b_a_d\">
+  $echo_path "<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl plugin="plain-credentials@143.v1b_df8b_d3b_e48">
   <scope>GLOBAL</scope>
   <id>github_login</id>
   <description></description>
-  <username>key-switcheroo</username>
-  <password>
-   {AQAAABAAAAAgkZpIJdnwC38ZyqUNNA9N+RV4GddEu4uAn48BfMp8TELoTvw4km1dR/Qpv4ulQ7HB}
-  </password>
-  <usernameSecret>true</usernameSecret>
-</com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>" >> ~/github_credentials.xml
+  <secret>
+    $GITHUB_PAT
+  </secret>
+</org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>" >> github_credentials.xml
 
   # wait for jenkins to be running after restart
   while [ "$($curl_path -s -o /dev/null -w "%{http_code}" $url/login\?from=%2F)" != "200" ];
@@ -97,7 +100,7 @@
   done
 
   # send github login xml to jenkins and make credentials
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < ~/github_credentials.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < github_credentials.xml
 
   # make webhook in github
   $curl_path -L \
@@ -109,79 +112,79 @@
   -d "{\"name\":\"web\",\"active\":true,\"events\":[\"push\",\"pull_request\"],\"config\":{\"url\":\"http://$public_ip:8080/github-webhook/\",\"content_type\":\"json\",\"insecure_ssl\":\"0\"}}"
 
   # set up pipeline in xml and send to jenkins 
-#   $touch_path config.xml
-#   $echo_path "<?xml version='1.1' encoding='UTF-8'?>
-# <org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin=\"workflow-multibranch@756.v891d88f2cd46\">
-#   <actions/>
-#   <description></description>
-#   <displayName>MultiBranch</displayName>
-#   <properties>
-#     <org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty plugin=\"config-file-provider@951.v0461b_87b_721b_\">
-#       <configs class=\"sorted-set\">
-#         <comparator class=\"org.jenkinsci.plugins.configfiles.ConfigByIdComparator\"/>
-#       </configs>
-#     </org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty>
-#     <org.jenkinsci.plugins.workflow.multibranch.PipelineTriggerProperty plugin=\"multibranch-action-triggers@1.8.6\">
-#       <createActionJobsToTrigger></createActionJobsToTrigger>
-#       <deleteActionJobsToTrigger></deleteActionJobsToTrigger>
-#       <actionJobsToTriggerOnRunDelete></actionJobsToTriggerOnRunDelete>
-#       <quitePeriod>0</quitePeriod>
-#       <branchIncludeFilter>*</branchIncludeFilter>
-#       <branchExcludeFilter></branchExcludeFilter>
-#       <additionalParameters/>
-#     </org.jenkinsci.plugins.workflow.multibranch.PipelineTriggerProperty>
-#   </properties>
-#   <folderViews class=\"jenkins.branch.MultiBranchProjectViewHolder\" plugin=\"branch-api@2.1122.v09cb_8ea_8a_724\">
-#     <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"../..\"/>
-#   </folderViews>
-#   <healthMetrics/>
-#   <icon class=\"jenkins.branch.MetadataActionFolderIcon\" plugin=\"branch-api@2.1122.v09cb_8ea_8a_724\">
-#     <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"../..\"/>
-#   </icon>
-#   <orphanedItemStrategy class=\"com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy\" plugin=\"cloudbees-folder@6.815.v0dd5a_cb_40e0e\">
-#     <pruneDeadBranches>false</pruneDeadBranches>
-#     <daysToKeep>-1</daysToKeep>
-#     <numToKeep>-1</numToKeep>
-#     <abortBuilds>false</abortBuilds>
-#   </orphanedItemStrategy>
-#   <triggers/>
-#   <disabled>false</disabled>
-#   <sources class=\"jenkins.branch.MultiBranchProject\$BranchSourceList\" plugin=\"branch-api@2.1122.v09cb_8ea_8a_724\">
-#     <data>
-#       <jenkins.branch.BranchSource>
-#         <source class=\"org.jenkinsci.plugins.github_branch_source.GitHubSCMSource\" plugin=\"github-branch-source@1728.v859147241f49\">
-#           <id>d6f1f5bc-bbf7-4241-ada7-a8aa7a8877e9</id>
-#           <apiUri>https://api.github.com</apiUri>
-#           <credentialsId>github_login</credentialsId>
-#           <repoOwner>SSH-key-rotation-AWS</repoOwner>
-#           <repository>key-switcheroo</repository>
-#           <repositoryUrl>https://github.com/SSH-key-rotation-AWS/key-switcheroo</repositoryUrl>
-#           <traits>
-#             <org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
-#               <strategyId>3</strategyId>
-#             </org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
-#             <org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
-#               <strategyId>3</strategyId>
-#             </org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
-#           </traits>
-#         </source>
-#         <strategy class=\"jenkins.branch.DefaultBranchPropertyStrategy\">
-#           <properties class=\"java.util.Arrays\$ArrayList\">
-#             <a class=\"jenkins.branch.BranchProperty-array\">
-#               <jenkins.branch.NoTriggerBranchProperty>
-#                 <triggeredBranchesRegex>^\$main</triggeredBranchesRegex>
-#                 <strategy>NONE</strategy>
-#               </jenkins.branch.NoTriggerBranchProperty>
-#             </a>
-#           </properties>
-#         </strategy>
-#       </jenkins.branch.BranchSource>
-#     </data>
-#     <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"../..\"/>
-#   </sources>
-#   <factory class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory\">
-#     <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"../..\"/>
-#     <scriptPath>Jenkinsfile</scriptPath>
-#   </factory>
-# </org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>" >> config.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-job MultiBranch < ~/config.xml
+  $touch_path config.xml
+  $echo_path "<?xml version='1.1' encoding='UTF-8'?>
+<org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin=\"workflow-multibranch@756.v891d88f2cd46\">
+  <actions/>
+  <description></description>
+  <displayName>MultiBranch</displayName>
+  <properties>
+    <org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty plugin=\"config-file-provider@951.v0461b_87b_721b_\">
+      <configs class=\"sorted-set\">
+        <comparator class=\"org.jenkinsci.plugins.configfiles.ConfigByIdComparator\"/>
+      </configs>
+    </org.jenkinsci.plugins.configfiles.folder.FolderConfigFileProperty>
+    <org.jenkinsci.plugins.workflow.multibranch.PipelineTriggerProperty plugin=\"multibranch-action-triggers@1.8.6\">
+      <createActionJobsToTrigger></createActionJobsToTrigger>
+      <deleteActionJobsToTrigger></deleteActionJobsToTrigger>
+      <actionJobsToTriggerOnRunDelete></actionJobsToTriggerOnRunDelete>
+      <quitePeriod>0</quitePeriod>
+      <branchIncludeFilter>*</branchIncludeFilter>
+      <branchExcludeFilter></branchExcludeFilter>
+      <additionalParameters/>
+    </org.jenkinsci.plugins.workflow.multibranch.PipelineTriggerProperty>
+  </properties>
+  <folderViews class=\"jenkins.branch.MultiBranchProjectViewHolder\" plugin=\"branch-api@2.1122.v09cb_8ea_8a_724\">
+    <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"../..\"/>
+  </folderViews>
+  <healthMetrics/>
+  <icon class=\"jenkins.branch.MetadataActionFolderIcon\" plugin=\"branch-api@2.1122.v09cb_8ea_8a_724\">
+    <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"../..\"/>
+  </icon>
+  <orphanedItemStrategy class=\"com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy\" plugin=\"cloudbees-folder@6.815.v0dd5a_cb_40e0e\">
+    <pruneDeadBranches>false</pruneDeadBranches>
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>-1</numToKeep>
+    <abortBuilds>false</abortBuilds>
+  </orphanedItemStrategy>
+  <triggers/>
+  <disabled>false</disabled>
+  <sources class=\"jenkins.branch.MultiBranchProject\$BranchSourceList\" plugin=\"branch-api@2.1122.v09cb_8ea_8a_724\">
+    <data>
+      <jenkins.branch.BranchSource>
+        <source class=\"org.jenkinsci.plugins.github_branch_source.GitHubSCMSource\" plugin=\"github-branch-source@1728.v859147241f49\">
+          <id>d6f1f5bc-bbf7-4241-ada7-a8aa7a8877e9</id>
+          <apiUri>https://api.github.com</apiUri>
+          <credentialsId>github_login</credentialsId>
+          <repoOwner>SSH-key-rotation-AWS</repoOwner>
+          <repository>key-switcheroo</repository>
+          <repositoryUrl>https://github.com/SSH-key-rotation-AWS/key-switcheroo</repositoryUrl>
+          <traits>
+            <org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
+              <strategyId>3</strategyId>
+            </org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
+            <org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
+              <strategyId>3</strategyId>
+            </org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
+          </traits>
+        </source>
+        <strategy class=\"jenkins.branch.DefaultBranchPropertyStrategy\">
+          <properties class=\"java.util.Arrays\$ArrayList\">
+            <a class=\"jenkins.branch.BranchProperty-array\">
+              <jenkins.branch.NoTriggerBranchProperty>
+                <triggeredBranchesRegex>main|PR-\d+-head</triggeredBranchesRegex>
+                <strategy>NONE</strategy>
+              </jenkins.branch.NoTriggerBranchProperty>
+            </a>
+          </properties>
+        </strategy>
+      </jenkins.branch.BranchSource>
+    </data>
+    <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"../..\"/>
+  </sources>
+  <factory class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory\">
+    <owner class=\"org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject\" reference=\"../..\"/>
+    <scriptPath>Jenkinsfile</scriptPath>
+  </factory>
+</org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>" >> config.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-job MultiBranch < config.xml
