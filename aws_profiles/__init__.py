@@ -1,17 +1,13 @@
-from dataclasses import dataclass
 import json
 from typing import Sequence, Any
 from pathlib import Path
 import boto3
-from aws_profiles.exceptions import InvalidProfileFormatException
-
-
-@dataclass
-class Profile:
-    id_number: int
-    access_key: str
-    secret_access_key: str
-    region: str
+from botocore.exceptions import ClientError
+from aws_profiles.exceptions import (
+    InvalidProfileFormatException,
+    InvalidCredentialsException,
+)
+from aws_profiles.profile import Profile
 
 
 class ProfileManager:
@@ -38,18 +34,22 @@ class ProfileManager:
         return self._profiles[self._selected_profile_index]
 
     @staticmethod
-    def validate_profile(profile: Profile):
-        cli = boto3.client(
+    def _validate_profile(profile: Profile):
+        cli = boto3.client(  # type: ignore
             "sts",
             aws_access_key_id=profile.access_key,
             aws_secret_access_key=profile.secret_access_key,
             region_name=profile.region,
         )
-        cli.get_caller_identity()
+        try:
+            cli.get_caller_identity()
+        except ClientError as exc:
+            raise InvalidCredentialsException(profile) from exc
 
     def add(self, access_key: str, secret_acces_key: str, region: str):
         last_id = len(self.profiles) - 1
         profile = Profile(last_id + 1, access_key, secret_acces_key, region)
+        self._validate_profile(profile)
         self._profiles.append(profile)
         if last_id == -1:  # creating first profile
             self._selected_profile_index = 0
@@ -114,6 +114,8 @@ class ProfileManager:
             )
 
         profiles = list(map(parse_profile, json_obj["profiles"]))
+        for profile in profiles:
+            self._validate_profile(profile)
         self._selected_profile_index = json_obj["selected_profile"]
         self._profiles = profiles
         return True
