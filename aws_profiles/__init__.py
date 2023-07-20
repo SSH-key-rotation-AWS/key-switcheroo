@@ -67,7 +67,7 @@ class ProfileManager:
             self._selected_profile_index = 0
 
     def _validate_identifier(self, identifier: int):
-        if not 0 <= identifier < len(self._profiles):
+        if len(self.profiles) == 0 or not 0 <= identifier < len(self._profiles):
             raise KeyError(f"The profile with ID {identifier} does not exist!")
 
     def remove(self, identifier: int):
