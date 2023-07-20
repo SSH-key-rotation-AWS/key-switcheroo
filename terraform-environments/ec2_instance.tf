@@ -189,7 +189,11 @@ locals {
     echo "${base64decode(file("${path.module}/github_pat_secret.py"))}" > ~/github_pat_secret.py
     echo "${base64decode(file("${path.module}/jenkins_login_secret.py"))}" > ~/jenkins_login_secret.py
     echo "${base64decode(file("${path.module}/pypi_api_secret.py"))}" > ~/pypi_api_secret.py
+    echo "${base64decode(file("${path.module}/config.xml"))}" > ~/config.xml
+    echo "${base64decode(file("${path.module}/setup.groovy"))}" > ~/setup.groovy
+    echo "${base64decode(file("${path.module}/github_credentials.xml"))}" > ~/github_credentials.xml
   EOT
+
 
   external_script = file("${path.module}/startup.sh")
 }
