@@ -6,8 +6,8 @@
   # set variables
   apt_path=/bin/apt
   curl_path=/bin/curl
-  touch_path=/bin/touch
-  echo_path=/bin/echo
+  # touch_path=/bin/touch
+  # echo_path=/bin/echo
   java_path=/bin/java
   sed_path=/bin/sed
   wget_path=/bin/wget
@@ -16,9 +16,9 @@
   url="http://localhost:8080"
   public_ip=$($curl_path ifconfig.me)
   JENKINS_LOGIN="KeySwitcheroo":"AWS_SSH"
-  GITHUB_PAT=
+  GITHUB_PAT= 
 
-  /bin/git clone https://github.com/SSH-key-rotation-AWS/key-switcheroo
+  #/bin/git clone https://github.com/SSH-key-rotation-AWS/key-switcheroo
 
   # disable prompts that make the script hang
   $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
@@ -27,7 +27,7 @@
   # download neccesary programs
   $apt_path update && $apt_path upgrade -y
   $apt_path install python3.11 -y
-  # $apt_path install python3-pip -y
+  # curl -sS https://bootstrap.pypa.io/get-pip.py | $python_path
   # $apt_path install python3.11-venv -y
   $curl_path -sSL https://install.python-poetry.org | $python_path -
   $poetry_path self add poetry-git-version-plugin

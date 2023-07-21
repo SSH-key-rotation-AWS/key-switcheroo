@@ -1,5 +1,5 @@
 resource "aws_security_group" "security" {
-  name        = "ec2_security"
+  name        = "ec2_security2"
   description = "Give correct security for ec2"
   #tanis vpc = vpc-0bfb64215145a3e13
   vpc_id      = "vpc-0bfb64215145a3e13"
@@ -33,7 +33,7 @@ resource "aws_security_group" "security" {
   }
 
   tags = {
-    Name = "ec2_security"
+    Name = "ec2_security2"
   }
 }
 
@@ -71,132 +71,131 @@ resource "aws_security_group" "security" {
 #   public_key = tls_private_key.pk.public_key_openssh
 # }
 
-variable "instance_profile_name" {
-  type    = string
-  default = "secrets-manager"
-}
+# variable "instance_profile_name" {
+#   type    = string
+#   default = "secrets-manager"
+# }
 
-variable "iam_policy_name" {
-  # same name as aws's built in policy - not neccasary
-  type    = string
-  default = "SecretsManagerReadWrite"
-}
+# variable "iam_policy_name" {
+#   # same name as aws's built in policy - not neccasary
+#   type    = string
+#   default = "SecretsManagerReadWrite"
+# }
 
-variable "role_name" {
-  # role is different than one that exists on aws
-  type    = string
-  default = "ec2-secrets-access-terraform-role"
-}
+# variable "role_name" {
+#   # role is different than one that exists on aws
+#   type    = string
+#   default = "ec2-secrets-access-terraform-role"
+# }
 
-# Create an IAM policy
-resource "aws_iam_policy" "secrets_policy" {
-  name = var.iam_policy_name
+# # Create an IAM policy
+# resource "aws_iam_policy" "secrets_policy" {
+#   name = var.iam_policy_name
 
-  policy = jsonencode({
-    # copied the policy code from aws 
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": [
-                "secretsmanager:*",
-                "cloudformation:CreateChangeSet",
-                "cloudformation:DescribeChangeSet",
-                "cloudformation:DescribeStackResource",
-                "cloudformation:DescribeStacks",
-                "cloudformation:ExecuteChangeSet",
-                "ec2:DescribeSecurityGroups",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeVpcs",
-                "kms:DescribeKey",
-                "kms:ListAliases",
-                "kms:ListKeys",
-                "lambda:ListFunctions",
-                "rds:DescribeDBClusters",
-                "rds:DescribeDBInstances",
-                "redshift:DescribeClusters",
-                "tag:GetResources"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        },
-        {
-            "Action": [
-                "lambda:AddPermission",
-                "lambda:CreateFunction",
-                "lambda:GetFunction",
-                "lambda:InvokeFunction",
-                "lambda:UpdateFunctionConfiguration"
-            ],
-            "Effect": "Allow",
-            "Resource": "arn:aws:lambda:*:*:function:SecretsManager*"
-        },
-        {
-            "Action": [
-                "serverlessrepo:CreateCloudFormationChangeSet",
-                "serverlessrepo:GetApplication"
-            ],
-            "Effect": "Allow",
-            "Resource": "arn:aws:serverlessrepo:*:*:applications/SecretsManager*"
-        },
-        {
-            "Action": [
-                "s3:GetObject"
-            ],
-            "Effect": "Allow",
-            "Resource": [
-                "arn:aws:s3:::awsserverlessrepo-changesets*",
-                "arn:aws:s3:::secrets-manager-rotation-apps-*/*"
-            ]
-        }
-    ]
-})
-}
+#   policy = jsonencode({
+#     # copied the policy code from aws 
+#     "Version": "2012-10-17",
+#     "Statement": [
+#         {
+#             "Action": [
+#                 "secretsmanager:*",
+#                 "cloudformation:CreateChangeSet",
+#                 "cloudformation:DescribeChangeSet",
+#                 "cloudformation:DescribeStackResource",
+#                 "cloudformation:DescribeStacks",
+#                 "cloudformation:ExecuteChangeSet",
+#                 "ec2:DescribeSecurityGroups",
+#                 "ec2:DescribeSubnets",
+#                 "ec2:DescribeVpcs",
+#                 "kms:DescribeKey",
+#                 "kms:ListAliases",
+#                 "kms:ListKeys",
+#                 "lambda:ListFunctions",
+#                 "rds:DescribeDBClusters",
+#                 "rds:DescribeDBInstances",
+#                 "redshift:DescribeClusters",
+#                 "tag:GetResources"
+#             ],
+#             "Effect": "Allow",
+#             "Resource": "*"
+#         },
+#         {
+#             "Action": [
+#                 "lambda:AddPermission",
+#                 "lambda:CreateFunction",
+#                 "lambda:GetFunction",
+#                 "lambda:InvokeFunction",
+#                 "lambda:UpdateFunctionConfiguration"
+#             ],
+#             "Effect": "Allow",
+#             "Resource": "arn:aws:lambda:*:*:function:SecretsManager*"
+#         },
+#         {
+#             "Action": [
+#                 "serverlessrepo:CreateCloudFormationChangeSet",
+#                 "serverlessrepo:GetApplication"
+#             ],
+#             "Effect": "Allow",
+#             "Resource": "arn:aws:serverlessrepo:*:*:applications/SecretsManager*"
+#         },
+#         {
+#             "Action": [
+#                 "s3:GetObject"
+#             ],
+#             "Effect": "Allow",
+#             "Resource": [
+#                 "arn:aws:s3:::awsserverlessrepo-changesets*",
+#                 "arn:aws:s3:::secrets-manager-rotation-apps-*/*"
+#             ]
+#         }
+#     ]
+# })
+# }
 
-# Create an IAM role
-resource "aws_iam_role" "secrets_role" {
-  name = var.role_name
+# # Create an IAM role
+# resource "aws_iam_role" "secrets_role" {
+#   name = var.role_name
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
-}
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Effect = "Allow"
+#         Principal = {
+#           Service = "ec2.amazonaws.com"
+#         }
+#         Action = "sts:AssumeRole"
+#       }
+#     ]
+#   })
+# }
 
-# Attach the IAM policy to the IAM role
-resource "aws_iam_policy_attachment" "attach_secrets" {
-  name = "Policy Attachement"
-  policy_arn = aws_iam_policy.secrets_policy.arn
-  roles       = [aws_iam_role.secrets_role.name]
-}
+# # Attach the IAM policy to the IAM role
+# resource "aws_iam_policy_attachment" "attach_secrets" {
+#   name = "Policy Attachement"
+#   policy_arn = aws_iam_policy.secrets_policy.arn
+#   roles       = [aws_iam_role.secrets_role.name]
+# }
 
-# Create an IAM instance profile
-resource "aws_iam_instance_profile" "secrets" {
-  name = var.instance_profile_name
-  role = aws_iam_role.secrets_role.name
-}
+# # Create an IAM instance profile
+# resource "aws_iam_instance_profile" "secrets" {
+#   name = var.instance_profile_name
+#   role = aws_iam_role.secrets_role.name
+# }
 
-locals {
-  inline_user_data = <<-EOT
-    #!/bin/bash
-    echo "${base64decode(file("${path.module}/github_pat_secret.py"))}" > ~/github_pat_secret.py
-    echo "${base64decode(file("${path.module}/jenkins_login_secret.py"))}" > ~/jenkins_login_secret.py
-    echo "${base64decode(file("${path.module}/pypi_api_secret.py"))}" > ~/pypi_api_secret.py
-    echo "${base64decode(file("${path.module}/config.xml"))}" > ~/config.xml
-    echo "${base64decode(file("${path.module}/setup.groovy"))}" > ~/setup.groovy
-    echo "${base64decode(file("${path.module}/github_credentials.xml"))}" > ~/github_credentials.xml
-  EOT
+# locals {
+#   inline_user_data = <<-EOT
+#     #!/bin/bash
+#     echo "${file("${path.module}/github_pat_secret.py")}" > ~/github_pat_secret.py
+#     echo "${file("${path.module}/jenkins_login_secret.py")}" > ~/jenkins_login_secret.py
+#     echo "${file("${path.module}/pypi_api_secret.py")}" > ~/pypi_api_secret.py
+#     echo "${file("${path.module}/config.xml")}" > ~/config.xml
+#     echo "${file("${path.module}/setup.groovy")}" > ~/setup.groovy
+#     echo "${file("${path.module}/github_credentials.xml")}" > ~/github_credentials.xml
+#   EOT
 
-
-  external_script = file("${path.module}/startup.sh")
-}
+#   external_script = file("${path.module}/startup.sh")
+# }
 
 resource "aws_instance" "app_server" {
   # creates ec2 instance
@@ -204,11 +203,11 @@ resource "aws_instance" "app_server" {
   instance_type = "t2.micro"
   # key_name = "key"
   vpc_security_group_ids  = [aws_security_group.security.id]
-  iam_instance_profile = aws_iam_instance_profile.secrets.name
+  #iam_instance_profile = aws_iam_instance_profile.secrets.name
   tags = {
-    Name = "TeamHenrique"
+    Name = "KeySwitcheroo"
   }
-  user_data = "${local.external_script}\n${local.inline_user_data}"
+  user_data = file("startup.sh")
 
   # connection {
   #   type        = "ssh"
