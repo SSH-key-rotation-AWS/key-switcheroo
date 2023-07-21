@@ -33,11 +33,6 @@ pipeline {
     agent any 
     stages {
         stage("Retrieve PYPI api token and docker") {
-            agent{
-                docker{
-                    image 'python:3.11'
-                }
-            }
             steps {
                 script {
                     // Run the Python script and capture its output
