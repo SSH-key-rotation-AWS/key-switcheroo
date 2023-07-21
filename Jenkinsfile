@@ -57,8 +57,8 @@ pipeline {
             }
             steps {
                 script {
-                    AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
-                    AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+                    def AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
+                    def AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
                     sh """
                         $poetry run switcheroo_configure add --access-key $AWS_ACCESS_KEY_ID --secret-access-key $AWS_SECRET_ACCESS_KEY --region us-east-1
                     """
