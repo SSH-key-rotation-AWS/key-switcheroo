@@ -65,7 +65,6 @@ def create_argument_parser() -> ArgumentParser:
     )
     argument_parser.add_argument(
         "--metricpath",
-        default=paths.local_metrics_dir(),
         required=False,
         help="The absolute path to the directory\
             that stores the metrics (if metrics are stored locally)",
@@ -88,10 +87,10 @@ def _s3_store(sshdir: str, bucket: str | None = None) -> S3KeyPublisher:
     return S3KeyPublisher(bucket, root_ssh_dir=Path(sshdir))
 
 
-def _metrics(
-    metricpath: str | None = None, metric: str | None = None
-) -> MetricPublisher:
+def _metrics(metricpath: str, metric: str) -> MetricPublisher:
     if metric == "file":  # publish to file system
+        if metricpath is None:
+            metricpath = paths.local_metrics_dir()
         return FileMetricPublisher(Path(metricpath))
     if metric == "aws":  # publish to cloudwatch
         if metricpath is not None:
@@ -99,9 +98,6 @@ def _metrics(
                 'Invalid argument "--metricpath" when storing the metrics on AWS'
             )
         return AwsMetricPublisher(MetricConstants.NAME_SPACE)
-    raise MissingArgumentError(
-        'Please specify either "file" or "aws" after the -m/--metric option.'
-    )
 
 
 def main(arguments: list[str] | None = None):
