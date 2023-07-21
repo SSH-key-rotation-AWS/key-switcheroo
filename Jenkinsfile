@@ -56,12 +56,10 @@ pipeline {
             //Tells Jenkins which S3 bucket we are using
             environment {
                 SSH_KEY_DEV_BUCKET_NAME = "testing-bucket-key-switcheroo"
+                AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
+                AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
             }
             steps {
-                environment {
-                    AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
-                    AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-                }
                 script {
                     sh """
                         $poetry run switcheroo_configure add --access-key $AWS_ACCESS_KEY_ID --secret-access-key $AWS_SECRET_ACCESS_KEY --region us-east-1
