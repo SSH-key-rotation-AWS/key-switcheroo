@@ -42,8 +42,8 @@ pipeline {
                 script {
                     // Run the Python script and capture its output
                     sh """
-                        pip install requests
-                        pip install boto3
+                        pip install --user requests
+                        pip install --user boto3
                         chmod +x -R jenkins_pipeline/pypi_api_secret.py
                     """
                     pythonAPIOutput = sh(returnStdout: true, script: "jenkins_pipeline/pypi_api_secret.py").trim()
