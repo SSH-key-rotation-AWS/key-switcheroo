@@ -36,7 +36,7 @@ pipeline {
             steps {
                 script {
                     // Run the Python script and capture its output
-                    pythonAPIOutput = sh(returnStdout: true, script: 'jenkins_pipeline/pypi_api_secret.py').trim()
+                    pythonAPIOutput = sh(returnStdout: true, script: "jenkins_pipeline/pypi_api_secret.py").trim()
                 }
             }
         }
@@ -56,7 +56,7 @@ pipeline {
         }
         stage("Publish"){
             environment{
-                POETRY_PYPI_TOKEN_PYPI = pythonAPIOutput
+                POETRY_PYPI_TOKEN_PYPI = "${pythonAPIOutput}"
             }
             steps {
                 publishToPYPI()
