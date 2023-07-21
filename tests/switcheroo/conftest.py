@@ -1,5 +1,4 @@
 from typing import Generator
-import os
 import pytest
 import boto3
 from mypy_boto3_s3 import Client
@@ -21,6 +20,7 @@ def fixture_s3_client() -> Generator[Client, None, None]:
 
 @pytest.fixture
 def s3_bucket(s3_client: Client) -> Generator[str, None, None]:
-    bucket = os.environ["SSH_KEY_DEV_BUCKET_NAME"]
+    bucket = "dev-test-bucket"
+    s3_client.create_bucket(Bucket=bucket)
     yield bucket
     _empty_bucket(s3_client, bucket)

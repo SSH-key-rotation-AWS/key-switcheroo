@@ -66,7 +66,7 @@ def create_argument_parser() -> ArgumentParser:
     return argument_parser
 
 
-def main():
+def main(mocking: bool = False):
     parser = create_argument_parser()
     args = parser.parse_args()
     key_publisher: KeyPublisher | None = None

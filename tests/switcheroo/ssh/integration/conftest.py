@@ -22,24 +22,27 @@ def fixture_metrics_temp_path() -> Generator[Path, None, None]:
 
 @pytest.fixture
 def file_metric_publisher(
-    metrics_temp_path: Path
+    metrics_temp_path: Path,
 ) -> Generator[FileMetricPublisher, None, None]:
     yield FileMetricPublisher(metrics_temp_path)
 
 
 @pytest.fixture
 def aws_metric_publisher() -> Generator[AwsMetricPublisher, None, None]:
-    yield AwsMetricPublisher("Metric Tests")
+    yield AwsMetricPublisher(
+        "Metric Tests", "fake access", "fake secret access", "us-east-1"
+    )
 
 
 @pytest.fixture
 def file_metric_retriever(
-    metrics_temp_path: Path
+    metrics_temp_path: Path,
 ) -> Generator[FileMetricRetriever, None, None]:
     yield FileMetricRetriever(metrics_temp_path)
 
 
 @pytest.fixture
-def aws_metric_retriever(
-) -> Generator[AWSMetricRetriever, None, None]:
-    yield AWSMetricRetriever("Metric Tests")
+def aws_metric_retriever() -> Generator[AWSMetricRetriever, None, None]:
+    yield AWSMetricRetriever(
+        "Metric Tests", "fake access key", "fake secret access key", "us-east-1"
+    )

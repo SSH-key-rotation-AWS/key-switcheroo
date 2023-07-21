@@ -6,22 +6,26 @@ from metric_system.functions.aws_metric_publisher import AwsMetricPublisher
 from tests.test_cloud_watch.retrievers.cloudwatch import AWSMetricRetriever
 
 
-@pytest.fixture(name="namespace", scope="session")
+@pytest.fixture(name="namespace")
 def fixture_namespace() -> str:
     "The namespace we will be working with for testing"
     return "switcheroo-test"
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def cw_publisher(namespace: str) -> AwsMetricPublisher:
     "CloudWatch publisher for the namespace defined above"
-    return AwsMetricPublisher(name_space=namespace)
+    return AwsMetricPublisher(
+        namespace, "fake access key", "fake secret access key", "us-east-1"
+    )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def cw_retriever(namespace: str) -> AWSMetricRetriever:
     "Cloudwatch retriever for the namespace defined above"
-    return AWSMetricRetriever(name_space=namespace)
+    return AWSMetricRetriever(
+        namespace, "fake access key", "fake secret access key", "us-east-1"
+    )
 
 
 @pytest.fixture

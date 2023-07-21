@@ -16,15 +16,15 @@ from tests.aws_profiles.conftest import ManagerGenerator
 # The moto docs reccomend creating a mocked client as a fixture and providing that to the tests.
 # However, the client takes the credentials, which is what we are testing - it would be weird to pass
 # this to the ProfileManager instance. Therefore, this fixture is doing the job instead
-@pytest.fixture(name="mock_inner_sts_client")
-def fixture_mock_inner_sts_client():
-    mock = mock_sts()
-    mock.start()
-    yield
-    mock.stop()
+# @pytest.fixture(name="mock_inner_sts_client")
+# def fixture_mock_inner_sts_client():
+#     mock = mock_sts()
+#     mock.start()
+#     yield
+#     mock.stop()
 
 
-@pytest.mark.usefixtures("mock_inner_sts_client")
+# @pytest.mark.usefixtures("mock_inner_sts_client")
 class TestMockingCredentialTests:  # pylint: disable=too-many-public-methods
     # Misc
     def test_default_profile_is_none(self, profile_manager: ProfileManager):
@@ -274,6 +274,7 @@ class TestMockingCredentialTests:  # pylint: disable=too-many-public-methods
 # The following tests test credential validation, so we are not mocking sts
 
 
+@pytest.mark.nomock
 def test_profile_validation_on_add(profile_manager: ProfileManager):
     assert_that(
         calling(profile_manager.add).with_args("Not an access key", "Not a secret access key", "us-east-1"),  # type: ignore
@@ -281,6 +282,7 @@ def test_profile_validation_on_add(profile_manager: ProfileManager):
     )
 
 
+@pytest.mark.nomock
 def test_loading_validates_credentials(manager_generator: ManagerGenerator):
     with mock_sts():  # we want to allow the first manager to be created
         profile_manager_one = manager_generator(3)
