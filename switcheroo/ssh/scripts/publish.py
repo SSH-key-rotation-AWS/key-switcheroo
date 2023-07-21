@@ -87,7 +87,7 @@ def _s3_store(sshdir: str, bucket: str | None = None) -> S3KeyPublisher:
     return S3KeyPublisher(bucket, root_ssh_dir=Path(sshdir))
 
 
-def _metrics(metricpath: str, metric: str) -> MetricPublisher:
+def _metrics(metric: str, metricpath: str | None) -> MetricPublisher:
     if metric == "file":  # publish to file system
         if metricpath is None:
             metricpath = paths.local_metrics_dir()
