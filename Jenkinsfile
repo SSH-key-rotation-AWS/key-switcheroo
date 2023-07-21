@@ -37,10 +37,11 @@ pipeline {
                 script {
                     // Run the Python script and capture its output
                     sh """
+                        $poetry env use $python
                         $poetry install
                         chmod +x -R jenkins_pipeline/pypi_api_secret.py
                     """
-                    pythonAPIOutput = sh(returnStdout: true, script: "$python jenkins_pipeline/pypi_api_secret.py").trim()
+                    pythonAPIOutput = sh(returnStdout: true, script: ".venv/bin/python3.11 jenkins_pipeline/pypi_api_secret.py").trim()
                 }
             }
         }
