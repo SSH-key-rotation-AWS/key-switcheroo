@@ -1,7 +1,7 @@
 """AWS metric publisher"""
 from datetime import datetime, timezone
 import boto3
-from botocore.exceptions import ClientError,BotoCoreError
+from botocore.exceptions import ClientError, BotoCoreError
 from mypy_boto3_cloudwatch import Client
 from metric_system.functions.metric_publisher import MetricPublisher
 from metric_system.functions.metric import Metric
@@ -19,7 +19,9 @@ class AwsMetricPublisher(MetricPublisher):
             name_space (str): The namespace of the metric.
         """
         self._name_space: str = name_space
-        self._test_credentials(access_key=access_key,secret_access_key=secret_access_key,region=region)
+        self._test_credentials(
+            access_key=access_key, secret_access_key=secret_access_key, region=region
+        )
         # Validate credentials
         self._cloud_watch: Client = boto3.client(  # type: ignore #pylint: disable = line-too-long
             "cloudwatch",
@@ -34,7 +36,7 @@ class AwsMetricPublisher(MetricPublisher):
         Args:
             metric (Metric): The metric object to be published.
         """
-        try: 
+        try:
             metric_name = metric.name
             metric_value = metric.value
             metric_unit = metric.unit
@@ -52,8 +54,11 @@ class AwsMetricPublisher(MetricPublisher):
                 ],
             )
         except BotoCoreError as aws_error:
-            raise RuntimeError("An error occured when publishing the metric") from aws_error
-    def _test_credentials(self,access_key:str,secret_access_key:str,region:str): 
+            raise RuntimeError(
+                "An error occured when publishing the metric"
+            ) from aws_error
+
+    def _test_credentials(self, access_key: str, secret_access_key: str, region: str):
         sts_client = boto3.client(  # type: ignore
             "sts",
             aws_access_key_id=access_key,
