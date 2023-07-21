@@ -36,6 +36,7 @@ pipeline {
             steps {
                 script {
                     // Run the Python script and capture its output
+                    sh "chmod +x -R jenkins_pipeline/pypi_api_secret.py"
                     pythonAPIOutput = sh(returnStdout: true, script: "jenkins_pipeline/pypi_api_secret.py").trim()
                 }
             }
