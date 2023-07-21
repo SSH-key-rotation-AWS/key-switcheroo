@@ -21,7 +21,7 @@ def runTests() {
 //updates the github tag so the PYPI package version's tag is bumped
 def publishToPYPI() {
     sh """
-        $python jenkins_pipeline/github_api_tag_manager.py
+        $poetry run python jenkins_pipeline/github_api_tag_manager.py
         $poetry publish
     """
 }
