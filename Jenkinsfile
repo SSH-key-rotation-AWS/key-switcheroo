@@ -1,25 +1,25 @@
-python="/bin/python3.11"
-poetry="~/.local/bin/poetry"
+python = '/bin/python3.11'
+poetry = "~/.local/bin/poetry"
 
 //Builds all the code
-def runShellBuildStage(){
+def runShellBuildStage() {
     sh """
         $poetry env use $python
         $poetry install
         $poetry build
-    """  
+    """
 }
 
 //runs all the tests and spits out errors if any
-def runTests(){
+def runTests() {
     sh """
         $poetry env use $python
         $poetry run pytest tests
-    """   
+    """
 }
 
 //updates the github tag so the PYPI package version's tag is bumped
-def publishToPYPI(){
+def publishToPYPI() {
     sh """
         $python jenkins_pipeline/github_api_tag_manager.py
         $poetry publish
@@ -30,9 +30,9 @@ def pythonAPIOutput
 
 //The pipeline that Jenkins will look to on how to complete the build/test
 pipeline {
-    agent any 
+    agent any
     stages {
-        stage("Retrieve PYPI api token and docker") {
+        stage('Retrieve PYPI api token and docker') {
             steps {
                 script {
                     // Run the Python script and capture its output
@@ -46,16 +46,16 @@ pipeline {
             }
         }
 
-        stage("Build") { 
+        stage('Build') {
             steps {
                 runShellBuildStage()
             }
         }
 
-        stage("Test"){
+        stage('Test') {
             //Tells Jenkins which S3 bucket we are using
             environment {
-                SSH_KEY_DEV_BUCKET_NAME = "testing-bucket-key-switcheroo"
+                SSH_KEY_DEV_BUCKET_NAME = 'testing-bucket-key-switcheroo2'
                 AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
                 AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
             }
@@ -68,9 +68,9 @@ pipeline {
                 runTests()
             }
         }
-        
-        stage("Publish") {
-            environment{
+
+        stage('Publish') {
+            environment {
                 POETRY_PYPI_TOKEN_PYPI = "${pythonAPIOutput}"
             }
             steps {
