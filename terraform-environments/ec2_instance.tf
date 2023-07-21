@@ -61,15 +61,15 @@ resource "aws_security_group" "security" {
 #   external_script = file("${path.module}/startup.sh")
 # }
 
-# resource "tls_private_key" "pk" {
-#   algorithm = "RSA"
-#   rsa_bits  = 4096
-# }
+resource "tls_private_key" "pk" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
 
-# resource "aws_key_pair" "kp" {
-#   key_name   = "key"
-#   public_key = tls_private_key.pk.public_key_openssh
-# }
+resource "aws_key_pair" "kp" {
+  key_name   = "key"
+  public_key = tls_private_key.pk.public_key_openssh
+}
 
 variable "instance_profile_name" {
   type    = string
