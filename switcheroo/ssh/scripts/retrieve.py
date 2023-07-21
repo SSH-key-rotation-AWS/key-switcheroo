@@ -71,10 +71,8 @@ def main(arguments: list[str] | None = None):
         MissingArgumentError: Exception thrown when the user doesn't input a required argument
     """
     parser = create_argument_parser()
-    try:
-        args = parser.parse_args(arguments)
-    except SystemExit as error:
-        raise InvalidArgumentError(f"Invalid argument: {error}") from error
+
+    args = parser.parse_args(arguments)
     retriever: KeyRetriever | None = None
     if args.datastore == "local":
         retriever = _local_store(args.sshdir, args.bucket)

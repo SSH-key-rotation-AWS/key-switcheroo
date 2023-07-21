@@ -115,10 +115,7 @@ def main(arguments: list[str] | None = None):
         MissingArgumentError: Exception thrown when the user doesn't input a required argument
     """
     parser = create_argument_parser()
-    try:
-        args = parser.parse_args(arguments)
-    except SystemExit as error:
-        raise InvalidArgumentError(f"Invalid argument: {error}") from error
+    args = parser.parse_args(arguments)
     key_publisher: KeyPublisher | None = None
     metric_publisher: MetricPublisher | None = None
     if args.datastore == "local":  # If the user chose to store the public key locally
