@@ -45,20 +45,24 @@ pipeline {
                 }
             }
         }
+
         stage("Build") { 
             steps {
                 runShellBuildStage()
             }
         }
+
         stage("Test"){
             //Tells Jenkins which S3 bucket we are using
-            environment{
+            environment {
                 SSH_KEY_DEV_BUCKET_NAME = "testing-bucket-key-switcheroo"
             }
             steps {
+                environment {
+                    AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
+                    AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+                }
                 script {
-                    def AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
-                    def AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
                     sh """
                         $poetry run switcheroo_configure add --access-key $AWS_ACCESS_KEY_ID --secret-access-key $AWS_SECRET_ACCESS_KEY --region us-east-1
                     """
@@ -66,7 +70,8 @@ pipeline {
                 runTests()
             }
         }
-        stage("Publish"){
+        
+        stage("Publish") {
             environment{
                 POETRY_PYPI_TOKEN_PYPI = "${pythonAPIOutput}"
             }
