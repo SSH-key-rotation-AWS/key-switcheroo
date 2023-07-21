@@ -40,7 +40,7 @@ pipeline {
                         $poetry install
                         chmod +x -R jenkins_pipeline/pypi_api_secret.py
                     """
-                    pythonAPIOutput = sh(returnStdout: true, script: "jenkins_pipeline/pypi_api_secret.py").trim()
+                    pythonAPIOutput = sh(returnStdout: true, script: "$python jenkins_pipeline/pypi_api_secret.py").trim()
                 }
             }
         }
