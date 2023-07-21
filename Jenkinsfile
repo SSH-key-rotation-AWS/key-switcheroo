@@ -32,11 +32,20 @@ def pythonAPIOutput
 pipeline {
     agent any 
     stages {
-        stage("Retrieve PYPI api token") {
+        stage("Retrieve PYPI api token and docker") {
+            agent{
+                docker{
+                    image 'python:3.11'
+                }
+            }
             steps {
                 script {
                     // Run the Python script and capture its output
-                    sh "chmod +x -R jenkins_pipeline/pypi_api_secret.py"
+                    sh """
+                        pip install requests
+                        pip install boto3
+                        chmod +x -R jenkins_pipeline/pypi_api_secret.py
+                    """
                     pythonAPIOutput = sh(returnStdout: true, script: "jenkins_pipeline/pypi_api_secret.py").trim()
                 }
             }
