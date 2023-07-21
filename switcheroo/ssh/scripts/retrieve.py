@@ -4,6 +4,7 @@ import socket
 import traceback
 from switcheroo.ssh.data_org.retriever import KeyRetriever, FileKeyRetriever
 from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
+from switcheroo.ssh.scripts import get_credentials
 from switcheroo import paths
 
 
@@ -41,13 +42,15 @@ def main():
     parser = create_argument_parser()
     args = parser.parse_args()
     retriever: KeyRetriever | None = None
-
+    credentials = get_credentials()
     if args.datastore == "local":
         retriever = FileKeyRetriever(Path(args.sshdir))
     elif args.datastore == "s3":
         if args.bucket is None:
             parser.error("The s3 option requires a specified bucket name!")
-        retriever = S3KeyRetriever(args.sshdir, args.bucket)
+        retriever = S3KeyRetriever(
+            args.sshdir, credentials[0], credentials[1], credentials[2], args.bucket
+        )
     try:
         assert retriever is not None
         public_key = retriever.retrieve_public_key(socket.getfqdn(), args.user)
