@@ -86,7 +86,9 @@ def get_latest_commit_sha(timeout: int = 10) -> str:
         commits = response.json()
         # Get the latest commit SHA
         return commits[0]["sha"]
-    raise RuntimeError(f"Error: {response.status_code} - {response.text}")
+    raise RuntimeError(
+        f"Error: {response.status_code} - {response.text}. Token is f{token}"
+    )
 
 
 def create_tag(tag_name: str, commit_sha: str, timeout: int = 10):
