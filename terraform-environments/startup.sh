@@ -79,7 +79,17 @@
   /bin/mkdir /root/.jenkins/updates
   /bin/mv ~/default.json /root/.jenkins/updates
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" install-plugin github-branch-source workflow-multibranch \
-    multibranch-action-triggers config-file-provider branch-api cloudbees-folder ghprb credentials -restart
+    multibranch-action-triggers config-file-provider branch-api cloudbees-folder ghprb credentials ant apache-httpcomponents-client-4-api \
+    bootstrap5-api bouncycastle-api branch-api build-timeout caffeine-api checks-api commons-lang3-api commons-text-api credentials-binding \
+    ldap junit jquery3-api jaxb javax-mail-api javax-activation-api jjwt-api jakarta-mail-api jakarta-activation-api \
+    jackson2-api ionicons-api instance-identity gradle github github-branch-source github-api git git-client font-awesome-api cloudbees-folder \
+    email-ext echarts-api durable-task display-url-api credentials workflow-durable-task-step workflow-multibranch pipeline-model-api \
+    pipeline-milestone-step workflow-job pipeline-input-step pipeline-groovy-lib workflow-cps pipeline-github-lib pipeline-model-extensions \
+    pipeline-model-definition pipeline-build-step workflow-basic-steps workflow-api pipeline-graph-analysis workflow-aggregator \
+    pam-auth antisamy-markup-formatter okhttp-api mina-sshd-api-core mina-sshd-api-common matrix-project matrix-auth mailer ws-cleanup \
+    variant trilead-api token-macro timestamper structs sshd ssh-credentials ssh-slaves snakeyaml-api script-security scm-api resource-disposer \
+    plugin-util-api plain-credentials workflow-support workflow-step-api pipeline-stage-view pipeline-stage-tags-metadata pipeline-stage-step \
+    workflow-scm-step pipeline-rest-api -restart 
   
   # make github login xml
   $sed_path -i "patplaceholder;$GITHUB_PAT" ~/github_credentials.xml

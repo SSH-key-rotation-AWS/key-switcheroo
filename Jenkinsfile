@@ -26,17 +26,27 @@ def publishToPYPI(){
     """
 }
 
+def pythonAPIOutput
 
 //The pipeline that Jenkins will look to on how to complete the build/test
 pipeline {
     agent any 
     stages {
-        stage("Retrieve PYPI api token") {
+        stage("Retrieve PYPI api token and docker") {
+            agent{
+                docker{
+                    image 'python:3.11'
+                }
+            }
             steps {
                 script {
                     // Run the Python script and capture its output
-                    def pythonAPIOutput
-                    pythonAPIOutput = sh(returnStdout: true, script: 'jenkins_pipeline/pypi_api_secret.py').trim()
+                    sh """
+                        pip install requests
+                        pip install boto3
+                        chmod +x -R jenkins_pipeline/pypi_api_secret.py
+                    """
+                    pythonAPIOutput = sh(returnStdout: true, script: "jenkins_pipeline/pypi_api_secret.py").trim()
                 }
             }
         }
@@ -56,7 +66,7 @@ pipeline {
         }
         stage("Publish"){
             environment{
-                POETRY_PYPI_TOKEN_PYPI = pythonAPIOutput
+                POETRY_PYPI_TOKEN_PYPI = "${pythonAPIOutput}"
             }
             steps {
                 publishToPYPI()
