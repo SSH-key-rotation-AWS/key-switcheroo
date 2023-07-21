@@ -75,6 +75,7 @@ def get_latest_commit_sha(timeout: int = 10) -> str:
     """Retrieves the latest commit sha which is needed for the Github API to get the latest tag"""
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/commits"
     token = os.environ["GITHUB_PAT"]
+    print(token)
     headers = {"Authorization": f"Bearer {token}"}
     try:
         response = requests.get(url, headers=headers, timeout=timeout)
