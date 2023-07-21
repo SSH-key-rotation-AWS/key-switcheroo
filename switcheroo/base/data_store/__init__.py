@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from abc import ABC, abstractmethod
 from switcheroo.base.serializer import Serializer
-from switcheroo.ssh.scripts.custom_argument_exceptions import InvalidPathError
+from switcheroo.base.data_store.exceptions import InvalidPathError
 
 T = TypeVar("T")
 

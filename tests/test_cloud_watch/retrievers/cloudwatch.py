@@ -6,9 +6,16 @@ from metric_system.functions.metric import MetricData, DataPoint
 
 
 class AWSMetricRetriever:
-    def __init__(self, name_space: str):
+    def __init__(
+        self, name_space: str, access_key: str, secret_access_key: str, region: str
+    ):
         self._name_space: str = name_space
-        self._cloud_watch: Client = boto3.client("cloudwatch")  # type: ignore
+        self._cloud_watch: Client = boto3.client(  # type: ignore
+            "cloudwatch",
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_access_key,
+            region_name=region,
+        )
 
     def retrieve_metric_data(
         self,

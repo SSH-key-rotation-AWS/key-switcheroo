@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from metric_system.functions.metric import Metric, DataPoint, MetricData
 from metric_system.functions.metric_publisher import MetricPublisher
-from switcheroo.ssh.scripts.custom_argument_exceptions import InvalidPathError
+from switcheroo.base.data_store.exceptions import InvalidPathError
 
 
 class FileMetricPublisher(MetricPublisher):
@@ -31,7 +31,7 @@ class FileMetricPublisher(MetricPublisher):
         """
 
         # Create our new datapoint
-        new_datapoint = DataPoint.create_from(metric)
+        new_datapoint = DataPoint.create_from_metric(metric)
         # Check if we already have data published to the file
         retrieved_data = self._retrieve_all_data(metric.name)
         retrieved_data.data_points.append(new_datapoint)

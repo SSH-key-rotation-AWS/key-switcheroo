@@ -12,7 +12,7 @@ from metric_system.functions.metrics import CounterMetric
 from tests.test_cloud_watch.retrievers.cloudwatch import AWSMetricRetriever
 
 
-def test_publish_and_retrieve(
+def test_publish_count(
     cw_publisher: AwsMetricPublisher,
     cw_retriever: AWSMetricRetriever,
     counting_metric: CounterMetric,
@@ -22,8 +22,8 @@ def test_publish_and_retrieve(
     current_time = datetime.now(timezone.utc)
     # Publish values 0-5
     for _ in range(0, 5):
-        cw_publisher.publish_metric(counting_metric)
         counting_metric.increment()
+        cw_publisher.publish_metric(counting_metric)
         time.sleep(1)
     # Store end time
     end_time = datetime.now(timezone.utc)
@@ -35,7 +35,7 @@ def test_publish_and_retrieve(
         end_time=end_time,
         unit="Seconds",
     )
-    expected_datapoints = set(range(0, 5))
+    expected_datapoints = set(range(1, 6))
     actual_datapoints = set(
         map(lambda datapoint: datapoint.value, retrieved_data.data_points)
     )

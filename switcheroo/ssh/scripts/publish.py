@@ -8,6 +8,7 @@ from switcheroo.ssh.data_org.publisher import KeyPublisher, FileKeyPublisher
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
 from switcheroo import paths
 from switcheroo.ssh import MetricConstants
+from switcheroo.ssh.scripts import get_credentials
 from metric_system.functions.metric_publisher import MetricPublisher
 from metric_system.functions.aws_metric_publisher import AwsMetricPublisher
 from metric_system.functions.file_metric_publisher import FileMetricPublisher
@@ -81,13 +82,19 @@ def _local_store(sshdir: str, bucket: str | None = None) -> FileKeyPublisher:
     return FileKeyPublisher(Path(sshdir))
 
 
-def _s3_store(sshdir: str, bucket: str | None = None) -> S3KeyPublisher:
+def _s3_store(credentials: tuple, sshdir: str, bucket: str | None = None) -> S3KeyPublisher:
     if bucket is None:
         raise MissingArgumentError("The s3 option requires a bucket name!")
-    return S3KeyPublisher(bucket, root_ssh_dir=Path(sshdir))
+    return S3KeyPublisher(
+        bucket,
+        credentials[0],
+        credentials[1],
+        credentials[2],
+        root_ssh_dir=Path(sshdir)
+    )
 
 
-def _metrics(metric: str, metricpath: str | None) -> MetricPublisher:
+def _metrics(credentials: tuple, metric: str, metricpath: str | None) -> MetricPublisher:
     if metric == "file":  # publish to file system
         if metricpath is None:
             metricpath = paths.local_metrics_dir()
@@ -97,7 +104,12 @@ def _metrics(metric: str, metricpath: str | None) -> MetricPublisher:
             raise InvalidArgumentError(
                 'Invalid argument "--metricpath" when storing the metrics on AWS'
             )
-        return AwsMetricPublisher(MetricConstants.NAME_SPACE)
+        return AwsMetricPublisher(
+            MetricConstants.NAME_SPACE,
+            credentials[0],
+            credentials[1],
+            credentials[2],
+        )
 
 
 def main(arguments: list[str] | None = None):
@@ -114,12 +126,13 @@ def main(arguments: list[str] | None = None):
     args = parser.parse_args(arguments)
     key_publisher: KeyPublisher | None = None
     metric_publisher: MetricPublisher | None = None
+    credentials = get_credentials()
     if args.datastore == "local":  # If the user chose to store the public key locally
         key_publisher = _local_store(args.sshdir, args.bucket)
     else:  # If the user chose to store the public key on S3 or chose to default to S3
-        key_publisher = _s3_store(args.sshdir, args.bucket)
+        key_publisher = _s3_store(credentials, args.sshdir, args.bucket)
     if args.metric:  # If the user chose to publish metrics
-        metric_publisher = _metrics(args.metricpath, args.metric)
+        metric_publisher = _metrics(credentials, args.metricpath, args.metric)
     assert key_publisher is not None
     key_publisher.publish_key(
         args.hostname, args.user, metric_publisher=metric_publisher
