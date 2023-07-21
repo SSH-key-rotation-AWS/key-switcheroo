@@ -51,6 +51,8 @@ pipeline {
             }
         }
         stage("Test"){
+            AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
+            AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
             //Tells Jenkins which S3 bucket we are using
             environment{
                 SSH_KEY_DEV_BUCKET_NAME = "testing-bucket-key-switcheroo"

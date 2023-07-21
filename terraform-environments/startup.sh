@@ -6,8 +6,8 @@
   # set variables
   apt_path=/bin/apt
   curl_path=/bin/curl
-  touch_path=/bin/touch
-  echo_path=/bin/echo
+  # touch_path=/bin/touch
+  # echo_path=/bin/echo
   java_path=/bin/java
   sed_path=/bin/sed
   wget_path=/bin/wget
@@ -17,6 +17,8 @@
   public_ip=$($curl_path ifconfig.me)
   JENKINS_LOGIN="KeySwitcheroo":"AWS_SSH"
   GITHUB_PAT=
+  AWS_SECRET_ACCESS_KEY=
+  AWS_ACCESS_KEY=
 
   /bin/git clone https://github.com/SSH-key-rotation-AWS/key-switcheroo
 
@@ -103,6 +105,26 @@
 #   </secret>
 # </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>" >> github_credentials.xml
 
+# $touch_path aws-access-key.xml
+#   $echo_path "<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl plugin="plain-credentials@143.v1b_df8b_d3b_e48">
+#   <scope>GLOBAL</scope>
+#   <id>aws-access-key</id>
+#   <description></description>
+#   <secret>
+#     $AWS_ACCESS_KEY
+#   </secret>
+# </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>" >> aws-access-key.xml
+
+# $touch_path aws-secret-access-key.xml
+#   $echo_path "<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl plugin="plain-credentials@143.v1b_df8b_d3b_e48">
+#   <scope>GLOBAL</scope>
+#   <id>aws-secret-access-key</id>
+#   <description></description>
+#   <secret>
+#     $AWS_SECRET_ACCESS_KEY
+#   </secret>
+# </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>" >> aws-secret-access-key.xml
+
   # wait for jenkins to be running after restart
   while [ "$($curl_path -s -o /dev/null -w "%{http_code}" $url/login\?from=%2F)" != "200" ];
   do 
@@ -111,6 +133,8 @@
 
   # send github login xml to jenkins and make credentials
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < ~/github_credentials.xml
+  # $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < ~/aws-secret-access-key.xml
+  # $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < ~/aws-access-key.xml
 
   # make webhook in github
   $curl_path -L \
