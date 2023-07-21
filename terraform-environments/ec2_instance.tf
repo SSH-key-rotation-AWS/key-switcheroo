@@ -49,6 +49,18 @@ resource "aws_security_group" "security" {
 #   secret_id = pypi_api_token
 # }
 
+# data "aws_secretsmanager_secret" "aws_access_key" {
+#   secret_id = aws_access_key
+# }
+
+# data "aws_secretsmanager_secret" "aws_secret_access_key" {
+#   secret_id = aws_secret_access_key
+# }
+
+# data "aws_secretsmanager_secret" "github_username" {
+#   secret_id = github_username
+# }
+
 # locals {
 #   inline_user_data = <<-EOT
 #     #!/bin/bash
