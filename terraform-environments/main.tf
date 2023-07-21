@@ -22,14 +22,14 @@ resource "aws_s3_bucket" "production" {
     # bucket = "production-bucket-${random_id.suffix.hex}"
   bucket = "production-bucket-key-switcheroo"
     # acl = "${var.acl_value}"   
-    acl = "private"
+    aws_s3_bucket_acl = "private"
  }
 
  resource "aws_s3_bucket" "testing" {
   bucket = "testing-bucket-key-switcheroo"
   # bucket = "testing-bucket-${random_id.2suffix.hex}"
     # acl = "${var.acl_value}"   
-    acl = "private"
+    aws_s3_bucket_acl = "private"
  }
 
 # resource "aws_s3_bucket_versioning" "test-bucket-versioning" {

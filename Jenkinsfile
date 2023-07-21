@@ -26,6 +26,7 @@ def publishToPYPI(){
     """
 }
 
+def pythonAPIOutput
 
 //The pipeline that Jenkins will look to on how to complete the build/test
 pipeline {
@@ -35,7 +36,6 @@ pipeline {
             steps {
                 script {
                     // Run the Python script and capture its output
-                    def pythonAPIOutput
                     pythonAPIOutput = sh(returnStdout: true, script: 'jenkins_pipeline/pypi_api_secret.py').trim()
                 }
             }
