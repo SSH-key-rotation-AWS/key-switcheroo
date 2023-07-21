@@ -28,9 +28,11 @@ def file_metric_publisher(
 
 
 @pytest.fixture
-def aws_metric_publisher() -> Generator[AwsMetricPublisher, None, None]:
+def aws_metric_publisher(
+    credentials: tuple[str, str, str]
+) -> Generator[AwsMetricPublisher, None, None]:
     yield AwsMetricPublisher(
-        "Metric Tests", "fake access", "fake secret access", "us-east-1"
+        "Metric Tests", credentials[0], credentials[1], credentials[2]
     )
 
 
@@ -42,7 +44,9 @@ def file_metric_retriever(
 
 
 @pytest.fixture
-def aws_metric_retriever() -> Generator[AWSMetricRetriever, None, None]:
+def aws_metric_retriever(
+    credentials: tuple[str, str, str]
+) -> Generator[AWSMetricRetriever, None, None]:
     yield AWSMetricRetriever(
-        "Metric Tests", "fake access key", "fake secret access key", "us-east-1"
+        "Metric Tests", credentials[0], credentials[1], credentials[2]
     )

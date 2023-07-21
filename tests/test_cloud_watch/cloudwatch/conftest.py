@@ -13,19 +13,19 @@ def fixture_namespace() -> str:
 
 
 @pytest.fixture
-def cw_publisher(namespace: str) -> AwsMetricPublisher:
+def cw_publisher(
+    namespace: str, credentials: tuple[str, str, str]
+) -> AwsMetricPublisher:
     "CloudWatch publisher for the namespace defined above"
-    return AwsMetricPublisher(
-        namespace, "fake access key", "fake secret access key", "us-east-1"
-    )
+    return AwsMetricPublisher(namespace, credentials[0], credentials[1], credentials[2])
 
 
 @pytest.fixture
-def cw_retriever(namespace: str) -> AWSMetricRetriever:
+def cw_retriever(
+    namespace: str, credentials: tuple[str, str, str]
+) -> AWSMetricRetriever:
     "Cloudwatch retriever for the namespace defined above"
-    return AWSMetricRetriever(
-        namespace, "fake access key", "fake secret access key", "us-east-1"
-    )
+    return AWSMetricRetriever(namespace, credentials[0], credentials[1], credentials[2])
 
 
 @pytest.fixture

@@ -27,10 +27,10 @@ def file_key_publisher(ssh_temp_path: Path) -> Generator[FileKeyPublisher, None,
 
 @pytest.fixture
 def s3_key_publisher(
-    ssh_temp_path: Path, s3_bucket: str
+    ssh_temp_path: Path, s3_bucket: str, credentials: tuple[str, str, str]
 ) -> Generator[S3KeyPublisher, None, None]:
     yield S3KeyPublisher(
-        s3_bucket, "fake access key", "fake secret access", "us-east-1", ssh_temp_path
+        s3_bucket, credentials[0], credentials[1], credentials[2], ssh_temp_path
     )
 
 
@@ -41,10 +41,10 @@ def file_key_retriever(ssh_temp_path: Path) -> Generator[FileKeyRetriever, None,
 
 @pytest.fixture
 def s3_key_retriever(
-    ssh_temp_path: Path, s3_bucket: str
+    ssh_temp_path: Path, s3_bucket: str, credentials: tuple[str, str, str]
 ) -> Generator[S3KeyRetriever, None, None]:
     yield S3KeyRetriever(
-        ssh_temp_path, "fake access key", "fake secret access", "us-east-1", s3_bucket
+        ssh_temp_path, credentials[0], credentials[1], credentials[2], s3_bucket
     )
 
 
