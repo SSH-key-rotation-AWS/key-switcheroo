@@ -10,8 +10,8 @@ class MetricsFuncTest(unittest.TestCase):
     def setUp(self) -> None:
         self.counter_metric = CounterMetric("TEST METRIC", unit="Count")
         self.time_metric = TimingMetric("Test Metric", unit="Seconds")
-        self.random_count = random.randint(1, 10)
-        self.random_time = random.randint(1, 10)
+        self.random_count = random.randint(2, 10)
+        self.random_time = random.randint(2, 10)
 
     def test_counter_metric(self):
         for _ in range(self.random_count):

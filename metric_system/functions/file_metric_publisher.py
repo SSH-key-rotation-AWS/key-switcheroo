@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from metric_system.functions.metric import Metric, DataPoint, MetricData
 from metric_system.functions.metric_publisher import MetricPublisher
+from switcheroo.base.data_store.exceptions import InvalidPathError
 
 
 class FileMetricPublisher(MetricPublisher):
@@ -13,7 +14,10 @@ class FileMetricPublisher(MetricPublisher):
     def __init__(self, metric_dir: Path):
         self._metric_dir = metric_dir
         if not metric_dir.exists():
-            metric_dir.mkdir(parents=True, exist_ok=True)
+            try:
+                metric_dir.mkdir(parents=True, exist_ok=True)
+            except OSError as error:
+                raise InvalidPathError(metric_dir, error) from error
 
     def _metric_file_path(self, metric_name: str):
         return self._metric_dir / f"{metric_name}.json"
@@ -27,7 +31,7 @@ class FileMetricPublisher(MetricPublisher):
         """
 
         # Create our new datapoint
-        new_datapoint = DataPoint.create_from(metric)
+        new_datapoint = DataPoint.create_from_metric(metric)
         # Check if we already have data published to the file
         retrieved_data = self._retrieve_all_data(metric.name)
         retrieved_data.data_points.append(new_datapoint)

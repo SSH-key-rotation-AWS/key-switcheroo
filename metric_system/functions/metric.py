@@ -54,7 +54,7 @@ class DataPoint:
         return datetime.strptime(str_timestamp, "%Y-%m-%d %H:%M:%S.%f")
 
     @classmethod
-    def create_from(cls, metric: Metric):
+    def create_from_metric(cls, metric: Metric):
         return DataPoint(datetime.now(), metric.unit, metric.value)
 
 

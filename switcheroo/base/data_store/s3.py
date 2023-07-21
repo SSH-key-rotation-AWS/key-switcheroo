@@ -2,6 +2,8 @@ from typing import Any, TypeVar
 from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
+from mypy_boto3_s3 import S3Client
+from mypy_boto3_sts import STSClient
 from switcheroo.base.data_store import DataStore
 from switcheroo.base.exceptions.s3 import (
     UnconfiguredAWSException,
@@ -17,7 +19,9 @@ class S3DataStore(DataStore):
     is not installed and configured, this class will not work
     """
 
-    def __init__(self, _bucket_name: str):
+    def __init__(
+        self, _bucket_name: str, access_key: str, secret_access_key: str, region: str
+    ):
         """Initialize the data store. \
         Uses credentials & region from the AWS CLI utility.
 
@@ -30,9 +34,19 @@ class S3DataStore(DataStore):
         """
         super().__init__()
         self._bucket_name = _bucket_name
-        self._s3_client = boto3.client("s3")  # type: ignore
+        self._s3_client: S3Client = boto3.client(
+            "s3",  # type: ignore
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_access_key,
+            region_name=region,
+        )
         # Ensure AWS credentials are configured
-        sts_client = boto3.client("sts")  # type: ignore
+        sts_client: STSClient = boto3.client(
+            "sts",  # type: ignore
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_access_key,
+            region_name=region,
+        )
         try:
             sts_client.get_caller_identity()
         except ClientError as exc:
