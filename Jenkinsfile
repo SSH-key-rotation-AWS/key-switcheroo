@@ -31,6 +31,10 @@ def pythonAPIOutput
 //The pipeline that Jenkins will look to on how to complete the build/test
 pipeline {
     agent any
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+    }
     stages {
         stage('Retrieve PYPI api token and docker') {
             steps {
@@ -56,8 +60,6 @@ pipeline {
             //Tells Jenkins which S3 bucket we are using
             environment {
                 SSH_KEY_DEV_BUCKET_NAME = 'testing-bucket-key-switcheroo2'
-                AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
-                AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
             }
             steps {
                 script {
