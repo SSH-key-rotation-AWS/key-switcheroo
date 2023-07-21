@@ -46,5 +46,4 @@ class AwsMetricPublisher(MetricPublisher):
                 ],
             )
         except BotoCoreError as aws_error:
-            raise RuntimeError("Something went wrong when Publishing A metric") from aws_error  # type: ignore #pylint: disable = line-too-lon
-        
+            raise RuntimeError("Something went wrong when Publishing A metric") from aws_error  # type: ignore #pylint: disable = line-too-long

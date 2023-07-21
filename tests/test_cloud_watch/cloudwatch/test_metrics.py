@@ -22,7 +22,7 @@ class MetricsFuncTest(unittest.TestCase):
         with self.time_metric.timeit():
             print("In Timing Metric")
             time.sleep(self.random_time)
-        assert_that(self.random_time, equal_to(math.floor(self.time_metric.value)) )
+        assert_that(self.random_time, equal_to(math.floor(self.time_metric.value)))
 
 
 if __name__ == "__main__":
