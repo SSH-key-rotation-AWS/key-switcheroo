@@ -75,6 +75,9 @@ pipeline {
         }
 
         stage('Publish') {
+            when{
+                branch 'main'
+            }
             environment {
                 POETRY_PYPI_TOKEN_PYPI = "${pythonAPIOutput}"
             }
