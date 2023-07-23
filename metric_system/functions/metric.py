@@ -2,8 +2,6 @@ from abc import ABC
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
-from mypy_boto3_cloudwatch.literals import StandardUnitType
-
 
 class Metric(ABC):
     """Abstract class used to publish metrics"""
@@ -11,11 +9,11 @@ class Metric(ABC):
     def __init__(
         self,
         metric_name: str,
-        unit: StandardUnitType,
+        unit,
         value: float = 0,
     ):
         self._metric_name: str = metric_name
-        self._unit: StandardUnitType = unit
+        self._unit = unit
         self._value: float = value
         self._metric_init: datetime = datetime.now()
 
@@ -34,7 +32,7 @@ class Metric(ABC):
         self._value = val
 
     @property
-    def unit(self) -> StandardUnitType:
+    def unit(self):
         """Returns the unit associated with the metric"""
         return self._unit
 
@@ -46,7 +44,7 @@ class Metric(ABC):
 @dataclass
 class DataPoint:
     timestamp: datetime
-    unit: StandardUnitType
+    unit: Any
     value: float
 
     @classmethod

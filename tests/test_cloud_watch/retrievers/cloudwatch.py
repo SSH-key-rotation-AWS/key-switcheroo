@@ -1,7 +1,6 @@
 from datetime import datetime
 import boto3
 from mypy_boto3_cloudwatch import Client
-from mypy_boto3_cloudwatch.literals import StandardUnitType
 from metric_system.functions.metric import MetricData, DataPoint
 
 
@@ -22,7 +21,7 @@ class AWSMetricRetriever:
         metric_name: str,
         start_time: datetime,
         end_time: datetime,
-        unit: StandardUnitType,
+        unit,
     ) -> MetricData:
         """Returns metric data from CloudWatch"""
         response = self._cloud_watch.get_metric_data(
