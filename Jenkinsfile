@@ -34,9 +34,9 @@ def pythonAPIOutput
 pipeline {
     agent any
     environment {
-        AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-        GITHUB_PAT = credentials('github_pat')
+        //AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
+        //AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        //GITHUB_PAT = credentials('github_pat')
     }
     stages {
         stage('Retrieve PYPI api token and docker') {
