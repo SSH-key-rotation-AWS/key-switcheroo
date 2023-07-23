@@ -51,8 +51,9 @@ def get_latest_tag(timeout: int = 10) -> str:
         tags = response.json()
         # Get the latest tag name
         latest_tag = tags[0]["name"]
+        print(f"Latest tag is {latest_tag}")
         return latest_tag
-    print(f"Error: {response.status_code} - {response.text}")
+    print(f"Error while getting latest tag: {response.status_code} - {response.text}")
     return ""
 
 
@@ -75,7 +76,6 @@ def get_latest_commit_sha(timeout: int = 10) -> str:
     """Retrieves the latest commit sha which is needed for the Github API to get the latest tag"""
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/commits"
     token = os.environ["GITHUB_PAT"]
-    print(token)
     headers = {"Authorization": f"Bearer {token}"}
     try:
         response = requests.get(url, headers=headers, timeout=timeout)
@@ -87,7 +87,8 @@ def get_latest_commit_sha(timeout: int = 10) -> str:
         # Get the latest commit SHA
         return commits[0]["sha"]
     raise RuntimeError(
-        f"Error: {response.status_code} - {response.text}. Token is f{token}"
+        f"Error while fetching latest commit sha: {response.status_code} - {response.text}. \
+        Token is f{token}"
     )
 
 
@@ -97,14 +98,14 @@ def create_tag(tag_name: str, commit_sha: str, timeout: int = 10):
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     payload = {"ref": f"refs/tags/{tag_name}", "sha": commit_sha}
     try:
-        response = requests.get(url, headers=headers, json=payload, timeout=timeout)
+        response = requests.post(url, headers=headers, json=payload, timeout=timeout)
     except requests.Timeout as exc:
         print(f"The API call to {url} timed out after {timeout} seconds.")
         raise requests.Timeout from exc
     if response.status_code == 201:
         print(f"Tag '{tag_name}' created successfully.")
     else:
-        print(f"Error: {response.status_code} - {response.text}")
+        print(f"Error while creating new tag: {response.status_code} - {response.text}")
 
 
 # TOKEN = get_secret()
