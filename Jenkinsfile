@@ -77,6 +77,9 @@ pipeline {
                 POETRY_PYPI_TOKEN_PYPI = "${pythonAPIOutput}"
             }
             steps {
+                script{
+                    sh "git pull"
+                }
                 publishToPYPI()
             }
         }
