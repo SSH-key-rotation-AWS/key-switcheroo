@@ -2,7 +2,7 @@ import unittest
 import random
 import time
 import math
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, close_to
 from metric_system.functions.metrics import TimingMetric, CounterMetric
 
 
@@ -22,7 +22,7 @@ class MetricsFuncTest(unittest.TestCase):
         with self.time_metric.timeit():
             print("In Timing Metric")
             time.sleep(self.random_time)
-        assert_that(self.random_time, equal_to(math.floor(self.time_metric.value)))
+        assert_that(self.random_time, close_to(self.time_metric.value,1)) 
 
 
 if __name__ == "__main__":

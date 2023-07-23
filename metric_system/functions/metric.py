@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
+
 class Metric(ABC):
     """Abstract class used to publish metrics"""
 

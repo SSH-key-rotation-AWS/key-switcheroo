@@ -39,7 +39,7 @@ def test_publish_count(
     actual_datapoints = set(
         map(lambda datapoint: datapoint.value, retrieved_data.data_points)
     )
-    assert_that(actual_datapoints, equal_to(expected_datapoints)) 
+    assert_that(actual_datapoints, equal_to(expected_datapoints))
 
 
 def test_publish_time(
