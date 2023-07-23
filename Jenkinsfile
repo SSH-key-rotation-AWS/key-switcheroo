@@ -22,6 +22,8 @@ def runTests() {
 def publishToPYPI() {
     sh """
         $poetry run python jenkins_pipeline/github_api_tag_manager.py
+        git pull
+        $poetry build
         $poetry publish
     """
 }
@@ -77,9 +79,6 @@ pipeline {
                 POETRY_PYPI_TOKEN_PYPI = "${pythonAPIOutput}"
             }
             steps {
-                script{
-                    sh "git pull"
-                }
                 publishToPYPI()
             }
         }
