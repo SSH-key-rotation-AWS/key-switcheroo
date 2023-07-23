@@ -33,11 +33,11 @@ def pythonAPIOutput
 //The pipeline that Jenkins will look to on how to complete the build/test
 pipeline {
     agent any
-    environment {
+    //environment {
         //AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
         //AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
         //GITHUB_PAT = credentials('github_pat')
-    }
+    //}
     stages {
         stage('Retrieve PYPI api token and docker') {
             steps {
