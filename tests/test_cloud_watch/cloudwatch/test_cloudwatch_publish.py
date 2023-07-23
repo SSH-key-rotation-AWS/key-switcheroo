@@ -12,7 +12,7 @@ from metric_system.functions.metrics import CounterMetric
 from tests.test_cloud_watch.retrievers.cloudwatch import AWSMetricRetriever
 
 
-def test_publish_count(
+def test_cloudwatch_publish_counter_metric(
     cw_publisher: AwsMetricPublisher,
     cw_retriever: AWSMetricRetriever,
     counting_metric: CounterMetric,
@@ -42,7 +42,7 @@ def test_publish_count(
     assert_that(actual_datapoints, equal_to(expected_datapoints))
 
 
-def test_publish_time(
+def test_cloudwatch_publish_timer_metric(
     cw_publisher: AwsMetricPublisher,
     cw_retriever: AWSMetricRetriever,
     counting_metric: CounterMetric,
