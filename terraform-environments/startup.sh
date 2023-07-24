@@ -20,7 +20,7 @@
   AWS_SECRET_ACCESS_KEY=
   AWS_ACCESS_KEY=
 
-  /bin/git clone https://github.com/SSH-key-rotation-AWS/key-switcheroo
+  # /bin/git clone https://github.com/SSH-key-rotation-AWS/key-switcheroo
 
   # disable prompts that make the script hang
   $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
@@ -94,7 +94,7 @@
     workflow-scm-step pipeline-rest-api -restart 
   
   # make github login xml
-  $sed_path -i "patplaceholder;$GITHUB_PAT" ~/github_credentials.xml
+  $sed_path -i "patplaceholder;$GITHUB_PAT" /github_credentials.xml
 #   $touch_path github_credentials.xml
 #   $echo_path "<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl plugin="plain-credentials@143.v1b_df8b_d3b_e48">
 #   <scope>GLOBAL</scope>
