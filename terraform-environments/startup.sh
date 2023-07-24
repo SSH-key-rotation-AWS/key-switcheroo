@@ -15,10 +15,7 @@
   poetry_path=~/.local/bin/poetry
   url="http://localhost:8080"
   public_ip=$($curl_path ifconfig.me)
-  JENKINS_LOGIN="KeySwitcheroo":"AWS_SSH"
-  GITHUB_PAT=
-  AWS_SECRET_ACCESS_KEY=
-  AWS_ACCESS_KEY=
+  JENKINS_LOGIN=${JENKINS_USERNAME}:${JENKINS_PASSWORD}
 
   # /bin/git clone https://github.com/SSH-key-rotation-AWS/key-switcheroo
 
@@ -48,7 +45,7 @@
   /bin/nohup $java_path -jar -Djenkins.install.runSetupWizard=false jenkins.war &
 
   # wait for jenkins page to be up
-  while [ "$($curl_path -s -o /dev/null -w "%{http_code}" $url)" != "200" ];
+  while [ "$($curl_path -s -o /dev/null -w "%%{http_code}" $url)" != "200" ];
   do
     /bin/sleep 1;
   done
@@ -57,8 +54,8 @@
   $wget_path $url/jnlpJars/jenkins-cli.jar
 
   # make jenkins sign in script, configure login settings, and send script to jenkins
-  $sed_path -i "\"username\", \"password\";$JENKINS_LOGIN" ~/setup.groovy
-  $sed_path -i "\":\";\", \"" ~/setup.groovy
+  $sed_path -i "s/username/${JENKINS_USERNAME}/g" /setup.groovy
+  $sed_path -i "s/password/${JENKINS_PASSWORD}/g" /setup.groovy
   # $touch_path setup.groovy
   # $echo_path "import jenkins.model.*
   # import hudson.security.*
@@ -73,7 +70,7 @@
   # def strategy = new hudson.security.FullControlOnceLoggedInAuthorizationStrategy()
   # strategy.setAllowAnonymousRead(false)
   # instance.setAuthorizationStrategy(strategy)" >> setup.groovy
-  # $java_path -jar jenkins-cli.jar -s $url groovy = < setup.groovy
+  $java_path -jar jenkins-cli.jar -s $url groovy = < /setup.groovy
 
   # set up plugin update center, put it in correct location, download necessary plugins, and restart to apply changes
   $wget_path -O default.js http://updates.jenkins-ci.org/update-center.json
@@ -94,7 +91,11 @@
     workflow-scm-step pipeline-rest-api -restart 
   
   # make github login xml
-  $sed_path -i "patplaceholder;$GITHUB_PAT" /github_credentials.xml
+  $sed_path -i "s/usernameplaceholder/${GITHUB_USERNAME}/g" /github_credentials.xml
+  $sed_path -i "s/passwordplaceholder/${GITHUB_PASSWORD}/g" /github_credentials.xml
+  $sed_path -i "s/keyplaceholder/${AWS_ACCESS_KEY}/g" /aws-access-key.xml
+  $sed_path -i "s/keyplaceholder/${AWS_SECRET_ACCESS_KEY}/g" /aws-secret-access-key.xml
+  $sed_path -i "s/keyplaceholder/${PYPI_API_TOKEN}/g" /pypi_api_token.xml
 #   $touch_path github_credentials.xml
 #   $echo_path "<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl plugin="plain-credentials@143.v1b_df8b_d3b_e48">
 #   <scope>GLOBAL</scope>
@@ -126,21 +127,22 @@
 # </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>" >> aws-secret-access-key.xml
 
   # wait for jenkins to be running after restart
-  while [ "$($curl_path -s -o /dev/null -w "%{http_code}" $url/login\?from=%2F)" != "200" ];
+  while [ "$($curl_path -s -o /dev/null -w "%%{http_code}" $url/login\?from=%2F)" != "200" ];
   do 
     /bin/sleep 1;
   done
 
   # send github login xml to jenkins and make credentials
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < ~/github_credentials.xml
-  # $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < ~/aws-secret-access-key.xml
-  # $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < ~/aws-access-key.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /github_credentials.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /aws-secret-access-key.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /aws-access-key.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /pypi_api_token.xml
 
   # make webhook in github
   $curl_path -L \
   -X POST \
   -H "Accept: application/vnd.github+json" \
-  -H "Authorization: Bearer $GITHUB_PAT"\
+  -H "Authorization: Bearer ${GITHUB_PAT}"\
   -H "X-GitHub-Api-Version: 2022-11-28" \
   https://api.github.com/repos/SSH-key-rotation-AWS/team-henrique/hooks \
   -d "{\"name\":\"web\",\"active\":true,\"events\":[\"push\",\"pull_request\"],\"config\":{\"url\":\"http://$public_ip:8080/github-webhook/\",\"content_type\":\"json\",\"insecure_ssl\":\"0\"}}"
@@ -221,4 +223,4 @@
 #     <scriptPath>Jenkinsfile</scriptPath>
 #   </factory>
 # </org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>" >> config.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-job MultiBranch < ~/config.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-job MultiBranch < /config.xml

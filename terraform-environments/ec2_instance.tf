@@ -37,41 +37,69 @@ resource "aws_security_group" "security" {
   }
 }
 
-# data "aws_secretsmanager_secret" "jenkins_login" {
-#   secret_id = jenkins_login
-# }
+data "aws_secretsmanager_secret" "jenkins_username" {
+  name = "jenkins_username"
+}
 
-# data "aws_secretsmanager_secret" "key-switcheroo_github_pat" {
-#   secret_id = key-switcheroo_github_pat
-# }
+data "aws_secretsmanager_secret_version" "jenkins_username" {
+  secret_id = data.aws_secretsmanager_secret.jenkins_username.id
+}
 
-# data "aws_secretsmanager_secret" "pypi_api_token" {
-#   secret_id = pypi_api_token
-# }
+data "aws_secretsmanager_secret" "jenkins_password" {
+  name = "jenkins_password"
+}
 
-# data "aws_secretsmanager_secret" "aws_access_key" {
-#   secret_id = aws_access_key
-# }
+data "aws_secretsmanager_secret_version" "jenkins_password" {
+  secret_id = data.aws_secretsmanager_secret.jenkins_password.id
+}
 
-# data "aws_secretsmanager_secret" "aws_secret_access_key" {
-#   secret_id = aws_secret_access_key
-# }
+data "aws_secretsmanager_secret" "key-switcheroo_github_pat" {
+  name = "key-switcheroo_github_pat"
+}
 
-# data "aws_secretsmanager_secret" "github_username" {
-#   secret_id = github_username
-# }
+data "aws_secretsmanager_secret_version" "key-switcheroo_github_pat" {
+  secret_id = data.aws_secretsmanager_secret.key-switcheroo_github_pat.id
+}
 
-# locals {
-#   inline_user_data = <<-EOT
-#     #!/bin/bash
-#     export JENKINS_LOGIN=${data.aws_secretsmanager_secret.jenkins_login.secret_string}
-#     export GITHUB_PAT=${data.aws_secretsmanager_secret.key-switcheroo_github_pat.secret_string}
-#     export GITHUB_LOGIN=${data.aws_secretsmanager_secret.github_login.secret_string}
-#     export PYPI_KEY=${data.aws_secretsmanager_secret.pypi_api_token.secret_string}
-#   EOT
+data "aws_secretsmanager_secret" "pypi_api_token" {
+  name = "pypi_api_token"
+}
 
-#   external_script = file("${path.module}/startup.sh")
-# }
+data "aws_secretsmanager_secret_version" "pypi_api_token" {
+  secret_id = data.aws_secretsmanager_secret.pypi_api_token.id
+}
+
+data "aws_secretsmanager_secret" "aws_access_key" {
+  name = "aws_access_key"
+}
+
+data "aws_secretsmanager_secret_version" "aws_access_key" {
+  secret_id = data.aws_secretsmanager_secret.aws_access_key.id
+}
+
+data "aws_secretsmanager_secret" "aws_secret_access_key" {
+  name = "aws_secret_access_key"
+}
+
+data "aws_secretsmanager_secret_version" "aws_secret_access_key" {
+  secret_id = data.aws_secretsmanager_secret.aws_secret_access_key.id
+}
+
+data "aws_secretsmanager_secret" "github_username" {
+  name = "github_username"
+}
+
+data "aws_secretsmanager_secret_version" "github_username" {
+  secret_id = data.aws_secretsmanager_secret.github_username.id
+}
+
+data "aws_secretsmanager_secret" "github_password" {
+  name = "github_password"
+}
+
+data "aws_secretsmanager_secret_version" "github_password" {
+  secret_id = data.aws_secretsmanager_secret.github_password.id
+}
 
 resource "tls_private_key" "pk" {
   algorithm = "RSA"
@@ -195,21 +223,6 @@ resource "aws_key_pair" "kp" {
 #   role = aws_iam_role.secrets_role.name
 # }
 
-# locals {
-#   inline_user_data = <<-EOT
-#     #!/bin/bash
-#     echo "${base64decode(file("${path.module}/github_pat_secret.py"))}" > ~/github_pat_secret.py
-#     echo "${base64decode(file("${path.module}/jenkins_login_secret.py"))}" > ~/jenkins_login_secret.py
-#     echo "${base64decode(file("${path.module}/pypi_api_secret.py"))}" > ~/pypi_api_secret.py
-#     echo "${base64decode(file("${path.module}/config.xml"))}" > ~/config.xml
-#     echo "${base64decode(file("${path.module}/setup.groovy"))}" > ~/setup.groovy
-#     echo "${base64decode(file("${path.module}/github_credentials.xml"))}" > ~/github_credentials.xml
-#   EOT
-
-
-#   external_script = file("${path.module}/startup.sh")
-# }
-
 resource "aws_instance" "app_server" {
   # creates ec2 instance
   ami = "ami-053b0d53c279acc90"
@@ -220,58 +233,62 @@ resource "aws_instance" "app_server" {
   tags = {
     Name = "KeySwitcheroo"
   }
-  user_data = file("${path.module}/startup.sh")
-  # user_data = "${local.external_script}\n${local.inline_user_data}"
+  user_data = base64encode(templatefile("./startup.sh", {
+    JENKINS_USERNAME="${data.aws_secretsmanager_secret_version.jenkins_username.secret_string}", 
+    JENKINS_PASSWORD="${data.aws_secretsmanager_secret_version.jenkins_password.secret_string}", 
+    GITHUB_PAT="${data.aws_secretsmanager_secret_version.key-switcheroo_github_pat.secret_string}",
+    AWS_ACCESS_KEY="${data.aws_secretsmanager_secret_version.aws_access_key.secret_string}",
+    AWS_SECRET_ACCESS_KEY="${data.aws_secretsmanager_secret_version.aws_secret_access_key.secret_string}",
+    GITHUB_USERNAME="${data.aws_secretsmanager_secret_version.github_username.secret_string}",
+    GITHUB_PASSWORD="${data.aws_secretsmanager_secret_version.github_password.secret_string}",
+    PYPI_API_TOKEN="${data.aws_secretsmanager_secret_version.pypi_api_token.secret_string}"
+    }))
 
-  # connection {
-  #   type        = "ssh"
-  #   user        = "ubuntu"
-  #   private_key = tls_private_key.pk.private_key_pem
-  #   host        = self.public_ip
-  # }
-
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "/bin/sudo /bin/chmod 777 /"
-  #   ]
-  # }
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = tls_private_key.pk.private_key_pem
+    host        = self.public_ip
+  }
 
   provisioner "file" {
     source = "${path.module}/setup.groovy"
-    destination = "/setup.groovy"
-
-    connection {
-      type        = "ssh"
-      user        = "root"
-      password = ""
-      private_key = tls_private_key.pk.private_key_pem
-      host        = self.public_ip
-    }
+    destination = "setup.groovy"
   }
 
   provisioner "file" {
     source = "${path.module}/config.xml"
-    destination = "/config.xml"
-
-    connection {
-      type        = "ssh"
-      user        = "root"
-      password = ""
-      private_key = tls_private_key.pk.private_key_pem
-      host        = self.public_ip
-    }
+    destination = "config.xml"
   }
 
   provisioner "file" {
     source = "${path.module}/github_credentials.xml"
-    destination = "/github_credentials.xml"
+    destination = "github_credentials.xml"
+  }
 
-    connection {
-      type        = "ssh"
-      user        = "root"
-      password = ""
-      private_key = tls_private_key.pk.private_key_pem
-      host        = self.public_ip
-    }
+  provisioner "file" {
+    source = "${path.module}/aws_secret_access_key.xml"
+    destination = "aws-secret-access-key.xml"
+  }
+
+  provisioner "file" {
+    source = "${path.module}/aws_access_key.xml"
+    destination = "aws-access-key.xml"
+  }
+
+   provisioner "file" {
+    source = "${path.module}/pypi_api_token.xml"
+    destination = "pypi_api_token.xml"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "/bin/sudo /bin/mv ~/setup.groovy /setup.groovy",
+      "/bin/sudo /bin/mv ~/config.xml /config.xml",
+      "/bin/sudo /bin/mv ~/github_credentials.xml /github_credentials.xml",
+      "/bin/sudo /bin/mv ~/aws-secret-access-key.xml /aws-secret-access-key.xml",
+      "/bin/sudo /bin/mv ~/aws-access-key.xml /aws-access-key.xml",
+      "/bin/sudo /bin/mv ~/pypi_api_token.xml /pypi_api_token.xml"
+    ]
   }
 }
