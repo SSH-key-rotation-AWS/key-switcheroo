@@ -28,31 +28,10 @@ def publishToPYPI() {
     """
 }
 
-def pythonAPIOutput
-
 //The pipeline that Jenkins will look to on how to complete the build/test
 pipeline {
     agent any
-    //environment {
-        //AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
-        //AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-        //GITHUB_PAT = credentials('github_pat')
-    //}
     stages {
-        stage('Retrieve PYPI api token and docker') {
-            steps {
-                script {
-                    // Run the Python script and capture its output
-                    sh """
-                        $poetry env use $python
-                        $poetry install
-                        chmod +x -R jenkins_pipeline/pypi_api_secret.py
-                    """
-                    pythonAPIOutput = sh(returnStdout: true, script: ".venv/bin/python3.11 jenkins_pipeline/pypi_api_secret.py").trim()
-                }
-            }
-        }
-
         stage('Build') {
             steps {
                 runShellBuildStage()
@@ -62,7 +41,9 @@ pipeline {
         stage('Test') {
             //Tells Jenkins which S3 bucket we are using
             environment {
-                SSH_KEY_DEV_BUCKET_NAME = 'testing-bucket-key-switcheroo2'
+                SSH_KEY_DEV_BUCKET_NAME = 'testing-bucket-key-switcheroo'
+                AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
+                AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
             }
             steps {
                 script {
@@ -75,11 +56,12 @@ pipeline {
         }
 
         stage('Publish') {
-            when{
+            when {
                 branch 'main'
             }
             environment {
-                POETRY_PYPI_TOKEN_PYPI = "${pythonAPIOutput}"
+                GITHUB_PAT = credentials('github_pat')
+                POETRY_PYPI_TOKEN_PYPI = credentials('pypi_api_token')
             }
             steps {
                 publishToPYPI()
