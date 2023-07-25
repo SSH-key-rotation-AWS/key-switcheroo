@@ -14,5 +14,4 @@ default = "Disabled"
 
 variable "username"{
     description = "Create a username"
-    #TODO
 }

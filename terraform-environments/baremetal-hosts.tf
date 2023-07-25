@@ -1,9 +1,7 @@
 resource "aws_security_group" "allow_ingress" {
   name        = "allow_ingress"
   description = "Give correct security for baremetal hosts"
-  #tanis vpc 
   vpc_id      = "vpc-0bfb64215145a3e13"
-  # vpc_id      = "vpc-0698eb109e6e2afd5"
 
 
   ingress {
@@ -57,8 +55,8 @@ locals {
     USERNAME = var.username
 }
 
-# role creation section
 
+# role creation section
 variable "instance_profile_name" {
   type    = string
   default = "secrets-manager"
@@ -91,64 +89,6 @@ resource "aws_iam_policy" "secrets_policy" {
         }
     ]
 }
-  # {
-#     # copied the policy code from aws 
-#     "Version": "2012-10-17",
-#     "Statement": [
-#         {
-#             "Action": [
-#                 "secretsmanager:*",
-#                 "cloudformation:CreateChangeSet",
-#                 "cloudformation:DescribeChangeSet",
-#                 "cloudformation:DescribeStackResource",
-#                 "cloudformation:DescribeStacks",
-#                 "cloudformation:ExecuteChangeSet",
-#                 "ec2:DescribeSecurityGroups",
-#                 "ec2:DescribeSubnets",
-#                 "ec2:DescribeVpcs",
-#                 "kms:DescribeKey",
-#                 "kms:ListAliases",
-#                 "kms:ListKeys",
-#                 "lambda:ListFunctions",
-#                 "rds:DescribeDBClusters",
-#                 "rds:DescribeDBInstances",
-#                 "redshift:DescribeClusters",
-#                 "tag:GetResources"
-#             ],
-#             "Effect": "Allow",
-#             "Resource": "*"
-#         },
-#         {
-#             "Action": [
-#                 "lambda:AddPermission",
-#                 "lambda:CreateFunction",
-#                 "lambda:GetFunction",
-#                 "lambda:InvokeFunction",
-#                 "lambda:UpdateFunctionConfiguration"
-#             ],
-#             "Effect": "Allow",
-#             "Resource": "arn:aws:lambda:*:*:function:SecretsManager*"
-#         },
-#         {
-#             "Action": [
-#                 "serverlessrepo:CreateCloudFormationChangeSet",
-#                 "serverlessrepo:GetApplication"
-#             ],
-#             "Effect": "Allow",
-#             "Resource": "arn:aws:serverlessrepo:*:*:applications/SecretsManager*"
-#         },
-#         {
-#             "Action": [
-#                 "s3:GetObject"
-#             ],
-#             "Effect": "Allow",
-#             "Resource": [
-#                 "arn:aws:s3:::awsserverlessrepo-changesets*",
-#                 "arn:aws:s3:::secrets-manager-rotation-apps-*/*"
-#             ]
-#         }
-#     ]
-# }
 )
 }
 
