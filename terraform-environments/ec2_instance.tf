@@ -1,7 +1,6 @@
 resource "aws_security_group" "security" {
   name        = "ec2_security2"
   description = "Give correct security for ec2"
-  #tanis vpc = vpc-0bfb64215145a3e13
   vpc_id      = "vpc-0bfb64215145a3e13"
 
   ingress {
@@ -93,14 +92,6 @@ data "aws_secretsmanager_secret_version" "github_username" {
   secret_id = data.aws_secretsmanager_secret.github_username.id
 }
 
-data "aws_secretsmanager_secret" "github_password" {
-  name = "github_password"
-}
-
-data "aws_secretsmanager_secret_version" "github_password" {
-  secret_id = data.aws_secretsmanager_secret.github_password.id
-}
-
 resource "tls_private_key" "pk" {
   algorithm = "RSA"
   rsa_bits  = 4096
@@ -112,7 +103,6 @@ resource "aws_key_pair" "kp" {
 }
 
 resource "aws_instance" "app_server" {
-  # creates ec2 instance
   ami = "ami-053b0d53c279acc90"
   instance_type = "t2.micro"
   key_name = "key"
@@ -127,7 +117,6 @@ resource "aws_instance" "app_server" {
     AWS_ACCESS_KEY="${data.aws_secretsmanager_secret_version.aws_access_key.secret_string}",
     AWS_SECRET_ACCESS_KEY="${data.aws_secretsmanager_secret_version.aws_secret_access_key.secret_string}",
     GITHUB_USERNAME="${data.aws_secretsmanager_secret_version.github_username.secret_string}",
-    GITHUB_PASSWORD="${data.aws_secretsmanager_secret_version.github_password.secret_string}",
     PYPI_API_TOKEN="${data.aws_secretsmanager_secret_version.pypi_api_token.secret_string}"
     }))
 
@@ -163,19 +152,25 @@ resource "aws_instance" "app_server" {
     destination = "aws-access-key.xml"
   }
 
-   provisioner "file" {
+  provisioner "file" {
     source = "${path.module}/pypi_api_token.xml"
     destination = "pypi_api_token.xml"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "/bin/sudo /bin/mv ~/setup.groovy /setup.groovy",
-      "/bin/sudo /bin/mv ~/config.xml /config.xml",
-      "/bin/sudo /bin/mv ~/github_credentials.xml /github_credentials.xml",
-      "/bin/sudo /bin/mv ~/aws-secret-access-key.xml /aws-secret-access-key.xml",
-      "/bin/sudo /bin/mv ~/aws-access-key.xml /aws-access-key.xml",
-      "/bin/sudo /bin/mv ~/pypi_api_token.xml /pypi_api_token.xml"
-    ]
+  provisioner "file" {
+    source = "${path.module}/github_pat.xml"
+    destination = "github_pat.xml"
   }
+
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "/bin/sudo /bin/mv ~/setup.groovy /setup.groovy",
+  #     "/bin/sudo /bin/mv ~/config.xml /config.xml",
+  #     "/bin/sudo /bin/mv ~/github_credentials.xml /github_credentials.xml",
+  #     "/bin/sudo /bin/mv ~/aws-secret-access-key.xml /aws-secret-access-key.xml",
+  #     "/bin/sudo /bin/mv ~/aws-access-key.xml /aws-access-key.xml",
+  #     "/bin/sudo /bin/mv ~/pypi_api_token.xml /pypi_api_token.xml",
+  #     "/bin/sudo /bin/mv ~/github_pat.xml /github_pat.xml"
+  #   ]
+  # }
 }
