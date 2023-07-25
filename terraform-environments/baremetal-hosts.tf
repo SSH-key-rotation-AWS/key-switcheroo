@@ -67,77 +67,89 @@ variable "instance_profile_name" {
 variable "iam_policy_name" {
   # same name as aws's built in policy - not neccasary
   type    = string
-  default = "SecretsManagerReadWrite"
+  default = "admin_access"
 }
 
 variable "role_name" {
   # role is different than one that exists on aws
   type    = string
-  default = "ec2-secrets-access-terraform-role"
+  default = "ec2-admin-terraform-role"
 }
 
 # Create an IAM policy
 resource "aws_iam_policy" "secrets_policy" {
   name = var.iam_policy_name
 
-  policy = jsonencode({
-    # copied the policy code from aws 
+   policy = jsonencode(
+    {
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Action": [
-                "secretsmanager:*",
-                "cloudformation:CreateChangeSet",
-                "cloudformation:DescribeChangeSet",
-                "cloudformation:DescribeStackResource",
-                "cloudformation:DescribeStacks",
-                "cloudformation:ExecuteChangeSet",
-                "ec2:DescribeSecurityGroups",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeVpcs",
-                "kms:DescribeKey",
-                "kms:ListAliases",
-                "kms:ListKeys",
-                "lambda:ListFunctions",
-                "rds:DescribeDBClusters",
-                "rds:DescribeDBInstances",
-                "redshift:DescribeClusters",
-                "tag:GetResources"
-            ],
             "Effect": "Allow",
+            "Action": "*",
             "Resource": "*"
-        },
-        {
-            "Action": [
-                "lambda:AddPermission",
-                "lambda:CreateFunction",
-                "lambda:GetFunction",
-                "lambda:InvokeFunction",
-                "lambda:UpdateFunctionConfiguration"
-            ],
-            "Effect": "Allow",
-            "Resource": "arn:aws:lambda:*:*:function:SecretsManager*"
-        },
-        {
-            "Action": [
-                "serverlessrepo:CreateCloudFormationChangeSet",
-                "serverlessrepo:GetApplication"
-            ],
-            "Effect": "Allow",
-            "Resource": "arn:aws:serverlessrepo:*:*:applications/SecretsManager*"
-        },
-        {
-            "Action": [
-                "s3:GetObject"
-            ],
-            "Effect": "Allow",
-            "Resource": [
-                "arn:aws:s3:::awsserverlessrepo-changesets*",
-                "arn:aws:s3:::secrets-manager-rotation-apps-*/*"
-            ]
         }
     ]
-})
+}
+  # {
+#     # copied the policy code from aws 
+#     "Version": "2012-10-17",
+#     "Statement": [
+#         {
+#             "Action": [
+#                 "secretsmanager:*",
+#                 "cloudformation:CreateChangeSet",
+#                 "cloudformation:DescribeChangeSet",
+#                 "cloudformation:DescribeStackResource",
+#                 "cloudformation:DescribeStacks",
+#                 "cloudformation:ExecuteChangeSet",
+#                 "ec2:DescribeSecurityGroups",
+#                 "ec2:DescribeSubnets",
+#                 "ec2:DescribeVpcs",
+#                 "kms:DescribeKey",
+#                 "kms:ListAliases",
+#                 "kms:ListKeys",
+#                 "lambda:ListFunctions",
+#                 "rds:DescribeDBClusters",
+#                 "rds:DescribeDBInstances",
+#                 "redshift:DescribeClusters",
+#                 "tag:GetResources"
+#             ],
+#             "Effect": "Allow",
+#             "Resource": "*"
+#         },
+#         {
+#             "Action": [
+#                 "lambda:AddPermission",
+#                 "lambda:CreateFunction",
+#                 "lambda:GetFunction",
+#                 "lambda:InvokeFunction",
+#                 "lambda:UpdateFunctionConfiguration"
+#             ],
+#             "Effect": "Allow",
+#             "Resource": "arn:aws:lambda:*:*:function:SecretsManager*"
+#         },
+#         {
+#             "Action": [
+#                 "serverlessrepo:CreateCloudFormationChangeSet",
+#                 "serverlessrepo:GetApplication"
+#             ],
+#             "Effect": "Allow",
+#             "Resource": "arn:aws:serverlessrepo:*:*:applications/SecretsManager*"
+#         },
+#         {
+#             "Action": [
+#                 "s3:GetObject"
+#             ],
+#             "Effect": "Allow",
+#             "Resource": [
+#                 "arn:aws:s3:::awsserverlessrepo-changesets*",
+#                 "arn:aws:s3:::secrets-manager-rotation-apps-*/*"
+#             ]
+#         }
+#     ]
+# }
+)
 }
 
 # Create an IAM role
@@ -194,6 +206,7 @@ resource "aws_instance" "baremetal-host-2" {
   instance_type = "t2.micro"      
   key_name      = aws_key_pair.demo_key_pair.key_name
   vpc_security_group_ids  =[aws_security_group.allow_ingress.id]
+  iam_instance_profile = aws_iam_instance_profile.secrets.name
   tags = {
     Name = "host-2"
   }
