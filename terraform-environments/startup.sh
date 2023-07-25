@@ -6,8 +6,6 @@
   # set variables
   apt_path=/bin/apt
   curl_path=/bin/curl
-  # touch_path=/bin/touch
-  # echo_path=/bin/echo
   java_path=/bin/java
   sed_path=/bin/sed
   wget_path=/bin/wget
@@ -16,8 +14,6 @@
   url="http://localhost:8080"
   public_ip=$($curl_path ifconfig.me)
   JENKINS_LOGIN=${JENKINS_USERNAME}:${JENKINS_PASSWORD}
-
-  # /bin/git clone https://github.com/SSH-key-rotation-AWS/key-switcheroo
 
   # disable prompts that make the script hang
   $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
@@ -53,23 +49,9 @@
   # download cli client
   $wget_path $url/jnlpJars/jenkins-cli.jar
 
-  # make jenkins sign in script, configure login settings, and send script to jenkins
+  # send jenkins login script to jenkins
   $sed_path -i "s/username/${JENKINS_USERNAME}/g" /setup.groovy
   $sed_path -i "s/password/${JENKINS_PASSWORD}/g" /setup.groovy
-  # $touch_path setup.groovy
-  # $echo_path "import jenkins.model.*
-  # import hudson.security.*
-
-  # def instance = Jenkins.getInstance()
-
-  # def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-  # hudsonRealm.createAccount(\"KeySwitcheroo\", \"AWS_SSH\")
-  # instance.setSecurityRealm(hudsonRealm)
-  # instance.save()
-
-  # def strategy = new hudson.security.FullControlOnceLoggedInAuthorizationStrategy()
-  # strategy.setAllowAnonymousRead(false)
-  # instance.setAuthorizationStrategy(strategy)" >> setup.groovy
   $java_path -jar jenkins-cli.jar -s $url groovy = < /setup.groovy
 
   # set up plugin update center, put it in correct location, download necessary plugins, and restart to apply changes
@@ -77,54 +59,25 @@
   $sed_path "1d;\$d" default.js > ~/default.json
   /bin/mkdir /root/.jenkins/updates
   /bin/mv ~/default.json /root/.jenkins/updates
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" install-plugin github-branch-source workflow-multibranch \
-    multibranch-action-triggers config-file-provider branch-api cloudbees-folder ghprb credentials ant apache-httpcomponents-client-4-api \
-    bootstrap5-api bouncycastle-api branch-api build-timeout caffeine-api checks-api commons-lang3-api commons-text-api credentials-binding \
-    ldap junit jquery3-api jaxb javax-mail-api javax-activation-api jjwt-api jakarta-mail-api jakarta-activation-api \
-    jackson2-api ionicons-api instance-identity gradle github github-branch-source github-api git git-client font-awesome-api cloudbees-folder \
-    email-ext echarts-api durable-task display-url-api credentials workflow-durable-task-step workflow-multibranch pipeline-model-api \
-    pipeline-milestone-step workflow-job pipeline-input-step pipeline-groovy-lib workflow-cps pipeline-github-lib pipeline-model-extensions \
-    pipeline-model-definition pipeline-build-step workflow-basic-steps workflow-api pipeline-graph-analysis workflow-aggregator \
-    pam-auth antisamy-markup-formatter okhttp-api mina-sshd-api-core mina-sshd-api-common matrix-project matrix-auth mailer ws-cleanup \
-    variant trilead-api token-macro timestamper structs sshd ssh-credentials ssh-slaves snakeyaml-api script-security scm-api resource-disposer \
-    plugin-util-api plain-credentials workflow-support workflow-step-api pipeline-stage-view pipeline-stage-tags-metadata pipeline-stage-step \
-    workflow-scm-step pipeline-rest-api -restart 
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" install-plugin github-branch-source workflow-multibranch branch-api cloudbees-folder credentials -restart
+    # multibranch-action-triggers config-file-provider ghprb ant apache-httpcomponents-client-4-api \
+    # bootstrap5-api bouncycastle-api branch-api build-timeout caffeine-api checks-api commons-lang3-api commons-text-api credentials-binding \
+    # ldap junit jquery3-api jaxb javax-mail-api javax-activation-api jjwt-api jakarta-mail-api jakarta-activation-api \
+    # jackson2-api ionicons-api instance-identity gradle github github-branch-source github-api git git-client font-awesome-api cloudbees-folder \
+    # email-ext echarts-api durable-task display-url-api credentials workflow-durable-task-step workflow-multibranch pipeline-model-api \
+    # pipeline-milestone-step workflow-job pipeline-input-step pipeline-groovy-lib workflow-cps pipeline-github-lib pipeline-model-extensions \
+    # pipeline-model-definition pipeline-build-step workflow-basic-steps workflow-api pipeline-graph-analysis workflow-aggregator \
+    # pam-auth antisamy-markup-formatter okhttp-api mina-sshd-api-core mina-sshd-api-common matrix-project matrix-auth mailer ws-cleanup \
+    # variant trilead-api token-macro timestamper structs sshd ssh-credentials ssh-slaves snakeyaml-api script-security scm-api resource-disposer \
+    # plugin-util-api plain-credentials workflow-support workflow-step-api pipeline-stage-view pipeline-stage-tags-metadata pipeline-stage-step \
+    # workflow-scm-step pipeline-rest-api -restart 
   
-  # make github login xml
+  # add secrets to credential files
   $sed_path -i "s/usernameplaceholder/${GITHUB_USERNAME}/g" /github_credentials.xml
   $sed_path -i "s/passwordplaceholder/${GITHUB_PASSWORD}/g" /github_credentials.xml
   $sed_path -i "s/keyplaceholder/${AWS_ACCESS_KEY}/g" /aws-access-key.xml
   $sed_path -i "s/keyplaceholder/${AWS_SECRET_ACCESS_KEY}/g" /aws-secret-access-key.xml
   $sed_path -i "s/keyplaceholder/${PYPI_API_TOKEN}/g" /pypi_api_token.xml
-#   $touch_path github_credentials.xml
-#   $echo_path "<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl plugin="plain-credentials@143.v1b_df8b_d3b_e48">
-#   <scope>GLOBAL</scope>
-#   <id>github_login</id>
-#   <description></description>
-#   <secret>
-#     $GITHUB_PAT
-#   </secret>
-# </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>" >> github_credentials.xml
-
-# $touch_path aws-access-key.xml
-#   $echo_path "<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl plugin="plain-credentials@143.v1b_df8b_d3b_e48">
-#   <scope>GLOBAL</scope>
-#   <id>aws-access-key</id>
-#   <description></description>
-#   <secret>
-#     $AWS_ACCESS_KEY
-#   </secret>
-# </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>" >> aws-access-key.xml
-
-# $touch_path aws-secret-access-key.xml
-#   $echo_path "<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl plugin="plain-credentials@143.v1b_df8b_d3b_e48">
-#   <scope>GLOBAL</scope>
-#   <id>aws-secret-access-key</id>
-#   <description></description>
-#   <secret>
-#     $AWS_SECRET_ACCESS_KEY
-#   </secret>
-# </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>" >> aws-secret-access-key.xml
 
   # wait for jenkins to be running after restart
   while [ "$($curl_path -s -o /dev/null -w "%%{http_code}" $url/login\?from=%2F)" != "200" ];
@@ -132,7 +85,7 @@
     /bin/sleep 1;
   done
 
-  # send github login xml to jenkins and make credentials
+  # send xmls to jenkins and make credentials
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /github_credentials.xml
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /aws-secret-access-key.xml
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /aws-access-key.xml
@@ -147,8 +100,7 @@
   https://api.github.com/repos/SSH-key-rotation-AWS/team-henrique/hooks \
   -d "{\"name\":\"web\",\"active\":true,\"events\":[\"push\",\"pull_request\"],\"config\":{\"url\":\"http://$public_ip:8080/github-webhook/\",\"content_type\":\"json\",\"insecure_ssl\":\"0\"}}"
 
-  # set up pipeline in xml and send to jenkins 
-#   $touch_path config.xml
+  # send pipeline xml to jenkins
 #   $echo_path "<?xml version='1.1' encoding='UTF-8'?>
 # <org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin=\"workflow-multibranch@756.v891d88f2cd46\">
 #   <actions/>

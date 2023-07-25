@@ -24,7 +24,7 @@
         <source class="org.jenkinsci.plugins.github_branch_source.GitHubSCMSource" plugin="github-branch-source@1728.v859147241f49">
           <id>d833c7fd-f660-48f6-a37e-ee6838b2b0bd</id>
           <apiUri>https://api.github.com</apiUri>
-          <credentialsId>96e45f91-bb7f-486a-b54b-aba370147d1b</credentialsId>
+          <credentialsId>github_login</credentialsId>
           <repoOwner>SSH-key-rotation-AWS</repoOwner>
           <repository>key-switcheroo</repository>
           <repositoryUrl>https://github.com/SSH-key-rotation-AWS/key-switcheroo</repositoryUrl>

@@ -22,7 +22,7 @@ def runTests() {
 def publishToPYPI() {
     sh """
         $poetry run python jenkins_pipeline/github_api_tag_manager.py
-        git pull
+        /bin/git pull
         $poetry build
         $poetry publish
     """

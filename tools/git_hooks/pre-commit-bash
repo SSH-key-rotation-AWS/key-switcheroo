@@ -57,30 +57,6 @@ async def main():
 asyncio.run(main())
 
 
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # echo "Running Black..."
 # # Run Black on all Python files in the staged changes
 # git diff --cached --name-only --diff-filter=ACMRTUXB | grep -E '\.py$' | xargs black

@@ -9,33 +9,6 @@ BASE_URL = "https://api.github.com"
 OWNER = "SSH-key-rotation-AWS"
 REPO = "key-switcheroo"
 
-
-# def get_secret():
-
-#     secret_name = "key-switcheroo_github_pat"
-#     region_name = "us-east-1"
-
-#     # Create a Secrets Manager client
-#     session = boto3.session.Session()
-#     client = session.client(
-#         service_name='secretsmanager',
-#         region_name=region_name
-#     )
-
-#     try:
-#         get_secret_value_response = client.get_secret_value(
-#             SecretId=secret_name
-#         )
-#     except ClientError as failed_secrets_api_call:
-#         # For a list of exceptions thrown, see
-#         # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-#         raise failed_secrets_api_call
-
-#     # Decrypts secret using the associated KMS key.
-#     RETURNTOKEN = get_secret_value_response['SecretString']
-#     return RETURNTOKEN
-
-
 def get_latest_tag(timeout: int = 10) -> str:
     """Gets the latest tag from github so it can increment by one"""
     token = os.environ["GITHUB_PAT"]
@@ -108,6 +81,5 @@ def create_tag(tag_name: str, commit_sha: str, timeout: int = 10):
         print(f"Error while creating new tag: {response.status_code} - {response.text}")
 
 
-# TOKEN = get_secret()
 current_tag = get_latest_tag()
 bump_tag(old_tag=current_tag)
