@@ -2,8 +2,8 @@ resource "aws_security_group" "allow_ingress" {
   name        = "allow_ingress"
   description = "Give correct security for baremetal hosts"
   #tanis vpc 
-  # vpc_id      = "vpc-0bfb64215145a3e13"
-  vpc_id      = "vpc-0698eb109e6e2afd5"
+  vpc_id      = "vpc-0bfb64215145a3e13"
+  # vpc_id      = "vpc-0698eb109e6e2afd5"
 
 
   ingress {
