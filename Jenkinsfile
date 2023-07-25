@@ -1,5 +1,5 @@
 python = '/bin/python3.11'
-poetry = "~/.local/bin/poetry"
+poetry = "/root/.local/bin/poetry"
 
 //Builds all the code
 def runShellBuildStage() {
