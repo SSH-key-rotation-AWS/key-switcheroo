@@ -52,24 +52,14 @@
   /bin/mkdir /root/.jenkins/updates
   /bin/mv ~/default.json /root/.jenkins/updates
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" install-plugin github-branch-source workflow-multibranch branch-api cloudbees-folder credentials workflow-aggregator -restart
-    # multibranch-action-triggers config-file-provider ghprb ant apache-httpcomponents-client-4-api \
-    # bootstrap5-api bouncycastle-api branch-api build-timeout caffeine-api checks-api commons-lang3-api commons-text-api credentials-binding \
-    # ldap junit jquery3-api jaxb javax-mail-api javax-activation-api jjwt-api jakarta-mail-api jakarta-activation-api \
-    # jackson2-api ionicons-api instance-identity gradle github github-branch-source github-api git git-client font-awesome-api cloudbees-folder \
-    # email-ext echarts-api durable-task display-url-api workflow-durable-task-step workflow-multibranch pipeline-model-api \
-    # pipeline-milestone-step workflow-job pipeline-input-step pipeline-groovy-lib workflow-cps pipeline-github-lib pipeline-model-extensions \
-    # pipeline-model-definition pipeline-build-step workflow-basic-steps workflow-api pipeline-graph-analysis workflow-aggregator \
-    # pam-auth antisamy-markup-formatter okhttp-api mina-sshd-api-core mina-sshd-api-common matrix-project matrix-auth mailer ws-cleanup \
-    # variant trilead-api token-macro timestamper structs sshd ssh-credentials ssh-slaves snakeyaml-api script-security scm-api resource-disposer \
-    # plugin-util-api plain-credentials workflow-support workflow-step-api pipeline-stage-view pipeline-stage-tags-metadata pipeline-stage-step \
-    # workflow-scm-step pipeline-rest-api -restart 
   
   # add secrets to credential files
   $sed_path -i "s/usernameplaceholder/${GITHUB_USERNAME}/g" /github_credentials.xml
-  $sed_path -i "s/passwordplaceholder/${GITHUB_PASSWORD}/g" /github_credentials.xml
+  $sed_path -i "s/passwordplaceholder/${GITHUB_PAT}/g" /github_credentials.xml
   $sed_path -i "s/keyplaceholder/${AWS_ACCESS_KEY}/g" /aws-access-key.xml
   $sed_path -i "s/keyplaceholder/${AWS_SECRET_ACCESS_KEY}/g" /aws-secret-access-key.xml
   $sed_path -i "s/keyplaceholder/${PYPI_API_TOKEN}/g" /pypi_api_token.xml
+  $sed_path -i "s/keyplaceholder/${GITHUB_PAT}/g" /github_pat.xml
 
   # wait for jenkins to be running after restart
   while [ "$($curl_path -s -o /dev/null -w "%%{http_code}" $url/login\?from=%2F)" != "200" ];
@@ -82,6 +72,7 @@
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /aws-secret-access-key.xml
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /aws-access-key.xml
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /pypi_api_token.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /github_pat.xml
 
   # make webhook in github
   $curl_path -L \
