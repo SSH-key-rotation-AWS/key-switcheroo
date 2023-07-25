@@ -88,10 +88,6 @@ $sudo_path chmod 777 temp_output.txt
 python3.11 /home/python-script/get-creds.py > temp_output.txt
 access_key=$($sudo_path $sed_path '1!d' temp_output.txt)
 secret_key=$($sudo_path $sed_path '2!d' temp_output.txt)
-$sudo_path touch tempAcc.txt
-$sudo_path touch tempSec.txt
-echo "access_key=$access_key" > tempAcc.txt
-echo "secret_key=$secret_key" >  tempSec.txt
 # Remove the temporary file
 $sudo_path rm temp_output.txt
 
