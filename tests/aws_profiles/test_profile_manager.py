@@ -292,3 +292,4 @@ def test_loading_validates_credentials(
     unmocked_profile_manager = ProfileManager(temp_dir_pathlib)
     # We should remove all invalid profiles
     assert_that(unmocked_profile_manager.profiles, has_length(0))
+    assert_that(unmocked_profile_manager.current_profile, none())

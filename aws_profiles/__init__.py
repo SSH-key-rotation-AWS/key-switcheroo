@@ -93,7 +93,7 @@ class ProfileManager:
         del self._profiles[identifier]
         assert self._selected_profile_index is not None
         if self._selected_profile_index == identifier:
-            if identifier == 0:  # We removed the last profile
+            if len(self._profiles) == 0:  # We removed the last profile
                 self._selected_profile_index = None
             else:  # We removed the selected profile, but profiles still exist
                 self._selected_profile_index = 0
@@ -170,13 +170,15 @@ class ProfileManager:
             )
 
         parsed_profiles = list(map(parse_profile, json_obj["profiles"]))
-        profiles = [
-            profile
-            for profile in parsed_profiles
-            if self._check_valid_profile(profile)[0]
-        ]
         self._selected_profile_index = json_obj["selected_profile"]
-        self._profiles = profiles
+        self._profiles = parsed_profiles
+        # Remove invalid profiles
+        current_index = 0
+        while current_index < len(self._profiles):
+            if not self._check_valid_profile(self._profiles[current_index])[0]:
+                self.remove(current_index)
+            else:
+                current_index += 1
         return True
 
     def __eq__(self, other: Any) -> bool:
