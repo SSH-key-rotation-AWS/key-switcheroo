@@ -2,13 +2,15 @@
 
 
 # set variables
-  sudo_path=$(which sudo)
-  apt_path=$(which apt)
-  curl_path=$(which curl)
-  sed_path=$(which sed)
+  # sudo_path=$(which sudo)
+  # apt_path=$(which apt)
+  # curl_path=$(which curl)
+  # sed_path=$(which sed)
+  sudo_path=/bin/sudo
+  apt_path=/bin/apt
+  curl_path=/bin/curl
+  sed_path=/bin/sed
 
-# store script encoded in base64 so the ec2 has access to it
-  encoded_python_script="IyBVc2UgdGhpcyBjb2RlIHNuaXBwZXQgaW4geW91ciBhcHAuCiMgSWYgeW91IG5lZWQgbW9yZSBpbmZvcm1hdGlvbiBhYm91dCBjb25maWd1cmF0aW9ucwojIG9yIGltcGxlbWVudGluZyB0aGUgc2FtcGxlIGNvZGUsIHZpc2l0IHRoZSBBV1MgZG9jczoKIyBodHRwczovL2F3cy5hbWF6b24uY29tL2RldmVsb3Blci9sYW5ndWFnZS9weXRob24vCgppbXBvcnQgYm90bzMKZnJvbSBib3RvY29yZS5leGNlcHRpb25zIGltcG9ydCBDbGllbnRFcnJvcgppbXBvcnQganNvbgoKCmRlZiBnZXRfc2VjcmV0KCk6CgogICAgc2VjcmV0X25hbWUgPSAicHJvZC9ob3N0cy9rZXlzIgogICAgcmVnaW9uX25hbWUgPSAidXMtZWFzdC0xIgoKICAgICMgQ3JlYXRlIGEgU2VjcmV0cyBNYW5hZ2VyIGNsaWVudAogICAgc2Vzc2lvbiA9IGJvdG8zLnNlc3Npb24uU2Vzc2lvbigpCiAgICBjbGllbnQgPSBzZXNzaW9uLmNsaWVudCgKICAgICAgICBzZXJ2aWNlX25hbWU9J3NlY3JldHNtYW5hZ2VyJywKICAgICAgICByZWdpb25fbmFtZT1yZWdpb25fbmFtZQogICAgKQoKICAgIHRyeToKICAgICAgICBnZXRfc2VjcmV0X3ZhbHVlX3Jlc3BvbnNlID0gY2xpZW50LmdldF9zZWNyZXRfdmFsdWUoCiAgICAgICAgICAgIFNlY3JldElkPXNlY3JldF9uYW1lCiAgICAgICAgKQogICAgZXhjZXB0IENsaWVudEVycm9yIGFzIGU6CiAgICAgICAgIyBGb3IgYSBsaXN0IG9mIGV4Y2VwdGlvbnMgdGhyb3duLCBzZWUKICAgICAgICAjIGh0dHBzOi8vZG9jcy5hd3MuYW1hem9uLmNvbS9zZWNyZXRzbWFuYWdlci9sYXRlc3QvYXBpcmVmZXJlbmNlL0FQSV9HZXRTZWNyZXRWYWx1ZS5odG1sCiAgICAgICAgcmFpc2UgZQoKICAgICMgRGVjcnlwdHMgc2VjcmV0IHVzaW5nIHRoZSBhc3NvY2lhdGVkIEtNUyBrZXkuCiAgICBzZWNyZXQgPSBnZXRfc2VjcmV0X3ZhbHVlX3Jlc3BvbnNlWydTZWNyZXRTdHJpbmcnXQoKICAgICMgY3JlYXRlIGEganNvbiBvYmplY3QgdXNpbmYgdGhlIHJldHVybmVkIHNlY3JldAogICAgZGF0YSA9IGpzb24ubG9hZHMoc2VjcmV0KQoKICAgICMgR2V0IHRoZSB2YWx1ZSBvZiBlYWNoIGtleQogICAgcHVibGljX2tleSA9IGRhdGFbJ3B1YmxpYyddCiAgICBwcml2YXRlX2tleSA9IGRhdGFbJ3ByaXZhdGUnXQoKICAgICMgWW91ciBjb2RlIGdvZXMgaGVyZS4KICAgIHByaW50KHB1YmxpY19rZXkpCiAgICBwcmludChwcml2YXRlX2tleSkKCmdldF9zZWNyZXQoKQoK"
 
 set -u
 set -e
@@ -76,16 +78,62 @@ pip3 install boto3
 cd /home
 $sudo_path mkdir python-script
 cd python-script
-python_script_decoded="$(echo "$encoded_python_script" | base64 -d)"
-$sudo_path touch /home/python-script/get-creds.py
-$sudo_path chmod 777 /home/python-script/get-creds.py
-echo "$python_script_decoded" > /home/python-script/get-creds.py
+
+python_code=$(cat <<'EOL'
+import boto3
+from botocore.exceptions import ClientError
+import json
+
+
+def get_secret():
+
+    secret_name = "prod/hosts/keys"
+    region_name = "us-east-1"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        raise e
+
+    # Decrypts secret using the associated KMS key.
+    secret = get_secret_value_response['SecretString']
+
+    # create a json object using the returned secret
+    data = json.loads(secret)
+
+    # Get the value of each key
+    public_key = data['public']
+    private_key = data['private']
+
+    # Your code goes here.
+    print(public_key)
+    print(private_key)
+
+get_secret()
+EOL
+)
+
+
+$sudo_path touch /home/python-script/get-creds-plain.py
+$sudo_path chmod 777 /home/python-script/get-creds-plain.py
+echo "$python_code" > /home/python-script/get-creds-plain.py
 
 # call script to get the keys, and store them in a temp file to access them
 cd /
 $sudo_path touch temp_output.txt
 $sudo_path chmod 777 temp_output.txt
-python3.11 /home/python-script/get-creds.py > temp_output.txt
+python3.11 /home/python-script/get-creds-plain.py > temp_output.txt
 access_key=$($sudo_path "$sed_path" '1!d' temp_output.txt)
 secret_key=$($sudo_path "$sed_path" '2!d' temp_output.txt)
 # Remove the temporary file
