@@ -2,7 +2,5 @@
    <scope>GLOBAL</scope>
    <id>github_pat</id>
    <description></description>
-   <secret>
-     keyplaceholder
-   </secret>
+   <secret>keyplaceholder</secret>
  </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>

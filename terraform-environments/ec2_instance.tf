@@ -1,5 +1,5 @@
 resource "aws_security_group" "security" {
-  name        = "ec2_security2"
+  name        = "ec2_security3"
   description = "Give correct security for ec2"
   vpc_id      = "vpc-0bfb64215145a3e13"
 
@@ -32,7 +32,7 @@ resource "aws_security_group" "security" {
   }
 
   tags = {
-    Name = "ec2_security2"
+    Name = "ec2_security3"
   }
 }
 
@@ -98,17 +98,17 @@ resource "tls_private_key" "pk" {
 }
 
 resource "aws_key_pair" "kp" {
-  key_name   = "key"
+  key_name   = "key2"
   public_key = tls_private_key.pk.public_key_openssh
 }
 
 resource "aws_instance" "app_server" {
   ami = "ami-053b0d53c279acc90"
   instance_type = "t2.small"
-  key_name = "key"
+  key_name = "key2"
   vpc_security_group_ids  = [aws_security_group.security.id]
   tags = {
-    Name = "KeySwitcheroo"
+    Name = "KeySwitcheroo2"
   }
   user_data = base64encode(templatefile("./startup.sh", {
     JENKINS_USERNAME="${data.aws_secretsmanager_secret_version.jenkins_username.secret_string}", 
@@ -162,6 +162,11 @@ resource "aws_instance" "app_server" {
     destination = "github_pat.xml"
   }
 
+  # provisioner "file" {
+  #   source = "${path.module}/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
+  #   destination = "org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
+  # }
+
   provisioner "remote-exec" {
     inline = [
       "/bin/sudo /bin/mv ~/setup.groovy /setup.groovy",
@@ -170,7 +175,8 @@ resource "aws_instance" "app_server" {
       "/bin/sudo /bin/mv ~/aws-secret-access-key.xml /aws-secret-access-key.xml",
       "/bin/sudo /bin/mv ~/aws-access-key.xml /aws-access-key.xml",
       "/bin/sudo /bin/mv ~/pypi_api_token.xml /pypi_api_token.xml",
-      "/bin/sudo /bin/mv ~/github_pat.xml /github_pat.xml"
+      "/bin/sudo /bin/mv ~/github_pat.xml /github_pat.xml",
+      # "/bin/sudo /bin/mv ~/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
     ]
   }
 }
