@@ -157,3 +157,4 @@
 #   </factory>
 # </org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>" >> config.xml
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-job MultiBranch < /config.xml
+# $sed_path -i "s/ThrottleForNormalize/NoThrottle/g" /.jenkins/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml
