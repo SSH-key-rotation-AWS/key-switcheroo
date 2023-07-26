@@ -81,6 +81,8 @@
   https://api.github.com/repos/SSH-key-rotation-AWS/team-henrique/hooks \
   -d "{\"name\":\"web\",\"active\":true,\"events\":[\"push\",\"pull_request\"],\"config\":{\"url\":\"http://$public_ip:8080/github-webhook/\",\"content_type\":\"json\",\"insecure_ssl\":\"0\"}}"
 
+  # move file to disable throttling
+  /bin/mv /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml ~/.jenkins/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml
+  
   # send pipeline xml to jenkins
-
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-job MultiBranch < /config.xml
