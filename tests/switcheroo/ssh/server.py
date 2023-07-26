@@ -98,7 +98,7 @@ class Server:
         user_path = Path.home()
         ssh_dir = user_path / "etc" / "ssh"
         ssh_dir.mkdir(parents=True, exist_ok=True)
-        subprocess.run(f"ssh-keygen -A -f {user_path.name}", shell=True, check=True)
+        subprocess.run(f"ssh-keygen -A -f {str(user_path)}", shell=True, check=True)
 
     @staticmethod
     def __setup_pid_file():
