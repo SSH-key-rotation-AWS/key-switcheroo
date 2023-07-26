@@ -1,5 +1,5 @@
 resource "aws_security_group" "security" {
-  name        = "ec2_security2"
+  name        = "ec2_security"
   description = "Give correct security for ec2"
   vpc_id      = "vpc-0bfb64215145a3e13"
 
