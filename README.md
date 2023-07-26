@@ -51,9 +51,9 @@ Once the package is installed, commands can be called from the user's CLI for bo
 For help with command-line arguments,
 
 
-`publisher --help` or `publisher -h`
+`switcheroo_publish --help` or `switcheroo_publish -h`
 
-`retriever --help` or `retriever -h`
+`switcheroo_retrieve --help` or `switcheroo_retrieve -h`
 
 
 ### Publisher
@@ -83,9 +83,9 @@ When using the *publisher* for creating and publishing new SSH keys, the user ha
 
 **Example**
 
-`publisher 127.0.0.1 johndoe -ds s3 --bucket mybucket --sshdir home/johndoe/.ssh -m aws`
+`switcheroo_publish 127.0.0.1 johndoe -ds s3 --bucket mybucket --sshdir home/johndoe/.ssh -m aws`
 
-`publisher 127.0.0.1 johndoe --datastore local --metric file --metricpath home/switcheroo/metrics`
+`switcheroo_publish 127.0.0.1 johndoe --datastore local --metric file --metricpath home/switcheroo/metrics`
 
 
 ### Retriever
@@ -108,9 +108,9 @@ When using the *retriever* for fetching the public SSH keys, the user has a coup
 
 **Example**
 
-`retriever johndoe --datastore s3 --bucket mybucket`
+`switcheroo_retrieve johndoe --datastore s3 --bucket mybucket`
 
-`retriever johndoe -ds local --sshdir /home/johndoe/.ssh/keys`
+`switcheroo_retrieve johndoe -ds local --sshdir /home/johndoe/.ssh/keys`
 
 
 ## Dependencies

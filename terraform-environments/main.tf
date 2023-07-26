@@ -9,9 +9,6 @@ terraform {
   required_version = ">= 1.2.0"
 }
 
-# resource "random_id" "suffix" {
-#   byte_length = 8
-# }
 
 
 provider "aws" {

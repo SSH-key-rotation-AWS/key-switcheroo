@@ -28,8 +28,8 @@ def file_datastore(
 
 
 @pytest.fixture
-def s3_datastore(s3_bucket: str) -> S3DataStore:
-    s3_ds = S3DataStore(s3_bucket)
+def s3_datastore(s3_bucket: str, credentials: tuple[str, str, str]) -> S3DataStore:
+    s3_ds = S3DataStore(s3_bucket, credentials[0], credentials[1], credentials[2])
     s3_ds.register_serializer(Person, PersonSerializer())
     return s3_ds
 

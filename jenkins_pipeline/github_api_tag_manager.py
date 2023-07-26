@@ -1,39 +1,20 @@
+import os
 import requests
-import boto3
-from botocore.exceptions import ClientError
+
+# import boto3
+# from botocore.exceptions import ClientError
 
 # Constants
 BASE_URL = "https://api.github.com"
 OWNER = "SSH-key-rotation-AWS"
 REPO = "key-switcheroo"
-CURRENT_TAG = ""
 
-
-def get_secret() -> str:
-    secret_name = "key-switcheroo_github_pat"
-    region_name = "us-east-1"
-
-    # Create a Secrets Manager client
-    session = boto3.session.Session()
-    client = session.client(service_name="secretsmanager", region_name=region_name)
-
-    try:
-        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
-    except ClientError as failed_secrets_api_call:
-        # For a list of exceptions thrown, see
-        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-        raise failed_secrets_api_call
-
-    # Decrypts secret using the associated KMS key.
-    return_token = get_secret_value_response["SecretString"]
-    return return_token
-
-
-def get_latest_tag(timeout=10) -> str:
+def get_latest_tag(timeout: int = 10) -> str:
     """Gets the latest tag from github so it can increment by one"""
+    token = os.environ["GITHUB_PAT"]
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/tags"
     # Uses github PAT token for access
-    headers = {"Authorization": f"Bearer {TOKEN}"}
+    headers = {"Authorization": f"Bearer {token}"}
     try:
         response = requests.get(url, headers=headers, timeout=timeout)
     except requests.Timeout as exc:
@@ -43,16 +24,17 @@ def get_latest_tag(timeout=10) -> str:
         tags = response.json()
         # Get the latest tag name
         latest_tag = tags[0]["name"]
+        print(f"Latest tag is {latest_tag}")
         return latest_tag
-    print(f"Error: {response.status_code} - {response.text}")
+    print(f"Error while getting latest tag: {response.status_code} - {response.text}")
     return ""
 
 
-def bump_tag():
+def bump_tag(old_tag: str):
     # Get the latest commit SHA
     commit_sha = get_latest_commit_sha()
     # Increment the tag version
-    version_parts = CURRENT_TAG.split(".")
+    version_parts = old_tag.split(".")
     major, minor, patch = (
         int(version_parts[0]),
         int(version_parts[1]),
@@ -63,10 +45,11 @@ def bump_tag():
     create_tag(new_tag_name, commit_sha)
 
 
-def get_latest_commit_sha(timeout=10):
+def get_latest_commit_sha(timeout: int = 10) -> str:
     """Retrieves the latest commit sha which is needed for the Github API to get the latest tag"""
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/commits"
-    headers = {"Authorization": f"Bearer {TOKEN}"}
+    token = os.environ["GITHUB_PAT"]
+    headers = {"Authorization": f"Bearer {token}"}
     try:
         response = requests.get(url, headers=headers, timeout=timeout)
     except requests.Timeout as exc:
@@ -76,25 +59,27 @@ def get_latest_commit_sha(timeout=10):
         commits = response.json()
         # Get the latest commit SHA
         return commits[0]["sha"]
-    print(f"Error: {response.status_code} - {response.text}")
-    return None
+    raise RuntimeError(
+        f"Error while fetching latest commit sha: {response.status_code} - {response.text}. \
+        Token is f{token}"
+    )
 
 
-def create_tag(tag_name, commit_sha, timeout=10):
+def create_tag(tag_name: str, commit_sha: str, timeout: int = 10):
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/git/refs"
-    headers = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+    token = os.environ["GITHUB_PAT"]
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     payload = {"ref": f"refs/tags/{tag_name}", "sha": commit_sha}
     try:
-        response = requests.get(url, headers=headers, json=payload, timeout=timeout)
+        response = requests.post(url, headers=headers, json=payload, timeout=timeout)
     except requests.Timeout as exc:
         print(f"The API call to {url} timed out after {timeout} seconds.")
         raise requests.Timeout from exc
     if response.status_code == 201:
         print(f"Tag '{tag_name}' created successfully.")
     else:
-        print(f"Error: {response.status_code} - {response.text}")
+        print(f"Error while creating new tag: {response.status_code} - {response.text}")
 
 
-TOKEN = get_secret()
-CURRENT_TAG = get_latest_tag()
-bump_tag()
+current_tag = get_latest_tag()
+bump_tag(old_tag=current_tag)
