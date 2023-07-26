@@ -104,7 +104,7 @@ resource "aws_key_pair" "kp" {
 
 resource "aws_instance" "app_server" {
   ami = "ami-053b0d53c279acc90"
-  instance_type = "t2.micro"
+  instance_type = "t2.small"
   key_name = "key"
   vpc_security_group_ids  = [aws_security_group.security.id]
   tags = {
@@ -162,15 +162,15 @@ resource "aws_instance" "app_server" {
     destination = "github_pat.xml"
   }
 
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "/bin/sudo /bin/mv ~/setup.groovy /setup.groovy",
-  #     "/bin/sudo /bin/mv ~/config.xml /config.xml",
-  #     "/bin/sudo /bin/mv ~/github_credentials.xml /github_credentials.xml",
-  #     "/bin/sudo /bin/mv ~/aws-secret-access-key.xml /aws-secret-access-key.xml",
-  #     "/bin/sudo /bin/mv ~/aws-access-key.xml /aws-access-key.xml",
-  #     "/bin/sudo /bin/mv ~/pypi_api_token.xml /pypi_api_token.xml",
-  #     "/bin/sudo /bin/mv ~/github_pat.xml /github_pat.xml"
-  #   ]
-  # }
+  provisioner "remote-exec" {
+    inline = [
+      "/bin/sudo /bin/mv ~/setup.groovy /setup.groovy",
+      "/bin/sudo /bin/mv ~/config.xml /config.xml",
+      "/bin/sudo /bin/mv ~/github_credentials.xml /github_credentials.xml",
+      "/bin/sudo /bin/mv ~/aws-secret-access-key.xml /aws-secret-access-key.xml",
+      "/bin/sudo /bin/mv ~/aws-access-key.xml /aws-access-key.xml",
+      "/bin/sudo /bin/mv ~/pypi_api_token.xml /pypi_api_token.xml",
+      "/bin/sudo /bin/mv ~/github_pat.xml /github_pat.xml"
+    ]
+  }
 }
