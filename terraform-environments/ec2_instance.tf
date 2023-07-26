@@ -1,5 +1,5 @@
 resource "aws_security_group" "security" {
-  name        = "ec2_security3"
+  name        = "ec2_security"
   description = "Give correct security for ec2"
   vpc_id      = "vpc-0bfb64215145a3e13"
 
@@ -32,7 +32,7 @@ resource "aws_security_group" "security" {
   }
 
   tags = {
-    Name = "ec2_security3"
+    Name = "ec2_security"
   }
 }
 
@@ -98,17 +98,17 @@ resource "tls_private_key" "pk" {
 }
 
 resource "aws_key_pair" "kp" {
-  key_name   = "key2"
+  key_name   = "key"
   public_key = tls_private_key.pk.public_key_openssh
 }
 
 resource "aws_instance" "app_server" {
   ami = "ami-053b0d53c279acc90"
   instance_type = "t2.small"
-  key_name = "key2"
+  key_name = "key"
   vpc_security_group_ids  = [aws_security_group.security.id]
   tags = {
-    Name = "KeySwitcheroo2"
+    Name = "KeySwitcheroo"
   }
   user_data = base64encode(templatefile("./startup.sh", {
     JENKINS_USERNAME="${data.aws_secretsmanager_secret_version.jenkins_username.secret_string}", 
