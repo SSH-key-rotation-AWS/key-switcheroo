@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 from typing import Any
-from hamcrest import assert_that, none, equal_to, raises, calling, is_not  # type: ignore
+from hamcrest import assert_that, none, equal_to, raises, calling, is_not, has_length  # type: ignore
 import pytest
 from moto import mock_sts  # type: ignore
 from aws_profiles import Profile, ProfileManager
@@ -196,11 +196,12 @@ class TestMockingCredentialTests:  # pylint: disable=too-many-public-methods
         loaded_profile_manager = ProfileManager(temp_dir_pathlib)
         assert_that(loaded_profile_manager, equal_to(populated_profile_manager))
 
-    def test_saving_with_nothing_does_nothing(
-        self, expected_json_file: Path, profile_manager: ProfileManager
+    def test_saving_with_nothing_loads_back_in(
+        self, temp_dir_pathlib: Path, profile_manager: ProfileManager
     ):
         profile_manager.save()
-        assert_that(not expected_json_file.exists())
+        new_profile_manager = ProfileManager(temp_dir_pathlib)
+        assert_that(new_profile_manager.profiles, has_length(0))
 
     def test_loading_missing_selected_profile_raises_error(
         self,
@@ -281,9 +282,13 @@ def test_profile_validation_on_add(profile_manager: ProfileManager):
     )
 
 
-def test_loading_validates_credentials(manager_generator: ManagerGenerator):
+def test_loading_validates_credentials(
+    temp_dir_pathlib: Path, manager_generator: ManagerGenerator
+):
     with mock_sts():  # we want to allow the first manager to be created
         profile_manager_one = manager_generator(3)
         profile_manager_one.save()
     # Remove mock, and try loading
-    assert_that(calling(manager_generator).with_args(0), raises(InvalidCredentialsException))  # type: ignore
+    unmocked_profile_manager = ProfileManager(temp_dir_pathlib)
+    # We should remove all invalid profiles
+    assert_that(unmocked_profile_manager.profiles, has_length(0))
