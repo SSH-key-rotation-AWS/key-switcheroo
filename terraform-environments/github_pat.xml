@@ -1,0 +1,8 @@
+<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl plugin="plain-credentials@143.v1b_df8b_d3b_e48">
+   <scope>GLOBAL</scope>
+   <id>github_pat</id>
+   <description></description>
+   <secret>
+     keyplaceholder
+   </secret>
+ </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>

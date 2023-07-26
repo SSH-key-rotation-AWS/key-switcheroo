@@ -16,8 +16,8 @@ set -o pipefail
 cd /
 
 # install python3.11
-$sudo_path $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
-$sudo_path $sed_path -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
+$sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
+$sed_path -i "s/#\$nrconf{restart} = 'i';/\$nrconf{restart} = 'a';/g" /etc/needrestart/needrestart.conf
 $sudo_path $apt_path update && $sudo_path $apt_path -y upgrade
 $sudo_path $apt_path install python3.11 -y
 
@@ -117,5 +117,3 @@ cd /
 cd home
 #confirms that all the code has run
 $sudo_path mkdir iamdone
-
-
