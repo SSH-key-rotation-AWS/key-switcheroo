@@ -1,5 +1,6 @@
 import os
 import requests
+import re
 
 # import boto3
 # from botocore.exceptions import ClientError
@@ -9,9 +10,8 @@ BASE_URL = "https://api.github.com"
 OWNER = "SSH-key-rotation-AWS"
 REPO = "key-switcheroo"
 
-def get_latest_tag(timeout: int = 10) -> str:
+def get_latest_tag(token: str, timeout: int = 10) -> str:
     """Gets the latest tag from github so it can increment by one"""
-    token = os.environ["GITHUB_PAT"]
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/tags"
     # Uses github PAT token for access
     headers = {"Authorization": f"Bearer {token}"}
@@ -30,9 +30,9 @@ def get_latest_tag(timeout: int = 10) -> str:
     return ""
 
 
-def bump_tag(old_tag: str):
+def bump_tag(token: str, old_tag: str):
     # Get the latest commit SHA
-    commit_sha = get_latest_commit_sha()
+    commit_sha = get_latest_commit_sha(token)
     # Increment the tag version
     version_parts = old_tag.split(".")
     major, minor, patch = (
@@ -42,13 +42,12 @@ def bump_tag(old_tag: str):
     )
     new_tag_name = f"{major}.{minor}.{patch + 1}"
     # Create the new tag
-    create_tag(new_tag_name, commit_sha)
+    create_tag(token, new_tag_name, commit_sha)
 
 
-def get_latest_commit_sha(timeout: int = 10) -> str:
+def get_latest_commit_sha(token: str, timeout: int = 10) -> str:
     """Retrieves the latest commit sha which is needed for the Github API to get the latest tag"""
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/commits"
-    token = os.environ["GITHUB_PAT"]
     headers = {"Authorization": f"Bearer {token}"}
     try:
         response = requests.get(url, headers=headers, timeout=timeout)
@@ -65,9 +64,8 @@ def get_latest_commit_sha(timeout: int = 10) -> str:
     )
 
 
-def create_tag(tag_name: str, commit_sha: str, timeout: int = 10):
+def create_tag(token: str, tag_name: str, commit_sha: str, timeout: int = 10):
     url = f"{BASE_URL}/repos/{OWNER}/{REPO}/git/refs"
-    token = os.environ["GITHUB_PAT"]
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     payload = {"ref": f"refs/tags/{tag_name}", "sha": commit_sha}
     try:
@@ -80,6 +78,8 @@ def create_tag(tag_name: str, commit_sha: str, timeout: int = 10):
     else:
         print(f"Error while creating new tag: {response.status_code} - {response.text}")
 
-
-current_tag = get_latest_tag()
-bump_tag(old_tag=current_tag)
+if __name__=="__main__":
+    unprocessed_token = os.environ["GITHUB_PAT"]
+    processed_token = re.sub('\s+',' ', unprocessed_token).strip()
+    current_tag = get_latest_tag(processed_token)
+    bump_tag(token=processed_token, old_tag=current_tag)
