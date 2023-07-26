@@ -60,7 +60,7 @@ pipeline {
             }
             environment {
                 GITHUB_PAT = credentials('github_pat')
-                POETRY_PYPI_TOKEN_PYPI = credentials('pypi_api_token')
+                POETRY_PYPI_TOKEN_PYPI = credentials('pypi-api-token')
             }
             steps {
                 publishToPYPI()
