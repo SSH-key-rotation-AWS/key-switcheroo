@@ -84,5 +84,8 @@
   # # move file to disable throttling
   # /bin/mv /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml ~/.jenkins/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml
   
+  # change executor
+  $sed_path -i "s/<numExecutors>2</numExecutors>/<numExecutors>1</numExecutors>/g" ~/.jenkins/config.xml
+  
   # send pipeline xml to jenkins
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-job MultiBranch < /config.xml
