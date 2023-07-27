@@ -38,8 +38,7 @@ class ProfileManager:
             return None
         return self._profiles[self._selected_profile_index]
 
-    @staticmethod
-    def _validate_profile(profile: Profile):
+    def _check_valid_profile(self, profile: Profile):
         cli = boto3.client(  # type: ignore
             "sts",
             aws_access_key_id=profile.access_key,
@@ -48,8 +47,14 @@ class ProfileManager:
         )
         try:
             cli.get_caller_identity()
+            return True, None
         except ClientError as exc:
-            raise InvalidCredentialsException(profile) from exc
+            return False, exc
+
+    def _validate_profile(self, profile: Profile):
+        is_valid_profile, exception = self._check_valid_profile(profile)
+        if not is_valid_profile:
+            raise InvalidCredentialsException(profile) from exception
 
     def add(self, access_key: str, secret_acces_key: str, region: str):
         """Adds a profile to the profile manager
@@ -88,7 +93,7 @@ class ProfileManager:
         del self._profiles[identifier]
         assert self._selected_profile_index is not None
         if self._selected_profile_index == identifier:
-            if identifier == 0:  # We removed the last profile
+            if len(self._profiles) == 0:  # We removed the last profile
                 self._selected_profile_index = None
             else:  # We removed the selected profile, but profiles still exist
                 self._selected_profile_index = 0
@@ -119,8 +124,6 @@ class ProfileManager:
         """Saves the profile to a JSON file, located under the directory passed in when creating \
         this manager. The JSON file is called aws_profiles.json
         """
-        if len(self.profiles) == 0:
-            return
         json_profiles = list(map(lambda profile: profile.__dict__, self.profiles))
         json_obj = {
             "selected_profile": self._selected_profile_index,
@@ -151,7 +154,7 @@ class ProfileManager:
                                                     Expected {type}"
                 )
 
-        assert_is(json_obj, "selected_profile", int)
+        assert_is(json_obj, "selected_profile", int | None)
         assert_is(json_obj, "profiles", list)
 
         def parse_profile(profile_obj: Any) -> Profile:
@@ -166,11 +169,16 @@ class ProfileManager:
                 profile_obj["region"],
             )
 
-        profiles = list(map(parse_profile, json_obj["profiles"]))
-        for profile in profiles:
-            self._validate_profile(profile)
+        parsed_profiles = list(map(parse_profile, json_obj["profiles"]))
         self._selected_profile_index = json_obj["selected_profile"]
-        self._profiles = profiles
+        self._profiles = parsed_profiles
+        # Remove invalid profiles
+        current_index = 0
+        while current_index < len(self._profiles):
+            if not self._check_valid_profile(self._profiles[current_index])[0]:
+                self.remove(current_index)
+            else:
+                current_index += 1
         return True
 
     def __eq__(self, other: Any) -> bool:

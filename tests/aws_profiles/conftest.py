@@ -25,7 +25,7 @@ def fixture_manager_generator(temp_dir_pathlib: Path) -> ManagerGenerator:
     def _generate_manager(populate_amount: int) -> ProfileManager:
         manager = ProfileManager(temp_dir_pathlib)
         for i in range(1, populate_amount + 1):
-            manager.add(f"access-key-{i}", f"secret-access-key-{2}", f"us-east-{i%2}")
+            manager.add(f"access-key-{i}", f"secret-access-key-{i}", f"us-east-{i%2+1}")
         return manager
 
     return _generate_manager
