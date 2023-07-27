@@ -10,7 +10,7 @@
   sed_path=/bin/sed
   wget_path=/bin/wget
   python_path=/bin/python3.11
-  poetry_path=~/.local/bin/poetry
+  poetry_path=/root/.local/bin/poetry
   url=http://localhost:8080
   public_ip=$($curl_path ifconfig.me)
   JENKINS_LOGIN=${JENKINS_USERNAME}:${JENKINS_PASSWORD}
@@ -44,11 +44,17 @@
   $sed_path -i "s/password/${JENKINS_PASSWORD}/g" /setup.groovy
   $java_path -jar jenkins-cli.jar -s $url groovy = < /setup.groovy
 
+  # move file to disable throttling
+  /bin/mv /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml /root/.jenkins/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml
+  
+  # change executor
+  $sed_path -i "s/<numExecutors>2<\/numExecutors>/<numExecutors>1<\/numExecutors>/g" /root/.jenkins/config.xml
+
   # set up plugin update center, put it in correct location, download necessary plugins, and restart to apply changes
   $wget_path -O default.js http://updates.jenkins-ci.org/update-center.json
-  $sed_path "1d;\$d" default.js > ~/default.json
+  $sed_path "1d;\$d" default.js > /root/default.json
   /bin/mkdir /root/.jenkins/updates
-  /bin/mv ~/default.json /root/.jenkins/updates
+  /bin/mv /root/default.json /root/.jenkins/updates
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" install-plugin github-branch-source workflow-multibranch branch-api cloudbees-folder credentials workflow-aggregator -restart
 
   # add secrets to credential files
@@ -80,9 +86,6 @@
   -H "X-GitHub-Api-Version: 2022-11-28" \
   https://api.github.com/repos/SSH-key-rotation-AWS/team-henrique/hooks \
   -d "{\"name\":\"web\",\"active\":true,\"events\":[\"push\",\"pull_request\"],\"config\":{\"url\":\"http://$public_ip:8080/github-webhook/\",\"content_type\":\"json\",\"insecure_ssl\":\"0\"}}"
-
-  # # move file to disable throttling
-  # /bin/mv /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml ~/.jenkins/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml
   
   # send pipeline xml to jenkins
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-job MultiBranch < /config.xml
