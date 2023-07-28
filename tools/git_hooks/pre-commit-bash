@@ -1,4 +1,4 @@
-#!/bin/env python3 
+#!/bin/env python3.11
 import asyncio
 from operator import contains
 import subprocess
@@ -43,8 +43,6 @@ async def run_pyright():
         print("PyRight found errors, commit aborted")
         return 1
 
-    
-
 async def main():
     task1 = asyncio.create_task(run_black())
     task2 = asyncio.create_task(run_pyright())
@@ -59,33 +57,9 @@ async def main():
 asyncio.run(main())
 
 
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # echo "Running Black..."
 # # Run Black on all Python files in the staged changes
-# git diff --cached --name-only --diff-filter=ACMRTUXB | grep -E '\.py$' | xargs black 
+# git diff --cached --name-only --diff-filter=ACMRTUXB | grep -E '\.py$' | xargs black
 
 # echo "Running Pylint..."
 # # Run Pylint on Python files in the staged changes
@@ -111,5 +85,3 @@ asyncio.run(main())
 
 # echo "All checks completed, commit done."
 # exit 0
-
-

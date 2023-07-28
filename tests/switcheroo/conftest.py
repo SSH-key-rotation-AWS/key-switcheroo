@@ -14,13 +14,21 @@ def _empty_bucket(s3_client: Client, bucket: str):
     )
 
 
-@pytest.fixture(name="s3_client", scope="session")
-def fixture_s3_client() -> Generator[Client, None, None]:
-    yield boto3.client("s3")  # type: ignore
+@pytest.fixture(name="s3_client")
+def fixture_s3_client(
+    credentials: tuple[str, str, str]
+) -> Generator[Client, None, None]:
+    yield boto3.client(  # type: ignore
+        "s3",
+        aws_access_key_id=credentials[0],
+        aws_secret_access_key=credentials[1],
+        region_name=credentials[2],
+    )
 
 
 @pytest.fixture
 def s3_bucket(s3_client: Client) -> Generator[str, None, None]:
     bucket = os.environ["SSH_KEY_DEV_BUCKET_NAME"]
+    # s3_client.create_bucket(Bucket=bucket)
     yield bucket
     _empty_bucket(s3_client, bucket)

@@ -8,11 +8,25 @@ from switcheroo import paths
 
 
 class S3KeyRetriever(KeyRetriever):
-    def __init__(self, ssh_local_dir: Path, bucket_name: str) -> None:
+    def __init__(
+        self,
+        ssh_local_dir: Path,
+        access_key: str,
+        secret_access_key: str,
+        region: str,
+        bucket_name: str,
+    ) -> None:
         self._bucket_name = bucket_name
         self._ssh_local_dir = ssh_local_dir
         self._privatekey_datastore = ssh_home_file_ds(ssh_local_dir)
-        self._pubkey_datastore = sshify(S3DataStore(bucket_name))
+        self._pubkey_datastore = sshify(
+            S3DataStore(
+                bucket_name,
+                access_key=access_key,
+                secret_access_key=secret_access_key,
+                region=region,
+            )
+        )
 
     def retrieve_public_key(self, host: str, user: str) -> Key.PublicComponent:
         return retrieve_or_throw(

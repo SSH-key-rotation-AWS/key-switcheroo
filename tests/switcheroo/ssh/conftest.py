@@ -21,27 +21,31 @@ def fixture_ssh_temp_path() -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def file_pub(ssh_temp_path: Path) -> Generator[FileKeyPublisher, None, None]:
+def file_key_publisher(ssh_temp_path: Path) -> Generator[FileKeyPublisher, None, None]:
     yield FileKeyPublisher(ssh_home=ssh_temp_path)
 
 
 @pytest.fixture
-def s3_pub(
-    ssh_temp_path: Path, s3_bucket: str
+def s3_key_publisher(
+    ssh_temp_path: Path, s3_bucket: str, credentials: tuple[str, str, str]
 ) -> Generator[S3KeyPublisher, None, None]:
-    yield S3KeyPublisher(s3_bucket, ssh_temp_path)
+    yield S3KeyPublisher(
+        s3_bucket, credentials[0], credentials[1], credentials[2], ssh_temp_path
+    )
 
 
 @pytest.fixture
-def file_retriever(ssh_temp_path: Path) -> Generator[FileKeyRetriever, None, None]:
+def file_key_retriever(ssh_temp_path: Path) -> Generator[FileKeyRetriever, None, None]:
     yield FileKeyRetriever(ssh_temp_path)
 
 
 @pytest.fixture
-def s3_retriever(
-    ssh_temp_path: Path, s3_bucket: str
+def s3_key_retriever(
+    ssh_temp_path: Path, s3_bucket: str, credentials: tuple[str, str, str]
 ) -> Generator[S3KeyRetriever, None, None]:
-    yield S3KeyRetriever(ssh_temp_path, s3_bucket)
+    yield S3KeyRetriever(
+        ssh_temp_path, credentials[0], credentials[1], credentials[2], s3_bucket
+    )
 
 
 @pytest.fixture

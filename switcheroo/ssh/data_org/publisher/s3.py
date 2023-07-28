@@ -8,27 +8,39 @@ from switcheroo import paths
 
 class S3KeyPublisher(KeyPublisher):
     def __init__(
-        self, s3_bucket_name: str, root_ssh_dir: Path = paths.local_ssh_home()
+        self,
+        s3_bucket_name: str,
+        access_key: str,
+        secret_access_key: str,
+        region: str,
+        root_ssh_dir: Path = paths.local_ssh_home(),
     ):
         self._s3_bucket_name = s3_bucket_name
         self._privkey_ds = ssh_home_file_ds(root_ssh_dir)
-        self._pubkey_ds = sshify(S3DataStore(s3_bucket_name))
+        self._pubkey_ds = sshify(
+            S3DataStore(
+                s3_bucket_name,
+                access_key=access_key,
+                secret_access_key=secret_access_key,
+                region=region,
+            )
+        )
 
     @property
     def s3_bucket_name(self):
         return self._s3_bucket_name
 
-    def publish_public_key(self, key: Key.PublicComponent, host: str, user: str):
+    def _publish_public_key(self, key: Key.PublicComponent, host: str, user: str):
         return self._pubkey_ds.publish(
             item=key, location=paths.cloud_public_key_loc(host, user)
         )
 
-    def publish_private_key(self, key: Key.PrivateComponent, host: str, user: str):
+    def _publish_private_key(self, key: Key.PrivateComponent, host: str, user: str):
         return self._privkey_ds.publish(
             item=key, location=paths.local_relative_private_key_loc(host, user)
         )
 
-    def publish_key_metadata(self, metadata: KeyMetadata, host: str, user: str):
+    def _publish_key_metadata(self, metadata: KeyMetadata, host: str, user: str):
         return self._pubkey_ds.publish(
             item=metadata, location=paths.cloud_metadata_loc(host, user)
         )
