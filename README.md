@@ -12,7 +12,8 @@
     1. [Publisher](#publisher-1)
     2. [Retriever](#retriever-1)
 5. [Dependencies](#dependencies)
-6. [Contributing](#contributing-to-key-switcheroo)
+6. [Configuring your SSHD](#configuring-your-sshd)
+7. [Contributing](#contributing-to-key-switcheroo)
 
 
 ## What is it?
@@ -112,6 +113,25 @@ When using the *retriever* for fetching the public SSH keys, the user has a coup
 
 `switcheroo_retrieve johndoe -ds local --sshdir /home/johndoe/.ssh/keys`
 
+## Configuring Your SSHD
+
+If you want to configure your SSHD to use key-switcheroo for SSH connections, follow the following steps:
+
+1. `pip install key-switcheroo`. Note that installing packages onto the system may cause issues, and should be done with care. You may want to consider using `pipx` to isolate the installation in a virtual environment.
+
+2. Configure an AWS profile using `switcheroo_configure add`. Note that the user that configures this profile will be the user retrieving keys - SSH reccomends having a separate user to do this, such as `aws_user`.
+
+3. Open your `sshd_config`, or create a *.conf file in `sshd_config.d`.
+
+4. In the config, add the following two lines:
+
+    `AuthorizedKeysCommand /path/to/python_exec_with_switcheroo_installed switcheroo_retrieve -ds s3 --bucket [your-bucket] %u`
+
+    `AuthorizedKeysCommandUser [your user configured in step 2]`
+
+5. Restart sshd/the system.
+
+That's it! Now, if a public key is published to the bucket, your server will use it for SSH authentication.
 
 ## Dependencies
 
