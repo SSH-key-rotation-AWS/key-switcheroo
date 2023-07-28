@@ -62,7 +62,6 @@ $sudo_path systemctl reload sshd
 #create aws user - doesn't do anything since ec2 itself already has admin access
 $sudo_path useradd -m aws_user 
 $sudo_path chown aws_user:aws_user /home/aws_user
-$sudo_path chmod 755 /home/aws_user
 
 
 #install and set up venv to run python script
