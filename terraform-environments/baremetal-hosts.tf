@@ -1,9 +1,7 @@
 resource "aws_security_group" "allow_ingress" {
   name        = "allow_ingress"
   description = "Give correct security for baremetal hosts"
-  #tanis vpc 
-  # vpc_id      = "vpc-0bfb64215145a3e13"
-  vpc_id      = "vpc-0698eb109e6e2afd5"
+  vpc_id      = "vpc-0bfb64215145a3e13"
 
 
   ingress {
@@ -58,19 +56,85 @@ locals {
 }
 
 
+# role creation section
+variable "instance_profile_name" {
+  type    = string
+  default = "secrets-manager"
+}
 
+variable "iam_policy_name" {
+  # same name as aws's built in policy - not neccasary
+  type    = string
+  default = "admin_access"
+}
+
+variable "role_name" {
+  # role is different than one that exists on aws
+  type    = string
+  default = "ec2-admin-terraform-role"
+}
+
+# Create an IAM policy
+resource "aws_iam_policy" "secrets_policy" {
+  name = var.iam_policy_name
+
+   policy = jsonencode(
+    {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+        }
+    ]
+}
+)
+}
+
+# Create an IAM role
+resource "aws_iam_role" "secrets_role" {
+  name = var.role_name
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+# Attach the IAM policy to the IAM role
+resource "aws_iam_policy_attachment" "attach_secrets" {
+  name = "Policy Attachement"
+  policy_arn = aws_iam_policy.secrets_policy.arn
+  roles       = [aws_iam_role.secrets_role.name]
+}
+
+# Create an IAM instance profile
+resource "aws_iam_instance_profile" "secrets" {
+  name = var.instance_profile_name
+  role = aws_iam_role.secrets_role.name
+}
+
+
+
+# create the hosts
 resource "aws_instance" "baremetal-host-1" {
   ami = "ami-053b0d53c279acc90"
   instance_type = "t2.micro"     
   key_name      = aws_key_pair.demo_key_pair.key_name
   vpc_security_group_ids  =[aws_security_group.allow_ingress.id]
+  iam_instance_profile = aws_iam_instance_profile.secrets.name
   tags = {
     Name = "host-1"
   }
-  # user_data = <<-EOF
-  # #!/bin/bash
-  # bash ./hosts-user-data.sh ${local.username}
-  # EOF
      user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
       USERNAME=local.USERNAME
      }))
@@ -82,6 +146,7 @@ resource "aws_instance" "baremetal-host-2" {
   instance_type = "t2.micro"      
   key_name      = aws_key_pair.demo_key_pair.key_name
   vpc_security_group_ids  =[aws_security_group.allow_ingress.id]
+  iam_instance_profile = aws_iam_instance_profile.secrets.name
   tags = {
     Name = "host-2"
   }
