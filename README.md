@@ -56,13 +56,23 @@ For help with command-line arguments,
 
 `switcheroo_retrieve --help` or `switcheroo_retrieve -h`
 
+### AWS Profile Management
+
+Switcheroo uses its own AWS profile management system. This can be accessed by the base command `switcheroo_configure`. Run `switcheroo_configure -h` to get help.
+
+The following command is used to create a profile, which is automatically used:
+
+`switcheroo_configure add --access-key [access key] --secret-access-key [secret access key] --region [region]`
+
+If multiple profiles are added, you can select which one to use with `switcheroo_configure select`, delete one with
+`switcheroo_configure delete`, and view your profiles with `switcheroo_configure view`.
 
 ### Publisher
 
 When using the *publisher* for creating and publishing new SSH keys, the user has a couple of different *optional* arguments, in addition to the *required* arguments.
 
 **Required Arguments:**
-1. `hostname` - host server
+1. `hostname` - host server. This is the return value of [`socket.getfqdn()`](https://docs.python.org/3/library/socket.html#socket.getfqdn).
 2. `user` - username of the connecting client
 
 **Optional Arguments:**
@@ -88,24 +98,14 @@ When using the *publisher* for creating and publishing new SSH keys, the user ha
 
 `switcheroo_publish 127.0.0.1 johndoe --datastore local --metric file --metricpath home/switcheroo/metrics`
 
-
-### AWS Profile Management
-
-Switcheroo uses its own AWS profile management system. This can be accessed by the base command `switcheroo_configure`. Run `switcheroo_configure -h` to get help.
-
-The following command is used to create a profile, which is automatically used:
-
-`switcheroo_configure add --access-key [access key] --secret-access-key [secret access key] --region [region]`
-
-If multiple profiles are added, you can select which one to use with `switcheroo_configure select`, delete one with
-`switcheroo_configure delete`, and view your profiles with `switcheroo_configure view`.
-
 ### Retriever
 
 When using the *retriever* for fetching the public SSH keys, the user has a couple of different *optional* arguments, in addition to the *required* arguments.
 
 **Required Arguments:**
 1. `user` - username of the client whose key is being fetched
+
+The `hostname` is assumed to be that of the executing computer, as retrieved by [`socket.getfqdn()`](https://docs.python.org/3/library/socket.html#socket.getfqdn).
 
 **Optional Arguments:**
 - `--datastore local` or `-ds local`
