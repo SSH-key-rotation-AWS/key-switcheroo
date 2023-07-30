@@ -3,18 +3,21 @@ from getpass import getuser
 from pathlib import Path
 from paramiko import SSHClient, AutoAddPolicy, RSAKey
 import pytest
-from tests.switcheroo.ssh.server import Server
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
 from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
 from switcheroo import paths
+from tests.switcheroo.ssh.conftest import ServerGenerator
 
 
 @pytest.mark.asyncio
 async def test_publish_and_retrieve(
-    s3_key_retriever: S3KeyRetriever, s3_key_publisher: S3KeyPublisher, ssh_temp_path: Path
+    s3_key_retriever: S3KeyRetriever,
+    s3_key_publisher: S3KeyPublisher,
+    ssh_temp_path: Path,
+    create_temp_server: ServerGenerator,
 ):
     # Start the server with the S3 data store
-    async with Server(retriever=s3_key_retriever) as server:
+    async with create_temp_server(s3_key_retriever) as server:
         # Create public/private key pair and publish the public key to S3
         s3_key_publisher.publish_key(socket.getfqdn(), getuser())
         # Create an SSH client to connect to the server
@@ -34,11 +37,14 @@ async def test_publish_and_retrieve(
 
 @pytest.mark.asyncio
 async def test_public_key_is_rotated(
-    s3_key_retriever: S3KeyRetriever, s3_key_publisher: S3KeyPublisher, ssh_temp_path: Path
+    s3_key_retriever: S3KeyRetriever,
+    s3_key_publisher: S3KeyPublisher,
+    ssh_temp_path: Path,
+    create_temp_server: ServerGenerator,
 ):
     "Tests if the server rejects the connection after rotating keys"
     # Start the server with the S3 data store
-    async with Server(retriever=s3_key_retriever) as server:
+    async with create_temp_server(s3_key_retriever) as server:
         # Create public/private key pair and publish the public key to S3
         s3_key_publisher.publish_key(socket.getfqdn(), getuser())
         # Create an SSH client to connect to the server

@@ -6,19 +6,21 @@ from hamcrest import assert_that, has_item, contains_string
 from paramiko import SSHClient, RSAKey, AutoAddPolicy
 import pytest
 from mypy_boto3_s3 import Client
-from tests.switcheroo.ssh.server import Server
 from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
 from switcheroo.ssh.objects.key import KeyGen
 from switcheroo import paths
+from tests.switcheroo.ssh.conftest import ServerGenerator
 
 
 @pytest.mark.asyncio
 async def test_retrieve_public_keys_from_s3(
-    s3_key_retriever: S3KeyRetriever, s3_client: Client, s3_bucket: str
+    s3_key_retriever: S3KeyRetriever,
+    s3_client: Client,
+    s3_bucket: str,
+    create_temp_server: ServerGenerator,
 ):
     "Can the server retrieve public keys from s3?"
-    async with Server(retriever=s3_key_retriever) as server:
-        server: Server = server
+    async with create_temp_server(s3_key_retriever) as server:
         private_key, public_key = KeyGen.generate_private_public_key()
         private_key_paramiko = RSAKey.from_private_key(StringIO(private_key.decode()))
         key_name = paths.cloud_public_key_loc(host=socket.getfqdn(), user=getuser())

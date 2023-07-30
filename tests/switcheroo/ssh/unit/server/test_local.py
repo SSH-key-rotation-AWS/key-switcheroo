@@ -7,18 +7,19 @@ import pytest
 from hamcrest import assert_that, has_item, contains_string
 from paramiko.client import SSHClient, AutoAddPolicy
 from paramiko import RSAKey
-from tests.switcheroo.ssh.server import Server
 from switcheroo.ssh.data_org.retriever import FileKeyRetriever
 from switcheroo import paths
 from switcheroo import util
+from tests.switcheroo.ssh.conftest import ServerGenerator
 
 
 @pytest.mark.asyncio
 async def test_retrieve_public_keys_locally(
-    ssh_temp_path: Path, file_key_retriever: FileKeyRetriever
+    ssh_temp_path: Path,
+    file_key_retriever: FileKeyRetriever,
+    create_temp_server: ServerGenerator,
 ):
-    async with Server(retriever=file_key_retriever) as server:
-        server: Server = server
+    async with create_temp_server(file_key_retriever) as server:
         host = socket.getfqdn()
         key_dir = paths.local_key_dir(host, getuser(), ssh_temp_path)
         private_key, _ = util.generate_private_public_key_in_file(key_dir)

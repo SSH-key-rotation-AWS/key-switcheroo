@@ -17,23 +17,34 @@ class Server:
     def __init__(
         self,
         retriever: KeyRetriever,
+        serverdata_dir: Path,
         port: int | Callable[[], int] = get_open_port,
-        authorized_key_command_executing_user: str = getuser(),
+        authorized_key_command_executing_user: str | None = None,
     ):
         if callable(port):
             port = port()
+        if authorized_key_command_executing_user is None:
+            authorized_key_command_executing_user = getuser()
         self.port = port
         self.key_retriever = retriever
         self.authorized_key_command_executing_user = (
             authorized_key_command_executing_user
         )
         self.process: Process | None = None
-        self.log_file = Path.home() / "ssh" / "sshd_log"
+        self._log_file = serverdata_dir / "sshd_log"
+        self._hostkeys_dir = serverdata_dir / "etc" / "ssh"
+        self._serverdata_dir = serverdata_dir
 
     async def start(self):
-        user_path = Path.home()
-        self.log_file.parent.mkdir(parents=True, exist_ok=True)
-        self.log_file.touch(exist_ok=True)
+        # If host keys do not exist, create them
+        self.__setup_host_keys()
+        # Create log file
+        self._log_file.parent.mkdir(parents=True, exist_ok=True)
+        self._log_file.touch(exist_ok=True)
+        # Create pid file
+        pid_file = self._serverdata_dir / "sshd.pid"
+        pid_file.parent.mkdir(parents=True, exist_ok=True)
+        pid_file.touch(exist_ok=True)
         repo_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
         venv = repo_dir / ".venv"
         python_executable = venv / "bin" / "python"
@@ -43,8 +54,8 @@ class Server:
         config: list[str] = [
             "LogLevel DEBUG3",
             f"Port {self.port}",
-            f"HostKey {str(user_path)}/etc/ssh/ssh_host_rsa_key",
-            f"PidFile {str(user_path)}/var/run/sshd.pid",
+            f"HostKey {str(self._hostkeys_dir)}/ssh_host_rsa_key",
+            f"PidFile {str(pid_file)}",
             "UsePAM yes",
             "AuthorizedKeysFile none",
             f"AuthorizedKeysCommand {ky_cmnd}",
@@ -61,7 +72,7 @@ class Server:
                 temp_config.write(f"{option}\n")
             temp_config.file.flush()
             command: str = (
-                f'/usr/sbin/sshd -f"{temp_config.name}" -E{str(self.log_file)}'
+                f'/usr/sbin/sshd -f"{temp_config.name}" -E{str(self._log_file)}'
             )
             task: Process = await asyncio.create_subprocess_shell(
                 command,
@@ -85,30 +96,28 @@ class Server:
             stderr=asyncio.subprocess.DEVNULL,
         )
         await kill_task.wait()
-        self.log_file.unlink()
+        self._log_file.unlink()
 
     @property
     async def logs(self) -> list[str]:
         "Returns the sshd logs"
-        with open(self.log_file, mode="rt", encoding="utf-8") as logs:
+        with open(self._log_file, mode="rt", encoding="utf-8") as logs:
             return logs.readlines()
 
-    @staticmethod
-    def __setup_host_keys():
-        user_path = Path.home()
-        ssh_dir = user_path / "etc" / "ssh"
-        ssh_dir.mkdir(parents=True, exist_ok=True)
-        subprocess.run(f"ssh-keygen -A -f {str(user_path)}", shell=True, check=True)
+    def __setup_host_keys(self):
+        # user_path = Path.home()
+        self._hostkeys_dir.mkdir(parents=True, exist_ok=True)
+        subprocess.run(
+            f"ssh-keygen -A -f {str(self._serverdata_dir)}", shell=True, check=True
+        )
 
-    @staticmethod
-    def __setup_pid_file():
-        user_path = Path.home()
-        run_dir = user_path / "var" / "run"
-        run_dir.mkdir(exist_ok=True, parents=True)
+    # @staticmethod
+    # def __setup_pid_file():
+    #     user_path = Path.home()
+    #     run_dir = user_path / "var" / "run"
+    #     run_dir.mkdir(exist_ok=True, parents=True)
 
     async def __aenter__(self):
-        self.__setup_host_keys()
-        self.__setup_pid_file()
         await self.start()
         return self
 
