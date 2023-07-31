@@ -130,17 +130,19 @@ If you want to configure your SSHD to use key-switcheroo for SSH connections, fo
 
 1. `pip install key-switcheroo`. Note that installing packages onto the system may cause issues, and should be done with care. You may want to consider using `pipx` to isolate the installation in a virtual environment.
 
-2. Configure an AWS profile using `switcheroo_configure add`. Note that the user that configures this profile will be the user retrieving keys - SSH reccomends having a separate user to do this, such as `aws_user`.
+2. This installs 3 binaries - `switcheroo_configure`,`switcheroo_retrieve` and `switcheroo_publish`. The exact location of these binaries depends on your OS and if you used a tool like pipx to install them
 
-3. Open your `sshd_config`, or create a *.conf file in `sshd_config.d`.
+3. Configure an AWS profile using `switcheroo_configure add`. Note that the user that configures this profile will be the user retrieving keys - SSH reccomends having a separate user to do this, such as `aws_user`.
 
-4. In the config, add the following two lines:
+4. Open your `sshd_config`, or create a *.conf file in `sshd_config.d`.
 
-    `AuthorizedKeysCommand /path/to/python_exec_with_switcheroo_installed switcheroo_retrieve -ds s3 --bucket [your-bucket] %u`
+5. In the config, add the following two lines:
+
+    `AuthorizedKeysCommand /path/to/switcheroo_retrieve -ds s3 --bucket [your-bucket] %u`
 
     `AuthorizedKeysCommandUser [your user configured in step 2]`
 
-5. Restart sshd/the system.
+6. Restart sshd/the system.
 
 That's it! Now, if a public key is published to the bucket, your server will use it for SSH authentication.
 
