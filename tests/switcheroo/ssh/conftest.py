@@ -1,15 +1,18 @@
 from tempfile import TemporaryDirectory
-from typing import Generator
+from typing import Generator, Callable, TypeAlias
 from pathlib import Path
 import pytest
 from switcheroo.ssh.data_org.publisher import FileKeyPublisher
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
-from switcheroo.ssh.data_org.retriever import FileKeyRetriever
+from switcheroo.ssh.data_org.retriever import FileKeyRetriever, KeyRetriever
 from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
 from switcheroo import paths
+from tests.switcheroo.ssh.server import Server
 
 
 def ssh_temp_dir():
+    if not paths.local_ssh_home().exists():
+        paths.local_ssh_home().mkdir(parents=True, exist_ok=True)
     return TemporaryDirectory(dir=paths.local_ssh_home(), prefix="switcheroo-test-")
 
 
@@ -56,3 +59,22 @@ def some_host() -> Generator[str, None, None]:
 @pytest.fixture
 def some_name() -> Generator[str, None, None]:
     yield "Some_User"
+
+
+@pytest.fixture(name="temp_pathlib_dir")
+def fixture_temp_pathlib_dir() -> Generator[Path, None, None]:
+    temp_dir = TemporaryDirectory(prefix="switcheroo")
+    with temp_dir:
+        yield Path(temp_dir.name)
+
+
+ServerGenerator: TypeAlias = Callable[[KeyRetriever], Server]
+
+
+@pytest.fixture
+def create_temp_server(temp_pathlib_dir: Path) -> ServerGenerator:
+    def _create_server_from_retriever(retriever: KeyRetriever):
+        server = Server(retriever, serverdata_dir=temp_pathlib_dir)
+        return server
+
+    return _create_server_from_retriever

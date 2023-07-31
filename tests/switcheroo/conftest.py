@@ -1,5 +1,5 @@
 from typing import Generator
-import os
+import uuid
 import pytest
 import boto3
 from mypy_boto3_s3 import Client
@@ -28,7 +28,8 @@ def fixture_s3_client(
 
 @pytest.fixture
 def s3_bucket(s3_client: Client) -> Generator[str, None, None]:
-    bucket = os.environ["SSH_KEY_DEV_BUCKET_NAME"]
-    # s3_client.create_bucket(Bucket=bucket)
-    yield bucket
-    _empty_bucket(s3_client, bucket)
+    bucket_name = str(uuid.uuid4())
+    s3_client.create_bucket(Bucket=bucket_name)
+    yield bucket_name
+    _empty_bucket(s3_client, bucket_name)
+    s3_client.delete_bucket(Bucket=bucket_name)
