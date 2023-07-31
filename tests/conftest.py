@@ -30,6 +30,10 @@ def skip_by_require_credentials(request, credentials: tuple[str, str, str]):
     if "require_credentials" in request.keywords and credentials == _fake_credentials:
         pytest.skip("skipped this test because no credentials were configured")
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "nomock: mark a test to not mock AWS resources"
+    )
 
 @pytest.fixture(name="mock_inner_sts_client", autouse=True)
 def fixture_mock_inner_sts_client(request):
