@@ -2,10 +2,6 @@
 
 
 # set variables
-  # sudo_path=$(which sudo)
-  # apt_path=$(which apt)
-  # curl_path=$(which curl)
-  # sed_path=$(which sed)
   sudo_path=/bin/sudo
   apt_path=/bin/apt
   curl_path=/bin/curl
