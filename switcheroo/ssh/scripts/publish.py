@@ -1,9 +1,5 @@
 from pathlib import Path
 from argparse import ArgumentParser
-from switcheroo.ssh.scripts.custom_argument_exceptions import (
-    InvalidArgumentError,
-    MissingArgumentError,
-)
 from switcheroo.ssh.data_org.publisher import KeyPublisher, FileKeyPublisher
 from switcheroo.ssh.data_org.publisher.s3 import S3KeyPublisher
 from switcheroo import paths
@@ -74,34 +70,38 @@ def create_argument_parser() -> ArgumentParser:
     return argument_parser
 
 
-def _local_store(sshdir: str, bucket: str | None = None) -> FileKeyPublisher:
+def _local_store(
+    parser: ArgumentParser, sshdir: str, bucket: str | None = None
+) -> FileKeyPublisher:
     if bucket is not None:
-        raise InvalidArgumentError(
-            'Invalid argument "--bucket" when storing the keys locally'
-        )
+        parser.error('Invalid argument "--bucket" when storing the keys locally')
     return FileKeyPublisher(Path(sshdir))
 
 
-def _s3_store(credentials: tuple, sshdir: str, bucket: str | None = None) -> S3KeyPublisher:
+def _s3_store(
+    parser: ArgumentParser, credentials: tuple, sshdir: str, bucket: str | None = None
+) -> S3KeyPublisher:
     if bucket is None:
-        raise MissingArgumentError("The s3 option requires a bucket name!")
+        parser.error("The s3 option requires a bucket name!")
     return S3KeyPublisher(
         bucket,
         credentials[0],
         credentials[1],
         credentials[2],
-        root_ssh_dir=Path(sshdir)
+        root_ssh_dir=Path(sshdir),
     )
 
 
-def _metrics(credentials: tuple, metric: str, metricpath: str | None) -> MetricPublisher:
+def _metrics(
+    parser: ArgumentParser, credentials: tuple, metric: str, metricpath: str | None
+) -> MetricPublisher:
     if metric == "file":  # publish to file system
         if metricpath is None:
             metricpath = paths.local_metrics_dir()
         return FileMetricPublisher(Path(metricpath))
     if metric == "aws":  # publish to cloudwatch
         if metricpath is not None:
-            raise InvalidArgumentError(
+            parser.error(
                 'Invalid argument "--metricpath" when storing the metrics on AWS'
             )
         return AwsMetricPublisher(
@@ -128,11 +128,11 @@ def main(arguments: list[str] | None = None):
     metric_publisher: MetricPublisher | None = None
     credentials = get_credentials()
     if args.datastore == "local":  # If the user chose to store the public key locally
-        key_publisher = _local_store(args.sshdir, args.bucket)
+        key_publisher = _local_store(parser, args.sshdir, args.bucket)
     else:  # If the user chose to store the public key on S3 or chose to default to S3
-        key_publisher = _s3_store(credentials, args.sshdir, args.bucket)
+        key_publisher = _s3_store(parser, credentials, args.sshdir, args.bucket)
     if args.metric:  # If the user chose to publish metrics
-        metric_publisher = _metrics(credentials, args.metricpath, args.metric)
+        metric_publisher = _metrics(parser, credentials, args.metricpath, args.metric)
     assert key_publisher is not None
     key_publisher.publish_key(
         args.hostname, args.user, metric_publisher=metric_publisher

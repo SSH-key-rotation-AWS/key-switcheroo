@@ -11,6 +11,7 @@
 4. [How to use](#how-to-use)
     1. [Publisher](#publisher-1)
     2. [Retriever](#retriever-1)
+    3. [AWS Profile Management](#aws-profile-management)
 5. [Dependencies](#dependencies)
 6. [Configuring your SSHD](#configuring-your-sshd)
 7. [Contributing](#contributing-to-key-switcheroo)
