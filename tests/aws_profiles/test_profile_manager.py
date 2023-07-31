@@ -274,12 +274,14 @@ class TestMockingCredentialTests:  # pylint: disable=too-many-public-methods
 
 # The following tests test credential validation, so we are not mocking sts
 
+
 @pytest.mark.nomock
 def test_profile_validation_on_add(profile_manager: ProfileManager):
     assert_that(
         calling(profile_manager.add).with_args("Not an access key", "Not a secret access key", "us-east-1"),  # type: ignore
         raises(InvalidCredentialsException),
     )
+
 
 @pytest.mark.nomock
 def test_loading_validates_credentials(
