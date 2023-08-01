@@ -3,14 +3,14 @@ resource "aws_security_group" "allow_ingress" {
   description = "Give correct security for baremetal hosts"
   vpc_id      = "vpc-0bfb64215145a3e13"
 
-
   ingress {
     from_port        = 22
     to_port          = 22
     protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
   }
- egress {
+
+  egress {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
@@ -20,25 +20,25 @@ resource "aws_security_group" "allow_ingress" {
   tags = {
     Name = "allow_ingress"
   }
- }
-
+}
 
 # Generates a secure private key and encodes it as PEM
 resource "tls_private_key" "key_pair" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
+
 # Create the Key Pair 
 resource "aws_key_pair" "demo_key_pair" {
-  key_name   = "linux-key-pair"  
+  key_name   = "linux-key-pair"
   public_key = tls_private_key.key_pair.public_key_openssh
 }
+
 # Save file
 resource "local_file" "ssh_key" {
   filename = "keys/${aws_key_pair.demo_key_pair.key_name}.pem"
   content  = tls_private_key.key_pair.private_key_pem
 }
-
 
 # Set permissions on the private key file
 resource "null_resource" "set_permissions" {
@@ -50,11 +50,9 @@ resource "null_resource" "set_permissions" {
   }
 }
 
-
 locals {
     USERNAME = var.username
 }
-
 
 # role creation section
 variable "instance_profile_name" {
@@ -77,9 +75,7 @@ variable "role_name" {
 # Create an IAM policy
 resource "aws_iam_policy" "secrets_policy" {
   name = var.iam_policy_name
-
-   policy = jsonencode(
-    {
+  policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
         {
@@ -88,14 +84,12 @@ resource "aws_iam_policy" "secrets_policy" {
             "Resource": "*"
         }
     ]
-}
-)
+  })
 }
 
 # Create an IAM role
 resource "aws_iam_role" "secrets_role" {
   name = var.role_name
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -123,8 +117,6 @@ resource "aws_iam_instance_profile" "secrets" {
   role = aws_iam_role.secrets_role.name
 }
 
-
-
 # create the hosts
 resource "aws_instance" "baremetal-host-1" {
   ami = "ami-053b0d53c279acc90"
@@ -135,10 +127,9 @@ resource "aws_instance" "baremetal-host-1" {
   tags = {
     Name = "host-1"
   }
-     user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
-      USERNAME=local.USERNAME
-     }))
-
+  user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
+    USERNAME=local.USERNAME
+  }))
 }
 
 resource "aws_instance" "baremetal-host-2" {
@@ -151,6 +142,6 @@ resource "aws_instance" "baremetal-host-2" {
     Name = "host-2"
   }
   user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
-      USERNAME=local.USERNAME
-     }))
+    USERNAME=local.USERNAME
+  }))
 }

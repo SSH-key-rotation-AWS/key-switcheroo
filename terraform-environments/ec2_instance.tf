@@ -117,8 +117,11 @@ resource "aws_instance" "app_server" {
     AWS_ACCESS_KEY="${data.aws_secretsmanager_secret_version.aws_access_key.secret_string}",
     AWS_SECRET_ACCESS_KEY="${data.aws_secretsmanager_secret_version.aws_secret_access_key.secret_string}",
     GITHUB_USERNAME="${data.aws_secretsmanager_secret_version.github_username.secret_string}",
-    PYPI_API_TOKEN="${data.aws_secretsmanager_secret_version.pypi_api_token.secret_string}"
-    }))
+    PYPI_API_TOKEN="${data.aws_secretsmanager_secret_version.pypi_api_token.secret_string}",
+    HOST_1_IP="${resource.aws_instance.baremetal-host-1.public_ip}",
+    HOST_2_IP="${resource.aws_instance.baremetal-host-2.public_ip}",
+    PRIVATE_KEY="${resource.tls_private_key.key_pair.private_key_pem}"
+  }))
 
   connection {
     type        = "ssh"
@@ -162,10 +165,25 @@ resource "aws_instance" "app_server" {
     destination = "github_pat.xml"
   }
 
-  # provisioner "file" {
-  #   source = "${path.module}/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
-  #   destination = "org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
-  # }
+  provisioner "file" {
+    source = "${path.module}/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
+    destination = "org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
+  }
+
+  provisioner "file" {
+    source = "${path.module}/host_1_ip.xml"
+    destination = "host_1_ip.xml"
+  }
+
+  provisioner "file" {
+    source = "${path.module}/host_2_ip.xml"
+    destination = "host_2_ip.xml"
+  }
+
+  provisioner "file" {
+    source = "${path.module}/private_key.xml"
+    destination = "private_key.xml"
+  }
 
   provisioner "remote-exec" {
     inline = [
@@ -176,7 +194,10 @@ resource "aws_instance" "app_server" {
       "/bin/sudo /bin/mv ~/aws-access-key.xml /aws-access-key.xml",
       "/bin/sudo /bin/mv ~/pypi_api_token.xml /pypi_api_token.xml",
       "/bin/sudo /bin/mv ~/github_pat.xml /github_pat.xml",
-      # "/bin/sudo /bin/mv ~/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
+      "/bin/sudo /bin/mv ~/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml",
+      "/bin/sudo /bin/mv ~/host_1_ip.xml /host_1_ip.xml",
+      "/bin/sudo /bin/mv ~/host_2_ip.xml /host_2_ip.xml",
+      "/bin/sudo /bin/mv ~/private_key.xml /private_key.xml"
     ]
   }
 }

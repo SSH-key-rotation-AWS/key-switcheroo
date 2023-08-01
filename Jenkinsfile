@@ -54,6 +54,17 @@ pipeline {
             }
         }
 
+        stage('Test on Hosts') {
+            when {
+                branch 'PR-*'
+            }
+            environment {
+                HOST_1_IP = credentials('host_1_ip')
+                HOST_2_IP = credentials('host_2_ip')
+                PRIVATE_KEY = credentials('private_key')
+            }
+        }
+
         stage('Publish') {
             when {
                 branch 'main'
