@@ -143,6 +143,6 @@ $sudo_path mkdir -p /etc/ssh/sshd_config.d
 cd /etc/ssh/sshd_config.d
 $sudo_path touch switcheroo.conf
 switcheroo_retrieve_path=$(which switcheroo_retrieve)
-$sudo_path echo -e "AuthorizedKeysCommand $switcheroo_retrieve_path %u -ds s3 --bucket production-bucket-team-henrique \nAuthorizedKeysCommandUser aws_user"> switcheroo.conf
+$sudo_path echo -e "AuthorizedKeysCommand $switcheroo_retrieve_path %u -ds s3 --bucket production-bucket-key-switcheroo \nAuthorizedKeysCommandUser aws_user"> switcheroo.conf
 
 $sudo_path apt remove ec2-instance-connect -y

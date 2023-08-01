@@ -83,6 +83,10 @@ def main(arguments: list[str] | None = None):
     if args.datastore == "local":
         retriever = _local_store(parser, args.sshdir, args.bucket)
     elif args.datastore == "s3":
+        if credentials is None:
+            parser.error(
+                "You have no profiles configured, please configure one with switcheroo_configure"
+            )
         retriever = _s3_store(parser, credentials, args.sshdir, args.bucket)
     try:
         assert retriever is not None

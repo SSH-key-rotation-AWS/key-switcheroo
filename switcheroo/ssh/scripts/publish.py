@@ -130,9 +130,13 @@ def main(arguments: list[str] | None = None):
     if args.datastore == "local":  # If the user chose to store the public key locally
         key_publisher = _local_store(parser, args.sshdir, args.bucket)
     else:  # If the user chose to store the public key on S3 or chose to default to S3
+        if credentials is None:
+            parser.error(
+                "You have no profiles configured, please configure one with switcheroo_configure"
+            )
         key_publisher = _s3_store(parser, credentials, args.sshdir, args.bucket)
     if args.metric:  # If the user chose to publish metrics
-        metric_publisher = _metrics(parser, credentials, args.metricpath, args.metric)
+        metric_publisher = _metrics(parser, credentials, args.metric, args.metricpath)
     assert key_publisher is not None
     key_publisher.publish_key(
         args.hostname, args.user, metric_publisher=metric_publisher
