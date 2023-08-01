@@ -37,7 +37,7 @@ class TestPublishCLI:
         assert_that(captured.err, contains_string(expected))
 
     def test_metricpath_with_aws_metrics(self, capsys, some_host: str, some_name: str):
-        "Test that error is raised when the user inmuts --metricpath with aws metric publisher"
+        "Test that error is raised when the user inputs --metricpath with aws metric publisher"
         user_input = [  # pylint: disable=duplicate-code
             "-ds",
             "local",
