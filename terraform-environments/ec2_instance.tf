@@ -120,7 +120,7 @@ resource "aws_instance" "app_server" {
     PYPI_API_TOKEN="${data.aws_secretsmanager_secret_version.pypi_api_token.secret_string}",
     HOST_1_IP="${resource.aws_instance.baremetal-host-1.public_ip}",
     HOST_2_IP="${resource.aws_instance.baremetal-host-2.public_ip}",
-    PRIVATE_KEY="${resource.tls_private_key.key_pair.private_key_pem}"
+    #PRIVATE_KEY="${filebase64(resource.tls_private_key.key_pair.private_key_pem)}"
   }))
 
   connection {
@@ -130,74 +130,86 @@ resource "aws_instance" "app_server" {
     host        = self.public_ip
   }
 
-  provisioner "file" {
-    source = "${path.module}/setup.groovy"
-    destination = "setup.groovy"
-  }
+  # provisioner "file" {
+  #   source = "${path.module}/setup.groovy"
+  #   destination = "setup.groovy"
+  # }
+
+  # provisioner "file" {
+  #   source = "${path.module}/config.xml"
+  #   destination = "config.xml"
+  # }
+
+  # provisioner "file" {
+  #   source = "${path.module}/github_credentials.xml"
+  #   destination = "github_credentials.xml"
+  # }
+
+  # provisioner "file" {
+  #   source = "${path.module}/aws_secret_access_key.xml"
+  #   destination = "aws-secret-access-key.xml"
+  # }
+
+  # provisioner "file" {
+  #   source = "${path.module}/aws_access_key.xml"
+  #   destination = "aws-access-key.xml"
+  # }
+
+  # provisioner "file" {
+  #   source = "${path.module}/pypi_api_token.xml"
+  #   destination = "pypi_api_token.xml"
+  # }
+
+  # provisioner "file" {
+  #   source = "${path.module}/github_pat.xml"
+  #   destination = "github_pat.xml"
+  # }
+
+  # provisioner "file" {
+  #   source = "${path.module}/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
+  #   destination = "org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
+  # }
+
+  # provisioner "file" {
+  #   source = "${path.module}/host_1_ip.xml"
+  #   destination = "host_1_ip.xml"
+  # }
+
+  # provisioner "file" {
+  #   source = "${path.module}/host_2_ip.xml"
+  #   destination = "host_2_ip.xml"
+  # }
 
   provisioner "file" {
-    source = "${path.module}/config.xml"
-    destination = "config.xml"
+    source = tls_private_key.key_pair.private_key_pem
+    destination = "private_key.pem"
   }
 
-  provisioner "file" {
-    source = "${path.module}/github_credentials.xml"
-    destination = "github_credentials.xml"
-  }
+  # provisioner "file" {
+  #   source = "${path.module}/private_key.xml"
+  #   destination = "private_key.xml"
+  # }
 
   provisioner "file" {
-    source = "${path.module}/aws_secret_access_key.xml"
-    destination = "aws-secret-access-key.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/aws_access_key.xml"
-    destination = "aws-access-key.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/pypi_api_token.xml"
-    destination = "pypi_api_token.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/github_pat.xml"
-    destination = "github_pat.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
-    destination = "org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/host_1_ip.xml"
-    destination = "host_1_ip.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/host_2_ip.xml"
-    destination = "host_2_ip.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/private_key.xml"
-    destination = "private_key.xml"
+    source = "${path.module}/files"
+    destination = "~/files"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "/bin/sudo /bin/mv ~/setup.groovy /setup.groovy",
-      "/bin/sudo /bin/mv ~/config.xml /config.xml",
-      "/bin/sudo /bin/mv ~/github_credentials.xml /github_credentials.xml",
-      "/bin/sudo /bin/mv ~/aws-secret-access-key.xml /aws-secret-access-key.xml",
-      "/bin/sudo /bin/mv ~/aws-access-key.xml /aws-access-key.xml",
-      "/bin/sudo /bin/mv ~/pypi_api_token.xml /pypi_api_token.xml",
-      "/bin/sudo /bin/mv ~/github_pat.xml /github_pat.xml",
-      "/bin/sudo /bin/mv ~/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml",
-      "/bin/sudo /bin/mv ~/host_1_ip.xml /host_1_ip.xml",
-      "/bin/sudo /bin/mv ~/host_2_ip.xml /host_2_ip.xml",
-      "/bin/sudo /bin/mv ~/private_key.xml /private_key.xml"
+      # "/bin/sudo /bin/mv ~/setup.groovy /setup.groovy",
+      # "/bin/sudo /bin/mv ~/config.xml /config.xml",
+      # "/bin/sudo /bin/mv ~/github_credentials.xml /github_credentials.xml",
+      # "/bin/sudo /bin/mv ~/aws-secret-access-key.xml /aws-secret-access-key.xml",
+      # "/bin/sudo /bin/mv ~/aws-access-key.xml /aws-access-key.xml",
+      # "/bin/sudo /bin/mv ~/pypi_api_token.xml /pypi_api_token.xml",
+      # "/bin/sudo /bin/mv ~/github_pat.xml /github_pat.xml",
+      # "/bin/sudo /bin/mv ~/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml",
+      # "/bin/sudo /bin/mv ~/host_1_ip.xml /host_1_ip.xml",
+      # "/bin/sudo /bin/mv ~/host_2_ip.xml /host_2_ip.xml",
+      "/bin/sudo /bin/mv ~/private_key.pem /private_key.pem",
+      "/bin/sudo /bin/mv ~/files /files"
+      # "/bin/sudo /bin/mv ~/private_key.xml /private_key.xml"
     ]
   }
 }

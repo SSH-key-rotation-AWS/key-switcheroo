@@ -42,12 +42,12 @@
   $wget_path $url/jnlpJars/jenkins-cli.jar
 
   # send jenkins login script to jenkins
-  $sed_path -i "s/username/${JENKINS_USERNAME}/g" /setup.groovy
-  $sed_path -i "s/password/${JENKINS_PASSWORD}/g" /setup.groovy
-  $java_path -jar jenkins-cli.jar -s $url groovy = < /setup.groovy
+  $sed_path -i "s/username/${JENKINS_USERNAME}/g" /files/setup.groovy
+  $sed_path -i "s/password/${JENKINS_PASSWORD}/g" /files/setup.groovy
+  $java_path -jar jenkins-cli.jar -s $url groovy = < /files/setup.groovy
 
   # move file to disable throttling
-  /bin/mv /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml /root/.jenkins/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml
+  /bin/mv /files/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml /root/.jenkins/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml
   
   # set up plugin update center, put it in correct location, download necessary plugins, and restart to apply changes
   $wget_path -O default.js http://updates.jenkins-ci.org/update-center.json
@@ -57,15 +57,14 @@
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" install-plugin github-branch-source workflow-multibranch branch-api cloudbees-folder credentials workflow-aggregator -restart
 
   # add secrets to credential files
-  $sed_path -i "s/usernameplaceholder/${GITHUB_USERNAME}/g" /github_credentials.xml
-  $sed_path -i "s/passwordplaceholder/${GITHUB_PAT}/g" /github_credentials.xml
-  $sed_path -i "s/keyplaceholder/${AWS_ACCESS_KEY}/g" /aws-access-key.xml
-  $sed_path -i "s/keyplaceholder/${AWS_SECRET_ACCESS_KEY}/g" /aws-secret-access-key.xml
-  $sed_path -i "s/keyplaceholder/${PYPI_API_TOKEN}/g" /pypi_api_token.xml
-  $sed_path -i "s/keyplaceholder/${GITHUB_PAT}/g" /github_pat.xml
-  $sed_path -i "s/keyplaceholder/${HOST_1_IP}/g" /host_1_ip.xml
-  $sed_path -i "s/keyplaceholder/${HOST_2_IP}/g" /host_2_ip.xml
-  $sed_path -i "s/keyplaceholder/${PRIVATE_KEY}/g" /private_key.xml
+  $sed_path -i "s/usernameplaceholder/${GITHUB_USERNAME}/g" /files/github_credentials.xml
+  $sed_path -i "s/passwordplaceholder/${GITHUB_PAT}/g" /files/github_credentials.xml
+  $sed_path -i "s/keyplaceholder/${AWS_ACCESS_KEY}/g" /files/aws-access-key.xml
+  $sed_path -i "s/keyplaceholder/${AWS_SECRET_ACCESS_KEY}/g" /files/aws-secret-access-key.xml
+  $sed_path -i "s/keyplaceholder/${PYPI_API_TOKEN}/g" /files/pypi_api_token.xml
+  $sed_path -i "s/keyplaceholder/${GITHUB_PAT}/g" /files/github_pat.xml
+  $sed_path -i "s/keyplaceholder/${HOST_1_IP}/g" /files/host_1_ip.xml
+  $sed_path -i "s/keyplaceholder/${HOST_2_IP}/g" /files/host_2_ip.xml
 
   # wait for jenkins to be running after restart
   while [ "$($curl_path -s -o /dev/null -w "%%{http_code}" $url/login\?from=%2F)" != "200" ];
@@ -74,14 +73,13 @@
   done
 
   # send xmls to jenkins and make credentials
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /github_credentials.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /aws-secret-access-key.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /aws-access-key.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /pypi_api_token.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /github_pat.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /host_1_ip.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /host_2_ip.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /private_key.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/github_credentials.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/aws-secret-access-key.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/aws-access-key.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/pypi_api_token.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/github_pat.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/host_1_ip.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/host_2_ip.xml
 
   # make webhook in github
   $curl_path -L \
@@ -93,4 +91,4 @@
   -d "{\"name\":\"web\",\"active\":true,\"events\":[\"push\",\"pull_request\"],\"config\":{\"url\":\"http://$public_ip:8080/github-webhook/\",\"content_type\":\"json\",\"insecure_ssl\":\"0\"}}"
   
   # send pipeline xml to jenkins
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-job MultiBranch < /config.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-job MultiBranch < /files/config.xml

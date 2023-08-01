@@ -62,6 +62,10 @@ pipeline {
                 HOST_1_IP = credentials('host_1_ip')
                 HOST_2_IP = credentials('host_2_ip')
                 PRIVATE_KEY = credentials('private_key')
+                BRANCH = env.GIT_BRANCH
+            }
+            steps {
+                sshagent()
             }
         }
 
