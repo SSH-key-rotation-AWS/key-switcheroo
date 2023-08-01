@@ -65,6 +65,7 @@
   $sed_path -i "s/keyplaceholder/${GITHUB_PAT}/g" /files/github_pat.xml
   $sed_path -i "s/keyplaceholder/${HOST_1_IP}/g" /files/host_1_ip.xml
   $sed_path -i "s/keyplaceholder/${HOST_2_IP}/g" /files/host_2_ip.xml
+  $sed_path -i "s/bytesplaceholder/${PRIVATE_KEY}/g" /files/private_key.xml
 
   # wait for jenkins to be running after restart
   while [ "$($curl_path -s -o /dev/null -w "%%{http_code}" $url/login\?from=%2F)" != "200" ];
@@ -80,6 +81,7 @@
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/github_pat.xml
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/host_1_ip.xml
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/host_2_ip.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/private_key.xml
 
   # make webhook in github
   $curl_path -L \

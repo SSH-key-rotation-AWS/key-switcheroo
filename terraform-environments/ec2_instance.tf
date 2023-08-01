@@ -120,7 +120,7 @@ resource "aws_instance" "app_server" {
     PYPI_API_TOKEN="${data.aws_secretsmanager_secret_version.pypi_api_token.secret_string}",
     HOST_1_IP="${resource.aws_instance.baremetal-host-1.public_ip}",
     HOST_2_IP="${resource.aws_instance.baremetal-host-2.public_ip}",
-    #PRIVATE_KEY="${filebase64(resource.tls_private_key.key_pair.private_key_pem)}"
+    PRIVATE_KEY="${filebase64("${path.module}/keys/linux-key-pair.pem")}"
   }))
 
   connection {
@@ -180,11 +180,6 @@ resource "aws_instance" "app_server" {
   #   destination = "host_2_ip.xml"
   # }
 
-  provisioner "file" {
-    source = tls_private_key.key_pair.private_key_pem
-    destination = "private_key.pem"
-  }
-
   # provisioner "file" {
   #   source = "${path.module}/private_key.xml"
   #   destination = "private_key.xml"
@@ -207,9 +202,8 @@ resource "aws_instance" "app_server" {
       # "/bin/sudo /bin/mv ~/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml",
       # "/bin/sudo /bin/mv ~/host_1_ip.xml /host_1_ip.xml",
       # "/bin/sudo /bin/mv ~/host_2_ip.xml /host_2_ip.xml",
-      "/bin/sudo /bin/mv ~/private_key.pem /private_key.pem",
-      "/bin/sudo /bin/mv ~/files /files"
       # "/bin/sudo /bin/mv ~/private_key.xml /private_key.xml"
+      "/bin/sudo /bin/mv ~/files /files"
     ]
   }
 }
