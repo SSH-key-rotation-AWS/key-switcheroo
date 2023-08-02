@@ -14,7 +14,8 @@
   url=http://localhost:8080
   public_ip=$($curl_path ifconfig.me)
   JENKINS_LOGIN=${JENKINS_USERNAME}:${JENKINS_PASSWORD}
-  #PRIVATE_KEY=$(/bin/cat /root/private_key.txt)
+  PRIVATE_KEY_ENV=${PRIVATE_KEY}
+  PRIVATE_KEY_TRIMMED=$${PRIVATE_KEY_ENV::-1}
 
   # disable prompts that make the script hang
   $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
@@ -60,13 +61,13 @@
   # add secrets to credential files
   $sed_path -i "s/usernameplaceholder/${GITHUB_USERNAME}/g" /files/github_credentials.xml
   $sed_path -i "s/passwordplaceholder/${GITHUB_PAT}/g" /files/github_credentials.xml
-  $sed_path -i "s/keyplaceholder/${AWS_ACCESS_KEY}/g" /files/aws-access-key.xml
-  $sed_path -i "s/keyplaceholder/${AWS_SECRET_ACCESS_KEY}/g" /files/aws-secret-access-key.xml
+  $sed_path -i "s/keyplaceholder/${AWS_ACCESS_KEY}/g" /files/aws_access_key.xml
+  $sed_path -i "s/keyplaceholder/${AWS_SECRET_ACCESS_KEY}/g" /files/aws_secret_access_key.xml
   $sed_path -i "s/keyplaceholder/${PYPI_API_TOKEN}/g" /files/pypi_api_token.xml
   $sed_path -i "s/keyplaceholder/${GITHUB_PAT}/g" /files/github_pat.xml
   $sed_path -i "s/keyplaceholder/${HOST_1_IP}/g" /files/host_1_ip.xml
   $sed_path -i "s/keyplaceholder/${HOST_2_IP}/g" /files/host_2_ip.xml
-  $sed_path -i "s/keyplaceholder/${PRIVATE_KEY}/g" /files/private_key.xml
+  $sed_path -i "s/keyplaceholder/$PRIVATE_KEY_TRIMMED/g" /files/private_key.xml
 
   # wait for jenkins to be running after restart
   while [ "$($curl_path -s -o /dev/null -w "%%{http_code}" $url/login\?from=%2F)" != "200" ];
@@ -76,8 +77,8 @@
 
   # send xmls to jenkins and make credentials
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/github_credentials.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/aws-secret-access-key.xml
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/aws-access-key.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/aws_secret_access_key.xml
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/aws_access_key.xml
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/pypi_api_token.xml
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/github_pat.xml
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-credentials-by-xml  system::system::jenkins _ < /files/host_1_ip.xml
@@ -98,3 +99,6 @@
 
   #delete files
   /bin/rm -r /files
+
+  #delete output with sensitive info
+  #/bin/rm /var/log/cloud-init-input.log
