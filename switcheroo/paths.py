@@ -53,7 +53,13 @@ def cloud_metadata_loc(host: str, user: str) -> Path:
     return cloud_key_dir(host, user) / KeyMetadata.FILE_NAME
 
 
+def app_data_dir() -> Path:
+    appdata_dir = Path.home() / ".switcheroo"
+    appdata_dir.mkdir(parents=True, exist_ok=True)
+    return appdata_dir
+
+
 def local_metrics_dir() -> Path:
-    metrics_dir = Path.home() / ".switcheroo_app_data" / "metrics"
+    metrics_dir = app_data_dir() / "metrics"
     metrics_dir.mkdir(parents=True, exist_ok=True)
     return metrics_dir

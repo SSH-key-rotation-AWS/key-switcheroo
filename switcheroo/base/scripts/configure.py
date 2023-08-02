@@ -2,7 +2,7 @@ from typing import Sequence
 import argparse
 import sys
 from aws_profiles import ProfileManager
-from switcheroo.base import Constants
+from switcheroo.paths import app_data_dir
 
 
 def create_argparser() -> argparse.ArgumentParser:
@@ -60,7 +60,7 @@ def run_with(args: Sequence[str]):
             f"Something went wrong when parsing your command: {command}"
         ) from exc
     command = parsed.command
-    profile_manager = ProfileManager(Constants.APP_DATA_DIR)
+    profile_manager = ProfileManager(app_data_dir())
     if command == "add":
         dict_args = vars(parsed)
         profile_manager.add(

@@ -1,7 +1,7 @@
 import pytest
 from moto import mock_sts, mock_s3, mock_cloudwatch
 from aws_profiles import ProfileManager
-from switcheroo.base import Constants
+from switcheroo.paths import app_data_dir
 
 _fake_credentials: tuple[str, str, str] = (
     "Fake access key",
@@ -14,7 +14,7 @@ _fake_credentials: tuple[str, str, str] = (
 def fixture_credentials() -> (  # pylint: disable=inconsistent-return-statements
     tuple[str, str, str]
 ):
-    manager = ProfileManager(Constants.APP_DATA_DIR)
+    manager = ProfileManager(app_data_dir())
     selected_credentials = manager.current_profile
     if selected_credentials is None:
         return _fake_credentials
