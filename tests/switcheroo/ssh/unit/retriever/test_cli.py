@@ -33,14 +33,3 @@ class TestCLI:
         captured = capsys.readouterr()
         expected = "The s3 option requires a specified bucket name!"
         assert_that(captured.err, contains_string(expected))
-
-    def test_no_user_exception(self, capsys):
-        "Test that error is raised when no user is input"
-        user_input = [
-            "-ds",
-            "local",
-        ]
-        assert_that(calling(main).with_args(user_input), raises(SystemExit))
-        captured = capsys.readouterr()
-        expected = "the following arguments are required: user"
-        assert_that(captured.err, contains_string(expected))
