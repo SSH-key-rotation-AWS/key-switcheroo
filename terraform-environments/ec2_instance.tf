@@ -162,10 +162,10 @@ resource "aws_instance" "app_server" {
     destination = "github_pat.xml"
   }
 
-  # provisioner "file" {
-  #   source = "${path.module}/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
-  #   destination = "org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
-  # }
+  provisioner "file" {
+    source = "${path.module}/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
+    destination = "org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
+  }
 
   provisioner "remote-exec" {
     inline = [
@@ -176,7 +176,7 @@ resource "aws_instance" "app_server" {
       "/bin/sudo /bin/mv ~/aws-access-key.xml /aws-access-key.xml",
       "/bin/sudo /bin/mv ~/pypi_api_token.xml /pypi_api_token.xml",
       "/bin/sudo /bin/mv ~/github_pat.xml /github_pat.xml",
-      # "/bin/sudo /bin/mv ~/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
+      "/bin/sudo /bin/mv ~/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
     ]
   }
 }
