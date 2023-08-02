@@ -2,10 +2,6 @@ from argparse import ArgumentParser
 from pathlib import Path
 import socket
 import traceback
-from switcheroo.ssh.scripts.custom_argument_exceptions import (
-    InvalidArgumentError,
-    MissingArgumentError,
-)
 from switcheroo.ssh.data_org.retriever import KeyRetriever, FileKeyRetriever
 from switcheroo.ssh.data_org.retriever.s3 import S3KeyRetriever
 from switcheroo.ssh.scripts import get_credentials
@@ -47,17 +43,19 @@ def create_argument_parser() -> ArgumentParser:
     return argument_parser
 
 
-def _local_store(sshdir: str, bucket: str | None = None) -> FileKeyRetriever:
+def _local_store(
+    parser: ArgumentParser, sshdir: str, bucket: str | None = None
+) -> FileKeyRetriever:
     if bucket is not None:
-        raise InvalidArgumentError(
-            'Invalid argument "--bucket" when retrieving the keys locally'
-        )
+        parser.error('Invalid argument "--bucket" when retrieving the keys locally')
     return FileKeyRetriever(Path(sshdir))
 
 
-def _s3_store(credentials: tuple, sshdir: str, bucket: str | None = None) -> S3KeyRetriever:
+def _s3_store(
+    parser: ArgumentParser, credentials: tuple, sshdir: str, bucket: str | None = None
+) -> S3KeyRetriever:
     if bucket is None:
-        raise MissingArgumentError("The s3 option requires a specified bucket name!")
+        parser.error("The s3 option requires a specified bucket name!")
     return S3KeyRetriever(
         sshdir,
         credentials[0],
@@ -83,9 +81,13 @@ def main(arguments: list[str] | None = None):
     retriever: KeyRetriever | None = None
     credentials = get_credentials()
     if args.datastore == "local":
-        retriever = _local_store(args.sshdir, args.bucket)
+        retriever = _local_store(parser, args.sshdir, args.bucket)
     elif args.datastore == "s3":
-        retriever = _s3_store(credentials, args.sshdir, args.bucket)
+        if credentials is None:
+            parser.error(
+                "You have no profiles configured, please configure one with switcheroo_configure"
+            )
+        retriever = _s3_store(parser, credentials, args.sshdir, args.bucket)
     try:
         assert retriever is not None
         public_key = retriever.retrieve_public_key(socket.getfqdn(), args.user)
