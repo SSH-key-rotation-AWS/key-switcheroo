@@ -14,7 +14,7 @@
   url=http://localhost:8080
   public_ip=$($curl_path ifconfig.me)
   JENKINS_LOGIN=${JENKINS_USERNAME}:${JENKINS_PASSWORD}
-  PRIVATE_KEY=$(/bin/cat /root/private_key.txt)
+  #PRIVATE_KEY=$(/bin/cat /root/private_key.txt)
 
   # disable prompts that make the script hang
   $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
@@ -55,7 +55,7 @@
   $sed_path "1d;\$d" default.js > /root/default.json
   /bin/mkdir /root/.jenkins/updates
   /bin/mv /root/default.json /root/.jenkins/updates
-  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" install-plugin github-branch-source workflow-multibranch branch-api cloudbees-folder credentials workflow-aggregator -restart
+  $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" install-plugin github-branch-source workflow-multibranch branch-api cloudbees-folder ssh-steps credentials workflow-aggregator -restart
 
   # add secrets to credential files
   $sed_path -i "s/usernameplaceholder/${GITHUB_USERNAME}/g" /files/github_credentials.xml
@@ -66,7 +66,7 @@
   $sed_path -i "s/keyplaceholder/${GITHUB_PAT}/g" /files/github_pat.xml
   $sed_path -i "s/keyplaceholder/${HOST_1_IP}/g" /files/host_1_ip.xml
   $sed_path -i "s/keyplaceholder/${HOST_2_IP}/g" /files/host_2_ip.xml
-  $sed_path -i "s/bytesplaceholder/${PRIVATE_KEY}/g" /files/private_key.xml
+  $sed_path -i "s/keyplaceholder/${PRIVATE_KEY}/g" /files/private_key.xml
 
   # wait for jenkins to be running after restart
   while [ "$($curl_path -s -o /dev/null -w "%%{http_code}" $url/login\?from=%2F)" != "200" ];
@@ -95,3 +95,6 @@
   
   # send pipeline xml to jenkins
   $java_path -jar jenkins-cli.jar -s $url -auth "$JENKINS_LOGIN" create-job MultiBranch < /files/config.xml
+
+  #delete files
+  /bin/rm -r /files

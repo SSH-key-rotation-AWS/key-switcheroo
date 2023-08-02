@@ -1,7 +1,6 @@
-<org.jenkinsci.plugins.plaincredentials.impl.FileCredentialsImpl plugin="plain-credentials@143.v1b_df8b_d3b_e48">
-  <scope>GLOBAL</scope>
-  <id>private_key</id>
-  <description></description>
-  <fileName>private_key.pem</fileName>
-  <secretBytes>bytesplaceholder</secretBytes>
-</org.jenkinsci.plugins.plaincredentials.impl.FileCredentialsImpl>
+<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl plugin="plain-credentials@143.v1b_df8b_d3b_e48">
+   <scope>GLOBAL</scope>
+   <id>private_key</id>
+   <description></description>
+   <secret>keyplaceholder</secret>
+ </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>

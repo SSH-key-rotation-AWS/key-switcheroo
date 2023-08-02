@@ -57,19 +57,19 @@ locals {
 # role creation section
 variable "instance_profile_name" {
   type    = string
-  default = "secrets-manager"
+  default = "secrets-manager2"
 }
 
 variable "iam_policy_name" {
   # same name as aws's built in policy - not neccasary
   type    = string
-  default = "admin_access"
+  default = "admin_access2"
 }
 
 variable "role_name" {
   # role is different than one that exists on aws
   type    = string
-  default = "ec2-admin-terraform-role"
+  default = "ec2-admin-terraform-role2"
 }
 
 # Create an IAM policy

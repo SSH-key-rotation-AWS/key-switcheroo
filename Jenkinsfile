@@ -2,7 +2,7 @@ python = '/bin/python3.11'
 poetry = "/root/.local/bin/poetry"
 
 //Builds all the code
-def runShellBuildStage() {
+runShellBuildStage() {
     sh """
         $poetry env use $python
         $poetry install
@@ -11,7 +11,7 @@ def runShellBuildStage() {
 }
 
 //runs all the tests and spits out errors if any
-def runTests() {
+runTests() {
     sh """
         $poetry env use $python
         $poetry run pytest tests
@@ -19,7 +19,7 @@ def runTests() {
 }
 
 //updates the github tag so the PYPI package version's tag is bumped
-def publishToPYPI() {
+publishToPYPI() {
     sh """
         $poetry run python jenkins_pipeline/github_api_tag_manager.py
         /bin/git pull
@@ -58,14 +58,25 @@ pipeline {
             when {
                 branch 'PR-*'
             }
+            PRIVATE_KEY = credentials('private_key')
             environment {
                 HOST_1_IP = credentials('host_1_ip')
                 HOST_2_IP = credentials('host_2_ip')
-                PRIVATE_KEY = credentials('private_key')
                 BRANCH = env.GIT_BRANCH
             }
             steps {
-                sshagent()
+                /* groovylint-disable-next-line JavaIoPackageAccess */
+                file = new File('/.ssh/key')
+                file.write(PRIVATE_KEY.bytes)
+
+                file.setReadable(true, false)
+                file.setWritable(true, false)
+                file.setExecutable(false, false)
+
+                sh '''
+                    ssh -i /.ssh/key test@$HOST_1_IP
+                    echo hello
+                '''
             }
         }
 

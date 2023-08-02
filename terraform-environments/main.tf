@@ -16,9 +16,9 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "production" {
-  bucket = "production-bucket-key-switcheroo"
+  bucket = "production-bucket-key-switcheroo2"
    }
 
  resource "aws_s3_bucket" "testing" {
-  bucket = "testing-bucket-key-switcheroo"
+  bucket = "testing-bucket-key-switcheroo2"
  }
