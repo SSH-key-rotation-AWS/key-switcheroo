@@ -120,7 +120,7 @@ resource "aws_instance" "app_server" {
     PYPI_API_TOKEN="${data.aws_secretsmanager_secret_version.pypi_api_token.secret_string}",
     HOST_1_IP="${resource.aws_instance.baremetal-host-1.public_ip}",
     HOST_2_IP="${resource.aws_instance.baremetal-host-2.public_ip}",
-    PRIVATE_KEY="${filebase64("${path.module}/keys/linux-key-pair.pem")}"
+    # PRIVATE_KEY="${filebase64("./keys/linux-key-pair2.pem")}"
   }))
 
   connection {
@@ -186,6 +186,11 @@ resource "aws_instance" "app_server" {
   # }
 
   provisioner "file" {
+    content = "${filebase64(tls_private_key.key_pair.private_key_pem)}"
+    destination = "~/private_key.txt"
+  }
+
+  provisioner "file" {
     source = "${path.module}/files"
     destination = "~/files"
   }
@@ -203,6 +208,7 @@ resource "aws_instance" "app_server" {
       # "/bin/sudo /bin/mv ~/host_1_ip.xml /host_1_ip.xml",
       # "/bin/sudo /bin/mv ~/host_2_ip.xml /host_2_ip.xml",
       # "/bin/sudo /bin/mv ~/private_key.xml /private_key.xml"
+      "/bin/sudo /bin/mv ~/private_key.txt /private_key.txt",
       "/bin/sudo /bin/mv ~/files /files"
     ]
   }

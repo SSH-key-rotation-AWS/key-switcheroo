@@ -1,5 +1,5 @@
 resource "aws_security_group" "allow_ingress" {
-  name        = "allow_ingress"
+  name        = "allow_ingress2"
   description = "Give correct security for baremetal hosts"
   vpc_id      = "vpc-0bfb64215145a3e13"
 
@@ -18,7 +18,7 @@ resource "aws_security_group" "allow_ingress" {
   }
 
   tags = {
-    Name = "allow_ingress"
+    Name = "allow_ingress2"
   }
 }
 
@@ -30,7 +30,7 @@ resource "tls_private_key" "key_pair" {
 
 # Create the Key Pair 
 resource "aws_key_pair" "demo_key_pair" {
-  key_name   = "linux-key-pair"
+  key_name   = "linux-key-pair2"
   public_key = tls_private_key.key_pair.public_key_openssh
 }
 
@@ -125,7 +125,7 @@ resource "aws_instance" "baremetal-host-1" {
   vpc_security_group_ids  =[aws_security_group.allow_ingress.id]
   iam_instance_profile = aws_iam_instance_profile.secrets.name
   tags = {
-    Name = "host-1"
+    Name = "host-1-2"
   }
   user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
     USERNAME=local.USERNAME
@@ -139,7 +139,7 @@ resource "aws_instance" "baremetal-host-2" {
   vpc_security_group_ids  =[aws_security_group.allow_ingress.id]
   iam_instance_profile = aws_iam_instance_profile.secrets.name
   tags = {
-    Name = "host-2"
+    Name = "host-2-2"
   }
   user_data = base64encode(templatefile("${path.module}/hosts-user-data.sh", {
     USERNAME=local.USERNAME

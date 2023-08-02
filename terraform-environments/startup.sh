@@ -14,6 +14,7 @@
   url=http://localhost:8080
   public_ip=$($curl_path ifconfig.me)
   JENKINS_LOGIN=${JENKINS_USERNAME}:${JENKINS_PASSWORD}
+  PRIVATE_KEY=$(/bin/cat /root/private_key.txt)
 
   # disable prompts that make the script hang
   $sed_path -i "s/#\$nrconf{kernelhints} = -1;/\$nrconf{kernelhints} = -1;/g" /etc/needrestart/needrestart.conf
