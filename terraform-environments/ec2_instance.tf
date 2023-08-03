@@ -118,7 +118,7 @@ resource "aws_instance" "app_server" {
     AWS_SECRET_ACCESS_KEY="${data.aws_secretsmanager_secret_version.aws_secret_access_key.secret_string}",
     GITHUB_USERNAME="${data.aws_secretsmanager_secret_version.github_username.secret_string}",
     PYPI_API_TOKEN="${data.aws_secretsmanager_secret_version.pypi_api_token.secret_string}"
-    }))
+  }))
 
   connection {
     type        = "ssh"
@@ -128,55 +128,13 @@ resource "aws_instance" "app_server" {
   }
 
   provisioner "file" {
-    source = "${path.module}/setup.groovy"
-    destination = "setup.groovy"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/config.xml"
-    destination = "config.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/github_credentials.xml"
-    destination = "github_credentials.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/aws_secret_access_key.xml"
-    destination = "aws-secret-access-key.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/aws_access_key.xml"
-    destination = "aws-access-key.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/pypi_api_token.xml"
-    destination = "pypi_api_token.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/github_pat.xml"
-    destination = "github_pat.xml"
-  }
-
-  provisioner "file" {
-    source = "${path.module}/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
-    destination = "org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
+    source = "${path.module}/files"
+    destination = "files"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "/bin/sudo /bin/mv ~/setup.groovy /setup.groovy",
-      "/bin/sudo /bin/mv ~/config.xml /config.xml",
-      "/bin/sudo /bin/mv ~/github_credentials.xml /github_credentials.xml",
-      "/bin/sudo /bin/mv ~/aws-secret-access-key.xml /aws-secret-access-key.xml",
-      "/bin/sudo /bin/mv ~/aws-access-key.xml /aws-access-key.xml",
-      "/bin/sudo /bin/mv ~/pypi_api_token.xml /pypi_api_token.xml",
-      "/bin/sudo /bin/mv ~/github_pat.xml /github_pat.xml",
-      "/bin/sudo /bin/mv ~/org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml /org.jenkinsci.plugins.github_branch_source.GitHubConfiguration.xml"
+      "/bin/sudo /bin/mv ~/files /files"
     ]
   }
 }
