@@ -19,7 +19,7 @@
 
 ## What is it?
 
-**key-switcheroo** is a Python package that provides tools for **easy** :smile:, **reliable** :white_check_mark:, and **secure** :lock: SSH key management. The package contains tools to allow users to generate SSH public/private key pairs and securely store the public key either on AWS S3 or locally based on user preferences. The package also contains a tool used by the server host to retrieve and match the public keys with the corresponding private key during SSH connection attempts. Additionally, the package supports a feature for periodic rotation and swapping of public keys to enhance security.
+**key-switcheroo** is a Python package that provides tools for **easy** :smile:, **reliable** :white_check_mark:, and **secure** :lock: SSH key management. The package contains tools to allow users to generate SSH public/private key pairs and securely store the public key either on AWS S3 or locally based on user preferences. The package also contains a tool used by the server host to retrieve and match the public keys with the corresponding private key during SSH connection attempts. Additionally, the package supports a feature for periodic rotation and swapping of public keys to enhance security. Click [here](https://www.youtube.com/watch?v=ru8XN2EBKWY) for the video presentation. 
 
 
 ## Features
