@@ -4,6 +4,7 @@ resource "aws_security_group" "allow_ingress" {
   vpc_id      = "vpc-0bfb64215145a3e13"
 
 
+
   ingress {
     from_port        = 22
     to_port          = 22
